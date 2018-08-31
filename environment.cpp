@@ -111,7 +111,7 @@ Expression sqrt(const std::vector<Expression>& args) {
     if(args[0].isHeadNumber()){
       // Get square root of argument given
       if(args[0].head().asNumber() >= 0)
-        return std::sqrt(args[0].head().asNumber());
+        return Expression(std::sqrt(args[0].head().asNumber()));
       else {
         // FOr now throw error, in task 4 change to account for imaginary parts
         throw SemanticError("Error in call for square root: negative number.");
@@ -133,11 +133,11 @@ Expression pow(const std::vector<Expression>& args) {
     if(args[0].isHeadNumber() && args[1].isHeadNumber()) {
 
       if(args[1].head().asNumber() == 0) // If power is 0, return 1
-        return 1.0;
+        return Expression(1.0);
       else if(args[1].head().asNumber() == 1)
-        return args[0].head().asNumber();
+        return Expression(args[0].head().asNumber());
       else
-        return std::pow(args[0].head().asNumber(), args[1].head().asNumber());
+        return Expression(std::pow(args[0].head().asNumber(), args[1].head().asNumber()));
     }
     else
       throw SemanticError("Error in call for power function: invalid argument.");
@@ -152,7 +152,7 @@ Expression nlog(const std::vector<Expression>& args) {
 
   if(nargs_equal(args, 1)) {
     if(args[0].head().asNumber() > 0) {
-      return std::log(args[0].head().asNumber());
+      return Expression(std::log(args[0].head().asNumber()));
     }
     else
       throw SemanticError("Error in call to natural log function: invalid argument.");
@@ -165,7 +165,7 @@ Expression nlog(const std::vector<Expression>& args) {
 Expression sin(const std::vector<Expression>& args) {
 
   if(nargs_equal(args, 1)) {
-    return std::sin(args[0].head().asNumber());
+    return Expression(std::sin(args[0].head().asNumber()));
   }
   else
     throw SemanticError("Error in call to sine function: invalid number of arguments.");
@@ -175,7 +175,7 @@ Expression sin(const std::vector<Expression>& args) {
 Expression cos(const std::vector<Expression>& args) {
 
   if(nargs_equal(args, 1)) {
-    return std::cos(args[0].head().asNumber());
+    return Expression(std::cos(args[0].head().asNumber()));
   }
   else
     throw SemanticError("Error in call to sine function: invalid number of arguments.");
@@ -185,7 +185,7 @@ Expression cos(const std::vector<Expression>& args) {
 Expression tan(const std::vector<Expression>& args) {
 
   if(nargs_equal(args, 1)) {
-    return std::tan(args[0].head().asNumber());
+    return Expression(std::tan(args[0].head().asNumber()));
   }
   else
     throw SemanticError("Error in call to sine function: invalid number of arguments.");
