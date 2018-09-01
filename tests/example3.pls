@@ -1,0 +1,10 @@
+(begin
+  (define a (+ 42 34))
+  (define b (+ a 89))
+  (define c (- b 3))
+  (define d (+ c 95))
+  (define e (+ d 4))
+  (define f (- e 9))
+  (define sum (+ f 32))
+  (define avg (/ sum 8))
+)
