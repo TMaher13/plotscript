@@ -2,9 +2,12 @@
 
 #include <cassert>
 #include <cmath>
-//#include <math.h>
+
+#include <complex>
+using namespace std;
 
 #include "environment.hpp"
+#include "interpreter.hpp"
 #include "semantic_error.hpp"
 
 /***********************************************************************
@@ -35,6 +38,9 @@ Expression add(const std::vector<Expression> & args){
     if(a.isHeadNumber()){
       result += a.head().asNumber();
     }
+    /*else if(a.isHeadComplex()) {
+      result += a.head()).asComplex();
+    }*/
     else{
       throw SemanticError("Error in call to add, argument not a number");
     }
@@ -193,6 +199,7 @@ Expression tan(const std::vector<Expression>& args) {
 
 const double PI = std::atan2(0, -1);
 const double EXP = std::exp(1);
+const std::complex<double> I(0.0, 1.0);
 
 Environment::Environment(){
 
@@ -274,6 +281,9 @@ void Environment::reset(){
 
   // Built-In value of e
   envmap.emplace("e", EnvResult(ExpressionType, Expression(EXP)));
+
+  // Built-In value of i
+  envmap.emplace("I", EnvResult(ExpressionType, Expression(I)));
 
   // Procedure: add;
   envmap.emplace("+", EnvResult(ProcedureType, add));

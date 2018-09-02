@@ -37,6 +37,7 @@ TEST_CASE( "Test get expression", "[environment]" ) {
   REQUIRE(env.get_exp(Atom("hi")) == Expression());
 
   REQUIRE(env.get_exp(Atom("e")) == Expression(std::exp(1)));
+  //REQUIRE(env.get_exp(Atom("I")) == Expression(0.+1i));
 }
 
 TEST_CASE( "Test add expression", "[environment]" ) {

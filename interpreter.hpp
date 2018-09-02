@@ -15,6 +15,7 @@ It maintains an environment during evaluation.
 #include "environment.hpp"
 #include "expression.hpp"
 
+
 /*! \class Interpreter
 \brief Class to parse and evaluate an expression (program)
 
@@ -27,7 +28,7 @@ public:
 
   /*! Parse into an internal Expression from a stream
     \param expression the raw text stream repreenting the candidate expression
-    \return true on successful parsing 
+    \return true on successful parsing
    */
   bool parseStream(std::istream &expression) noexcept;
 
