@@ -35,17 +35,22 @@ Expression default_proc(const std::vector<Expression> & args){
 Expression add(const std::vector<Expression> & args){
 
   // check all aruments are numbers, while adding
-  double result = 0;
+  double result = 0.0;
   std::complex<double> comp_result(0,0);
   bool isComplex = false;
 
   for( auto & a :args){
-    if(a.isHeadNumber())
-      result += a.head().asNumber();
-    else if(a.isHeadComplex()) {
+    if(a.isHeadComplex() || isComplex) {
+      if(result != 0.0) { // In case we need to switch from Number type to Complex type mid-calculation
+        std::complex<double> add_result(result,0);
+        comp_result += add_result;
+        result = 0.0;
+      }
       comp_result += a.head().asComplex();
       isComplex = true;
     }
+    else if(a.isHeadNumber())
+      result += a.head().asNumber();
     else
       throw SemanticError("Error in call to add, argument not a number");
   }
@@ -63,19 +68,28 @@ Expression mul(const std::vector<Expression> & args){
   // check all aruments are numbers, while multiplying
   double result = 1;
   std::complex<double> comp_result(1,1);
+  bool isComplex = false;
+
   for( auto & a :args){
-    if(a.isHeadNumber())
-      result *= a.head().asNumber();
-    else if(a.isHeadComplex())
+    if(a.isHeadComplex() || isComplex) {
+      if(result != 1) { // If we need to switch from Number type to Complex mid-calculation
+        std::complex<double> mult_result(result,1);
+        comp_result *= add_result;
+        result = 1;
+      }
       comp_result *= a.head().asComplex();
+      isComplex = true;
+    }
+    else if(a.isHeadNumber())
+      result *= a.head().asNumber();
     else
       throw SemanticError("Error in call to mul, argument not a number");
   }
 
-  if(a.isHeadNumber())
-    return Expression(result);
-  else
+  if(isComplex)
     return Expression(comp_result);
+  else
+    return Expression(result);
 };
 
 
@@ -111,7 +125,10 @@ Expression subneg(const std::vector<Expression> & args){
   else
     throw SemanticError("Error in call to subtraction or negation: invalid number of arguments.");
 
-  return Expression(result);
+  if(isComplex)
+    return Expression(comp_result);
+  else
+    return Expression(result);
 };
 
 Expression div(const std::vector<Expression> & args){
