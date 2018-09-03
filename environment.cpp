@@ -239,9 +239,12 @@ Expression tan(const std::vector<Expression>& args) {
 };
 
 // Returns the real part of a complex argument
-Expression real(const Expression& value) {
-  if(value.isHeadComplex()) {
-    double real_part = real(value.head().asComplex());
+Expression real(const std::vector<Expression>& args) {
+  if(!nargs_equal(args,1))
+    throw SemanticError("Error in call to conj function: invalid number of arguments.");
+
+  if(args[0].isHeadComplex()) {
+    double real_part = real(args[0].head().asComplex());
     return Expression(real_part);
   }
   else
@@ -249,9 +252,12 @@ Expression real(const Expression& value) {
 };
 
 // Returns the imaginary part of a complex argument
-Expression imag(const Expression& value) {
-  if(value.isHeadComplex()) {
-    double imag_part = imag(value.head().asComplex());
+Expression imag(const std::vector<Expression>& args) {
+  if(!nargs_equal(args,1))
+    throw SemanticError("Error in call to conj function: invalid number of arguments.");
+
+  if(args[0].isHeadComplex()) {
+    double imag_part = imag(args[0].head().asComplex());
     return Expression(imag_part);
   }
   else
@@ -259,9 +265,12 @@ Expression imag(const Expression& value) {
 };
 
 // Returns the absolute magnitude of a complex argument
-Expression mag(const Expression& value) {
-  if(value.isHeadComplex()) {
-    double magnitude = abs(value.head().asComplex());
+Expression mag(const std::vector<Expression>& args) {
+  if(!nargs_equal(args,1))
+    throw SemanticError("Error in call to conj function: invalid number of arguments.");
+
+  if(args[0].isHeadComplex()) {
+    double magnitude = abs(args[0].head().asComplex());
     return Expression(magnitude);
   }
   else
@@ -269,9 +278,12 @@ Expression mag(const Expression& value) {
 };
 
 // Returns the phase angle of a complex argument
-Expression arg(const Expression& value) {
-  if(value.isHeadComplex()) {
-    double angle = arg(value.head().asComplex());
+Expression arg(const std::vector<Expression>& args) {
+  if(!nargs_equal(args,1))
+    throw SemanticError("Error in call to conj function: invalid number of arguments.");
+
+  if(args[0].isHeadComplex()) {
+    double angle = arg(args[0].head().asComplex());
     return Expression(angle);
   }
   else
@@ -279,9 +291,12 @@ Expression arg(const Expression& value) {
 };
 
 // Returns the conjugate of a complex argument
-Expression conj(const Expression& value) {
-  if(value.isHeadComplex()) {
-    std::complex<double> conjugate = conj(value.head().asComplex());
+Expression conj(const std::vector<Expression>& args) {
+  if(!nargs_equal(args,1))
+    throw SemanticError("Error in call to conj function: invalid number of arguments.");
+
+  if(args[0].isHeadComplex()) {
+    std::complex<double> conjugate = conj(args[0].head().asComplex());
     return Expression(conjugate);
   }
   else
@@ -405,4 +420,19 @@ void Environment::reset(){
 
   //Procedure: tan
   envmap.emplace("tan", EnvResult(ProcedureType, tan));
+
+  // Procedure: real
+  envmap.emplace("real", EnvResult(ProcedureType, real));
+
+  // Procedure: imag
+  envmap.emplace("imag", EnvResult(ProcedureType, imag));
+
+  // Procedure: mag
+  envmap.emplace("mag", EnvResult(ProcedureType, mag));
+
+  // Procedure: arg
+  envmap.emplace("arg", EnvResult(ProcedureType, arg));
+
+  // Procedure: conj
+  envmap.emplace("conj", EnvResult(ProcedureType, conj));
 }
