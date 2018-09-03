@@ -74,7 +74,7 @@ Expression mul(const std::vector<Expression> & args){
     if(a.isHeadComplex() || isComplex) {
       if(result != 1) { // If we need to switch from Number type to Complex mid-calculation
         std::complex<double> mult_result(result,1);
-        comp_result *= add_result;
+        comp_result *= mult_result;
         result = 1;
       }
       comp_result *= a.head().asComplex();
