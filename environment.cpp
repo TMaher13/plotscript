@@ -238,6 +238,56 @@ Expression tan(const std::vector<Expression>& args) {
     throw SemanticError("Error in call to sine function: invalid number of arguments.");
 };
 
+// Returns the real part of a complex argument
+Expression real(const Expression& value) {
+  if(value.isHeadComplex()) {
+    double real_part = real(value.head().asComplex());
+    return Expression(real_part);
+  }
+  else
+    throw SemanticError("Error in call to real function: invalid argument.");
+};
+
+// Returns the imaginary part of a complex argument
+Expression imag(const Expression& value) {
+  if(value.isHeadComplex()) {
+    double imag_part = imag(value.head().asComplex());
+    return Expression(imag_part);
+  }
+  else
+    throw SemanticError("Error in call to imag function: invalid argument.");
+};
+
+// Returns the absolute magnitude of a complex argument
+Expression mag(const Expression& value) {
+  if(value.isHeadComplex()) {
+    double magnitude = abs(value.head().asComplex());
+    return Expression(magnitude);
+  }
+  else
+    throw SemanticError("Error in call to mag function: invalid argument.");
+};
+
+// Returns the phase angle of a complex argument
+Expression arg(const Expression& value) {
+  if(value.isHeadComplex()) {
+    double angle = arg(value.head().asComplex());
+    return Expression(angle);
+  }
+  else
+    throw SemanticError("Error in call to arg function: invalid argument.");
+};
+
+// Returns the conjugate of a complex argument
+Expression conj(const Expression& value) {
+  if(value.isHeadComplex()) {
+    std::complex<double> conjugate = conj(value.head().asComplex());
+    return Expression(conjugate);
+  }
+  else
+    throw SemanticError("Error in call to conj function: invalid argument.");
+};
+
 const double PI = std::atan2(0, -1);
 const double EXP = std::exp(1);
 const std::complex<double> I(0.0, 1.0);
