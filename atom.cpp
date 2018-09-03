@@ -129,7 +129,15 @@ double Atom::asNumber() const noexcept{
 }
 
 std::complex<double> Atom::asComplex() const noexcept {
-  return (m_type == ComplexKind) ? complexValue : 0. + 0i; // return complex type (0,0)
+
+  if(m_type == NumberKind) {
+    std::complex<double> turned_complex(numberValue,0);
+    return turned_complex;
+  }
+  else if(m_type == ComplexKind)
+    return complexValue;
+  else
+    return 0.+0i;
 }
 
 

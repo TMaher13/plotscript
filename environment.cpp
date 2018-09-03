@@ -30,65 +30,86 @@ Expression default_proc(const std::vector<Expression> & args){
   return Expression();
 };
 
+// Method to add arguments together. Works for both Numbers and Complex types
+// If any complex type is found in arguments, complex type is returned
 Expression add(const std::vector<Expression> & args){
 
   // check all aruments are numbers, while adding
   double result = 0;
+  std::complex<double> comp_result(0,0);
+  bool isComplex = false;
+
   for( auto & a :args){
-    if(a.isHeadNumber()){
+    if(a.isHeadNumber())
       result += a.head().asNumber();
+    else if(a.isHeadComplex()) {
+      comp_result += a.head().asComplex();
+      isComplex = true;
     }
-    /*else if(a.isHeadComplex()) {
-      result += a.head()).asComplex();
-    }*/
-    else{
+    else
       throw SemanticError("Error in call to add, argument not a number");
-    }
   }
 
-  return Expression(result);
+  if(isComplex)
+    return Expression(comp_result);
+  else
+    return Expression(result);
 };
 
+// Method to mu;tiply arguments together. Works for both Numbers and Complex types
+// If any complex type is found in arguments, complex type is returned
 Expression mul(const std::vector<Expression> & args){
 
   // check all aruments are numbers, while multiplying
   double result = 1;
+  std::complex<double> comp_result(1,1);
   for( auto & a :args){
-    if(a.isHeadNumber()){
+    if(a.isHeadNumber())
       result *= a.head().asNumber();
-    }
-    else{
+    else if(a.isHeadComplex())
+      comp_result *= a.head().asComplex();
+    else
       throw SemanticError("Error in call to mul, argument not a number");
-    }
   }
 
-  return Expression(result);
+  if(a.isHeadNumber())
+    return Expression(result);
+  else
+    return Expression(comp_result);
 };
 
+
+// Method to subtract arguments or negate single argument. Works for both Numbers and Complex types
+// If any complex type is found in arguments, complex type is returned
 Expression subneg(const std::vector<Expression> & args){
 
   double result = 0;
+  std::complex<double> comp_result(0,0);
+  bool isComplex = false;
 
   // preconditions
   if(nargs_equal(args,1)){
-    if(args[0].isHeadNumber()){
+    if(args[0].isHeadNumber())
       result = -args[0].head().asNumber();
+    else if(args[0].isHeadComplex()) {
+      comp_result = -args[0].head().asComplex();
+      isComplex = true;
     }
-    else{
+    else
       throw SemanticError("Error in call to negate: invalid argument.");
-    }
   }
   else if(nargs_equal(args,2)){
-    if( (args[0].isHeadNumber()) && (args[1].isHeadNumber()) ){
+    if( (args[0].isHeadNumber()) && (args[1].isHeadNumber()) )
       result = args[0].head().asNumber() - args[1].head().asNumber();
+    else if( (args[0].isHeadComplex() || args[0].isHeadNumber()) && (args[1].isHeadComplex() || args[1].isHeadNumber()) ) {
+      comp_result = args[0].head().asComplex() - args[1].head().asComplex();
+      isComplex = true;
     }
-    else{
+    else
       throw SemanticError("Error in call to subtraction: invalid argument.");
-    }
   }
-  else{
+  else
     throw SemanticError("Error in call to subtraction or negation: invalid number of arguments.");
-  }
 
   return Expression(result);
 };
