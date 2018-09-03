@@ -44,7 +44,7 @@ Expression add(const std::vector<Expression> & args){
       if(result != 0.0) { // In case we need to switch from Number type to Complex type mid-calculation
         std::complex<double> add_result(result,0);
         comp_result += add_result;
-        result = 0.0;
+        //result = 0.0;
       }
       comp_result += a.head().asComplex();
       isComplex = true;
@@ -52,7 +52,7 @@ Expression add(const std::vector<Expression> & args){
     else if(a.isHeadNumber())
       result += a.head().asNumber();
     else
-      throw SemanticError("Error in call to add, argument not a number");
+      throw SemanticError("Error in call to add: argument is invalid.");
   }
 
   if(isComplex)
@@ -75,7 +75,7 @@ Expression mul(const std::vector<Expression> & args){
       if(result != 1) { // If we need to switch from Number type to Complex mid-calculation
         std::complex<double> mult_result(result,1);
         comp_result *= mult_result;
-        result = 1;
+        //result = 1
       }
       comp_result *= a.head().asComplex();
       isComplex = true;
@@ -83,7 +83,7 @@ Expression mul(const std::vector<Expression> & args){
     else if(a.isHeadNumber())
       result *= a.head().asNumber();
     else
-      throw SemanticError("Error in call to mul, argument not a number");
+      throw SemanticError("Error in call to mul: argument is invalid.");
   }
 
   if(isComplex)
@@ -134,11 +134,14 @@ Expression subneg(const std::vector<Expression> & args){
 Expression div(const std::vector<Expression> & args){
 
   double result = 0;
+  std::complex<double> comp_result(0,0);
 
   if(nargs_equal(args,2)){
-    if( (args[0].isHeadNumber()) && (args[1].isHeadNumber()) ){
-      result = args[0].head().asNumber() / args[1].head().asNumber();
+    if( (args[0].isHeadNumber()) && (args[1].isHeadNumber()) ){ //result = args[0].head().asNumber() / args[1].head().asNumber();
+      return Expression( (args[0].head().asNumber() / args[1].head().asNumber()) );
     }
+    else if( (args[0].isHeadComplex() || args[0].isHeadNumber()) && (args[1].isHeadComplex() || args[1].isHeadNumber()) )
+      return Expression( (args[0].head().asComplex() / args[1].head().asComplex()) );
     else{
       throw SemanticError("Error in call to division: invalid argument.");
     }

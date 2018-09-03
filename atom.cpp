@@ -24,20 +24,17 @@ Atom::Atom(const Token & token): Atom(){
   std::istringstream iss(token.asString());
   if(iss >> temp){
     // check for trailing characters if >> succeeds
-    if(iss.rdbuf()->in_avail() == 0){
+    if(iss.rdbuf()->in_avail() == 0)
       setNumber(temp);
-    }
   }
   else if(iss >> tempComp) {
-    if(iss.rdbuf()->in_avail() == 0.+0i) {
+    if(iss.rdbuf()->in_avail() == 0.+0i)
       setComplex(tempComp);
-    }
   }
   else{ // else assume symbol
     // make sure does not start with number
-    if(!std::isdigit(token.asString()[0])){
+    if(!std::isdigit(token.asString()[0]))
       setSymbol(token.asString());
-    }
   }
 }
 
@@ -47,12 +44,12 @@ Atom::Atom(const std::string & value): Atom() {
 }
 
 Atom::Atom(const Atom & x): Atom(){
-  if(x.isNumber()){
+  if(x.isNumber())
     setNumber(x.numberValue);
-  }
-  else if(x.isSymbol()){
+  else if(x.isComplex())
+    setComplex(x.complexValue);
+  else if(x.isSymbol())
     setSymbol(x.stringValue);
-  }
 }
 
 Atom & Atom::operator=(const Atom & x){
