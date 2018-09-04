@@ -170,10 +170,13 @@ Expression sqrt(const std::vector<Expression>& args) {
       if(args[0].head().asNumber() >= 0)
         return Expression(std::sqrt(args[0].head().asNumber()));
       else {
-        // FOr now throw error, in task 4 change to account for imaginary parts
-        throw SemanticError("Error in call for square root: negative number.");
+        // For now throw error, in task 4 change to account for imaginary parts
+        std::complex<double> comp_sqrt(0,std::sqrt(args[0].head().asNumber()));
+        return Expression(comp_sqrt);
       }
-
+    }
+    else if(args[0].isHeadComplex()) {
+      return Expression(std::sqrt(args[0].head().asComplex()));
     }
     else
       throw SemanticError("Error in call for square root: invalid argument."); // If argument is NaN
