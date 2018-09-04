@@ -170,8 +170,7 @@ Expression sqrt(const std::vector<Expression>& args) {
       if(args[0].head().asNumber() >= 0)
         return Expression(std::sqrt(args[0].head().asNumber()));
       else {
-        // For now throw error, in task 4 change to account for imaginary parts
-        std::complex<double> comp_sqrt(0,std::sqrt(args[0].head().asNumber()));
+        std::complex<double> comp_sqrt(0,std::sqrt(std::abs(args[0].head().asNumber())));
         return Expression(comp_sqrt);
       }
     }

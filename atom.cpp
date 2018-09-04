@@ -32,10 +32,6 @@ Atom::Atom(const Token & token): Atom(){
     if(!std::isdigit(token.asString()[0]))
       setSymbol(token.asString());
   }
-  /*else if(iss >> tempComp) { // I don't know if this is right, ask TA or Wyatt
-    if(iss.rdbuf()->in_avail() == 0.+0i)
-      setComplex(tempComp);
-  }*/
 }
 
 Atom::Atom(const std::string & value): Atom() {
