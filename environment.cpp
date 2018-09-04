@@ -65,17 +65,25 @@ Expression mul(const std::vector<Expression> & args){
 
   // check all aruments are numbers, while multiplying
   double result = 1;
-  std::complex<double> comp_result(1,1);
+  std::complex<double> comp_result;
   bool isComplex = false;
+  bool first_arg = true;
 
   for( auto & a :args){
     if(a.isHeadComplex() || isComplex) {
+      if(first_arg) {
+        comp_result = a.head().asComplex();
+        first_arg = false;
+      }
+      else
+        comp_result *= a.head().asComplex();
+
       if(result != 1) { // If we need to switch from Number type to Complex mid-calculation
-        std::complex<double> mult_result(result,1);
+        std::complex<double> mult_result(result,0);
         comp_result *= mult_result;
         result = 1; // This shouldn't matter but just in case
       }
-      comp_result *= a.head().asComplex();
+
       isComplex = true;
     }
     else if(a.isHeadNumber())
