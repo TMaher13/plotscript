@@ -58,6 +58,7 @@ Expression add(const std::vector<Expression> & args){
     return Expression(result);
 };
 
+
 // Method to mu;tiply arguments together. Works for both Numbers and Complex types
 // If any complex type is found in arguments, complex type is returned
 Expression mul(const std::vector<Expression> & args){
@@ -128,6 +129,7 @@ Expression subneg(const std::vector<Expression> & args){
     return Expression(result);
 };
 
+
 Expression div(const std::vector<Expression> & args){
 
   double result = 0;
@@ -149,6 +151,9 @@ Expression div(const std::vector<Expression> & args){
   return Expression(result);
 };
 
+
+// Returns the square root of the input. Accepts Number types
+// Will add Complex types soon
 Expression sqrt(const std::vector<Expression>& args) {
 
   if(nargs_equal(args, 1)) {
@@ -171,6 +176,8 @@ Expression sqrt(const std::vector<Expression>& args) {
 
 };
 
+
+// Returns calculation of a to the power b, able to calculate for Number and Complex type
 Expression pow(const std::vector<Expression>& args) {
 
   if(nargs_equal(args, 2)) { // Make sure its binary
@@ -201,6 +208,8 @@ Expression pow(const std::vector<Expression>& args) {
 
 };
 
+
+// Returns the calculation of the natural log of the input
 Expression nlog(const std::vector<Expression>& args) {
 
   if(nargs_equal(args, 1)) {
@@ -214,6 +223,7 @@ Expression nlog(const std::vector<Expression>& args) {
     throw SemanticError("Error in call to natural log function: invalid number of arguments.");
 };
 
+
 // Returns the calculation of the sin of the input in terms of radians
 Expression sin(const std::vector<Expression>& args) {
 
@@ -223,6 +233,7 @@ Expression sin(const std::vector<Expression>& args) {
   else
     throw SemanticError("Error in call to sine function: invalid number of arguments.");
 };
+
 
 // Returns the calculation of the cos of the input in terms of radians
 Expression cos(const std::vector<Expression>& args) {
@@ -234,6 +245,7 @@ Expression cos(const std::vector<Expression>& args) {
     throw SemanticError("Error in call to sine function: invalid number of arguments.");
 };
 
+
 // Returns the calculation of the tan of the input in terms of radians
 Expression tan(const std::vector<Expression>& args) {
 
@@ -243,6 +255,7 @@ Expression tan(const std::vector<Expression>& args) {
   else
     throw SemanticError("Error in call to sine function: invalid number of arguments.");
 };
+
 
 // Returns the real part of a complex argument
 Expression real(const std::vector<Expression>& args) {

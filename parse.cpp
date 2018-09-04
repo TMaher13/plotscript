@@ -39,7 +39,8 @@ Expression parse(const TokenSequenceType &tokens) noexcept {
 
     if (t.type() == Token::OPEN) {
       athead = true;
-    } else if (t.type() == Token::CLOSE) {
+    }
+    else if (t.type() == Token::CLOSE) {
       if (stack.empty()) {
         return Expression();
       }
@@ -49,7 +50,8 @@ Expression parse(const TokenSequenceType &tokens) noexcept {
         num_tokens_seen += 1;
         break;
       }
-    } else {
+    }
+    else {
 
       if (athead) {
         if (stack.empty()) {

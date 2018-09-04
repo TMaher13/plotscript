@@ -41,15 +41,15 @@ void store_ifnot_empty(std::string & token, TokenSequenceType & seq){
 TokenSequenceType tokenize(std::istream & seq){
   TokenSequenceType tokens;
   std::string token;
-  
+
   while(true){
     char c = seq.get();
     if(seq.eof()) break;
-    
+
     if(c == COMMENTCHAR){
       // chomp until the end of the line
       while((!seq.eof()) && (c != '\n')){
-	c = seq.get();
+	       c = seq.get();
       }
       if(seq.eof()) break;
     }
