@@ -204,7 +204,8 @@ std::ostream & operator<<(std::ostream & out, const Atom & a){
     out << a.asNumber();
   }
   if(a.isComplex()) {
-    out << a.asComplex();
+    //out << a.asComplex();
+    out << real(a.asComplex()) << ',' << imag(a.asComplex());
   }
   if(a.isSymbol()){
     out << a.asSymbol();
