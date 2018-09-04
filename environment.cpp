@@ -3,9 +3,6 @@
 #include <cassert>
 #include <cmath>
 
-#include <complex>
-using namespace std;
-
 #include "environment.hpp"
 #include "interpreter.hpp"
 #include "semantic_error.hpp"
@@ -44,7 +41,7 @@ Expression add(const std::vector<Expression> & args){
       if(result != 0.0) { // In case we need to switch from Number type to Complex type mid-calculation
         std::complex<double> add_result(result,0);
         comp_result += add_result;
-        //result = 0.0;
+        result = 0.0; // This shouldnt matter but just in case
       }
       comp_result += a.head().asComplex();
       isComplex = true;
@@ -75,7 +72,7 @@ Expression mul(const std::vector<Expression> & args){
       if(result != 1) { // If we need to switch from Number type to Complex mid-calculation
         std::complex<double> mult_result(result,1);
         comp_result *= mult_result;
-        //result = 1
+        result = 1; // This shouldn't matter but just in case
       }
       comp_result *= a.head().asComplex();
       isComplex = true;
@@ -185,6 +182,15 @@ Expression pow(const std::vector<Expression>& args) {
         return Expression(args[0].head().asNumber());
       else
         return Expression(std::pow(args[0].head().asNumber(), args[1].head().asNumber()));
+    }
+    else if(args[0].isHeadNumber() && args[1].isHeadComplex()) {
+      return Expression(std::pow(args[0].head().asNumber(), args[1].head().asComplex()));
+    }
+    else if(args[0].isHeadComplex() && args[1].isHeadNumber()) {
+      return Expression(std::pow(args[0].head().asComplex(), args[1].head().asNumber()));
+    }
+    else if(args[0].isHeadComplex() && args[1].isHeadComplex()) {
+      return Expression(std::pow(args[0].head().asComplex(), args[1].head().asComplex()));
     }
     else
       throw SemanticError("Error in call for power function: invalid argument.");
@@ -305,7 +311,7 @@ Expression conj(const std::vector<Expression>& args) {
 
 const double PI = std::atan2(0, -1);
 const double EXP = std::exp(1);
-const std::complex<double> I(0.0, 1.0);
+const std::complex<double> I(0, 1);
 
 Environment::Environment(){
 

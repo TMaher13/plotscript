@@ -6,6 +6,7 @@ Defines the Atom type and associated functions.
 
 #include "token.hpp"
 
+// For complex type
 #include <complex>
 using namespace std;
 
@@ -50,6 +51,7 @@ public:
   /// predicate to determine if an Atom is of type Symbol
   bool isSymbol() const noexcept;
 
+  /// preeicate to determine if an Atom is of type Complex
   bool isComplex() const noexcept;
 
   /// value of Atom as a number, return 0 if not a Number

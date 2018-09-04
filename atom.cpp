@@ -27,15 +27,15 @@ Atom::Atom(const Token & token): Atom(){
     if(iss.rdbuf()->in_avail() == 0)
       setNumber(temp);
   }
-  else if(iss >> tempComp) {
-    if(iss.rdbuf()->in_avail() == 0.+0i)
-      setComplex(tempComp);
-  }
   else{ // else assume symbol
     // make sure does not start with number
     if(!std::isdigit(token.asString()[0]))
       setSymbol(token.asString());
   }
+  /*else if(iss >> tempComp) { // I don't know if this is right, ask TA or Wyatt
+    if(iss.rdbuf()->in_avail() == 0.+0i)
+      setComplex(tempComp);
+  }*/
 }
 
 Atom::Atom(const std::string & value): Atom() {
@@ -121,6 +121,8 @@ void Atom::setSymbol(const std::string & value){
 }
 
 double Atom::asNumber() const noexcept{
+  //if(m_type == ComplexKind)
+    //return real(complexValue);
 
   return (m_type == NumberKind) ? numberValue : 0.0;
 }
@@ -134,7 +136,7 @@ std::complex<double> Atom::asComplex() const noexcept {
   else if(m_type == ComplexKind)
     return complexValue;
   else
-    return 0.+0i;
+    return 0.+0i; // if NaN return complex object of (0,0)
 }
 
 
@@ -173,7 +175,7 @@ bool Atom::operator==(const Atom & right) const noexcept{
       std::complex<double> dleft = complexValue;
       std::complex<double> dright = right.complexValue;
       std::complex<double> diff = fabs(dleft - dright);
-      //if(std::isnan(diff) || (diff > std::numeric_limits<double>::epsilon())) return false;
+      if(diff!=diff) return false; //|| (diff > std::numeric_limits<double>::epsilon())) return false;
     }
     break;
   case SymbolKind:

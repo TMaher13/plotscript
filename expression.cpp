@@ -109,7 +109,7 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
 	throw SemanticError("Error during evaluation: unknown symbol");
       }
     }
-    else if(head.isNumber()){
+    else if(head.isNumber() || head.isComplex()){
       return Expression(head);
     }
     else{
