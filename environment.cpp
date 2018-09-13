@@ -6,6 +6,7 @@
 #include "environment.hpp"
 #include "interpreter.hpp"
 #include "semantic_error.hpp"
+#include <iostream>
 
 /***********************************************************************
 Helper Functions
@@ -36,8 +37,10 @@ Expression add(const std::vector<Expression> & args){
   std::complex<double> comp_result(0,0);
   bool isComplex = false;
 
+
   for( auto & a :args){
     if(a.isHeadComplex() || isComplex) {
+      std::cout << "Is complex\n";
       if(result != 0.0) { // In case we need to switch from Number type to Complex type mid-calculation
         std::complex<double> add_result(result,0);
         comp_result += add_result;
@@ -205,6 +208,7 @@ Expression pow(const std::vector<Expression>& args) {
     }
     else if(args[0].isHeadComplex() && args[1].isHeadNumber()) {
       return Expression(std::pow(args[0].head().asComplex(), args[1].head().asNumber()));
+    //  throw SemanticError("Error in call for power function: invalid argument.");
     }
     else if(args[0].isHeadComplex() && args[1].isHeadComplex()) {
       return Expression(std::pow(args[0].head().asComplex(), args[1].head().asComplex()));

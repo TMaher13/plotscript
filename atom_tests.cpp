@@ -11,6 +11,7 @@ TEST_CASE( "Test constructors", "[atom]" ) {
     REQUIRE(a.isNone());
     REQUIRE(!a.isNumber());
     REQUIRE(!a.isSymbol());
+    REQUIRE(!a.isComplex());
   }
 
   {
@@ -20,6 +21,7 @@ TEST_CASE( "Test constructors", "[atom]" ) {
     REQUIRE(!a.isNone());
     REQUIRE(a.isNumber());
     REQUIRE(!a.isSymbol());
+    REQUIRE(!a.isComplex());
   }
 
   {
@@ -29,6 +31,28 @@ TEST_CASE( "Test constructors", "[atom]" ) {
     REQUIRE(!a.isNone());
     REQUIRE(!a.isNumber());
     REQUIRE(a.isSymbol());
+    REQUIRE(!a.isComplex());
+  }
+
+  {
+    INFO("Complex Constructor");
+    Atom a(0.+2i);
+
+    REQUIRE(!a.isNone());
+    REQUIRE(!a.isNumber());
+    REQUIRE(!a.isSymbol());
+    REQUIRE(a.isComplex());
+  }
+
+  {
+    INFO("Atom Constructor");
+    Atom a(1.-3i);
+    Atom b(a);
+
+    REQUIRE(!a.isNone());
+    REQUIRE(!a.isNumber());
+    REQUIRE(!a.isSymbol());
+    REQUIRE(a.isComplex());
   }
 
 
@@ -40,13 +64,14 @@ TEST_CASE( "Test constructors", "[atom]" ) {
     REQUIRE(!a.isNone());
     REQUIRE(!a.isNumber());
     REQUIRE(a.isSymbol());
+    REQUIRE(!a.isComplex());
   }
 
   {
     INFO("Copy Constructor");
     Atom a("hi");
     Atom b(1.0);
-    
+
     Atom c = a;
     REQUIRE(!a.isNone());
     REQUIRE(!c.isNumber());
@@ -92,12 +117,22 @@ TEST_CASE( "Test assignment", "[atom]" ) {
   }
 
   {
+    INFO("default to complex");
+    Atom a;
+    Atom b(0.+3j);
+
+  }
+
+  {
     INFO("number to default");
     Atom a(1.0);
     Atom b;
     b = a;
     REQUIRE(b.isNumber());
     REQUIRE(b.asNumber() == 1.0);
+
+    std::complex<double> testcomp(1,0);
+    REQUIRE(b.asComplex() == testcomp);
   }
 
   {
@@ -107,6 +142,9 @@ TEST_CASE( "Test assignment", "[atom]" ) {
     b = a;
     REQUIRE(b.isNumber());
     REQUIRE(b.asNumber() == 1.0);
+
+    std::complex<double> testcomp(1,0);
+    REQUIRE(b.asNumber() == testcomp);
   }
 
   {
@@ -116,6 +154,9 @@ TEST_CASE( "Test assignment", "[atom]" ) {
     b = a;
     REQUIRE(b.isSymbol());
     REQUIRE(b.asSymbol() == "hi");
+
+    std::complex<double> testcomp(0,0);
+    REQUIRE(b.asComplex() == testcomp);
   }
 
   {
@@ -216,8 +257,3 @@ TEST_CASE( "test comparison", "[atom]" ) {
   }
 
 }
-
-
-
-
-
