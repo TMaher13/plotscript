@@ -336,6 +336,34 @@ Expression conj(const std::vector<Expression>& args) {
     throw SemanticError("Error in call to conj function: invalid argument.");
 };
 
+
+/// Builds a list of expressions
+Expression buildList(const std::vector<Expression>& args) {
+  //std::vector<Atom> result;
+
+  if(nargs_equal(args,0))
+    return Expression();
+
+  Expression result;
+  for( auto & a :args) {
+
+    if(a.isHeadNumber())
+      result.append(Atom(a.head().asNumber()));
+    else if(a.isHeadComplex())
+      result.append(Atom(a.head().asNumber()));
+    else if(a.isHeadList()) {
+      result.append(buildList(std::vector<Expression>(1,a)).head());
+      std::cout << "Recursive\n";
+    }
+    else
+      throw SemanticError("Error in call for list: invalid argument.");
+
+  }
+
+  return Expression(result);
+}
+
+
 const double PI = std::atan2(0, -1);
 const double EXP = std::exp(1);
 const std::complex<double> I(0, 1);
@@ -468,4 +496,25 @@ void Environment::reset(){
 
   // Procedure: conj
   envmap.emplace("conj", EnvResult(ProcedureType, conj));
+
+
+  // Procedure: list
+  envmap.emplace("list", EnvResult(ProcedureType, buildList));
+
+  // Procedure: first
+  //envmap.emplace("first", EnvResult(ProcedureType, first));
+
+  // Procedure: rest
+  //envmap.emplace("rest", EnvResult(ProcedureType, rest));
+
+  // Procedure: length
+  //envmap.emplace("length", EnvResult(ProcedureType, length));
+
+  // Procedure: append
+  //envmap.emplace()
+
+  // Procedure: join
+  //envmap.emplace("")
+
+  // Procedure: range
 }

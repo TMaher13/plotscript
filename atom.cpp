@@ -35,9 +35,15 @@ Atom::Atom(const Token & token): Atom(){
 }
 
 Atom::Atom(const std::string & value): Atom() {
-
-  setSymbol(value);
+  if(value == "list")
+    setList();
+  else
+    setSymbol(value);
 }
+
+/*Atom::Atom(const std::vector<Atom> valueList) {
+  setList();
+}*/
 
 Atom::Atom(const Atom & x): Atom(){
   if(x.isNumber())
@@ -46,6 +52,8 @@ Atom::Atom(const Atom & x): Atom(){
     setComplex(x.complexValue);
   else if(x.isSymbol())
     setSymbol(x.stringValue);
+  else if(x.isList())
+    setList();
 }
 
 Atom & Atom::operator=(const Atom & x){
@@ -91,6 +99,10 @@ bool Atom::isSymbol() const noexcept{
   return m_type == SymbolKind;
 }
 
+bool Atom::isList() const noexcept {
+  return m_type == ListKind;
+}
+
 
 void Atom::setNumber(double value){
 
@@ -114,6 +126,11 @@ void Atom::setSymbol(const std::string & value){
 
   // copy construct in place
   new (&stringValue) std::string(value);
+}
+
+void Atom::setList() { //const std::vector<Atom> & value_list
+  m_type = ListKind;
+  //listValue = value_list;
 }
 
 double Atom::asNumber() const noexcept{
@@ -146,6 +163,20 @@ std::string Atom::asSymbol() const noexcept{
 
   return result;
 }
+
+// Converts other type into a list
+/*std::vector<Atom> Atom::asList() const noexcept {
+  if(m_type == SymbolKind)
+    return std::vector<Atom>(1,Atom(stringValue));
+  else if(m_type == NumberKind)
+    return std::vector<Atom>(1,Atom(numberValue));
+  else if(m_type == ComplexKind)
+    return std::vector<Atom>(1,Atom(complexValue));
+  else if(m_type == ListKind)
+    return listValue;
+  else // If it doesn't have a type return empty list
+    return std::vector<Atom>();
+}*/
 
 bool Atom::operator==(const Atom & right) const noexcept{
 
@@ -181,6 +212,20 @@ bool Atom::operator==(const Atom & right) const noexcept{
       return stringValue == right.stringValue;
     }
     break;
+  /*case ListKind:
+    {
+      if(right.m_type != ListKind) return false;
+
+      std::vector<Atom> dleft = listValue;
+      std::vector<Atom> dright = right.listValue;
+      std::vector<Atom> diff = fabs(dleft - dright);
+      if(diff!=diff) return false; //|| (diff > std::numeric_limits<double>::epsilon())) return false;
+      for(int i = 0; i < dleft.size(); i++) {
+        if(dleft.at(i) != dright.at(i))
+          return false;
+      }
+    }
+    break;*/
   default:
     return false;
   }
@@ -206,5 +251,17 @@ std::ostream & operator<<(std::ostream & out, const Atom & a){
   if(a.isSymbol()){
     out << a.asSymbol();
   }
+  /*if(a.isList()) {
+    for( auto & a :a.asList()) {
+      out << '(';
+      if(a.isNumber()) {
+        out << a.asNumber();
+      }
+      else if(a.isComplex()) {
+        out << real(a.asComplex()) << ',' << imag(a.asComplex());
+      }
+      out << ") ";
+    }
+  }*/
   return out;
 }

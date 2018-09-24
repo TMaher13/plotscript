@@ -9,6 +9,8 @@ Defines the Atom type and associated functions.
 // For complex type
 #include <complex>
 using namespace std;
+#include <vector>
+#include <list>
 
 /*! \class Atom
 \brief A variant type that may be a Number or Symbol or the default type None.
@@ -29,6 +31,9 @@ public:
 
   /// Construct an Atom of type Comlex with value
   Atom(const std::complex<double> value);
+
+  ///Construct an Atom of type List with value_list
+  Atom(const std::vector<Atom> value_list);
 
   /// Construct an Atom directly from a Token
   Atom(const Token & token);
@@ -51,8 +56,11 @@ public:
   /// predicate to determine if an Atom is of type Symbol
   bool isSymbol() const noexcept;
 
-  /// preeicate to determine if an Atom is of type Complex
+  /// predicate to determine if an Atom is of type Complex
   bool isComplex() const noexcept;
+
+  /// predicate to determine if it is of type list
+  bool isList() const noexcept;
 
   /// value of Atom as a number, return 0 if not a Number
   double asNumber() const noexcept;
@@ -63,13 +71,16 @@ public:
   /// value of Atom as a number, returns empty-string if not a Symbol
   std::string asSymbol() const noexcept;
 
+  // value of Atom(s) as a list, returns empty vector<Atom> if not a list
+  std::vector<Atom> asList() const noexcept;
+
   /// equality comparison based on type and value
   bool operator==(const Atom & right) const noexcept;
 
 private:
 
   // internal enum of known types
-  enum Type {NoneKind, NumberKind, SymbolKind, ComplexKind}; // ComplexKind
+  enum Type {NoneKind, NumberKind, SymbolKind, ComplexKind, ListKind}; // ComplexKind
 
   // track the type
   Type m_type;
@@ -80,6 +91,7 @@ private:
     double numberValue;
     std::string stringValue;
     std::complex<double> complexValue;
+    //std::vector<Atom> listValue;
   };
 
   // helper to set type and value of Number
@@ -90,6 +102,9 @@ private:
 
   // helper to set type and value of Symbol
   void setSymbol(const std::string & value);
+
+  // helper to set type and values for list
+  void setList(); //const std::vector<Atom> & list_values
 };
 
 /// inequality comparison for Atom

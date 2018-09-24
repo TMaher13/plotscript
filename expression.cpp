@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <list>
+#include <iostream>
 
 #include "environment.hpp"
 #include "semantic_error.hpp"
@@ -12,6 +13,15 @@ Expression::Expression(const Atom & a){
 
   m_head = a;
 }
+
+/*Expression::Expression(const std::vector<Atom>& a) {
+
+  m_head = a;
+  for(auto & index : a) {
+    m_tail.push_back(Expression(index));
+  }
+
+}*/
 
 // recursive copy
 Expression::Expression(const Expression & a){
@@ -51,6 +61,10 @@ bool Expression::isHeadNumber() const noexcept{
 
 bool Expression::isHeadComplex() const noexcept {
   return m_head.isComplex();
+}
+
+bool Expression::isHeadList() const noexcept {
+  return m_head.isList();
 }
 
 bool Expression::isHeadSymbol() const noexcept{
@@ -102,16 +116,20 @@ Expression apply(const Atom & op, const std::vector<Expression> & args, const En
 
 Expression Expression::handle_lookup(const Atom & head, const Environment & env){
     if(head.isSymbol()){ // if symbol is in env return value
+      if(head.asSymbol() == "list")
+        return Expression();
+
       if(env.is_exp(head)){
-	return env.get_exp(head);
+	        return env.get_exp(head);
       }
       else{
-	throw SemanticError("Error during evaluation: unknown symbol");
+	       throw SemanticError("Error during evaluation: unknown symbol");
       }
     }
     else if(head.isNumber() || head.isComplex()){
       return Expression(head);
     }
+    //else if(head)
     else{
       throw SemanticError("Error during evaluation: Invalid type in terminal expression");
     }
@@ -136,31 +154,26 @@ Expression Expression::handle_begin(Environment & env){
 Expression Expression::handle_define(Environment & env){
 
   // tail must have size 3 or error
-  if(m_tail.size() != 2){
+  if(m_tail.size() != 2)
     throw SemanticError("Error during evaluation: invalid number of arguments to define");
-  }
 
   // tail[0] must be symbol
-  if(!m_tail[0].isHeadSymbol()){
+  if(!m_tail[0].isHeadSymbol())
     throw SemanticError("Error during evaluation: first argument to define not symbol");
-  }
 
   // but tail[0] must not be a special-form or procedure
   std::string s = m_tail[0].head().asSymbol();
-  if((s == "define") || (s == "begin")){
+  if((s == "define") || (s == "begin"))
     throw SemanticError("Error during evaluation: attempt to redefine a special-form");
-  }
 
-  if(env.is_proc(m_head)){
+  if(env.is_proc(m_head))
     throw SemanticError("Error during evaluation: attempt to redefine a built-in procedure");
-  }
 
   // eval tail[1]
   Expression result = m_tail[1].eval(env);
 
-  if(env.is_exp(m_head)){
+  if(env.is_exp(m_head))
     throw SemanticError("Error during evaluation: attempt to redefine a previously defined symbol");
-  }
 
   //and add to env
   env.add_exp(m_tail[0].head(), result);
@@ -168,20 +181,39 @@ Expression Expression::handle_define(Environment & env){
   return result;
 }
 
+/*Expression Expression::handle_list(Environment & env) {
+  if(m_tail.size() == 0)
+    return Expression();
+
+  Expression result;
+  for(Expression::IteratorType it = m_tail.begin(); it != m_tail.end(); ++it){
+    result = it->eval(env);
+  }
+
+  return result;
+
+}*/
+
 // this is a simple recursive version. the iterative version is more
 // difficult with the ast data structure used (no parent pointer).
 // this limits the practical depth of our AST
 Expression Expression::eval(Environment & env){
 
+  /*if(m_head.isSymbol() && m_head.asSymbol() == "list") {
+    return handle_list(env);
+  }*/
   if(m_tail.empty()){
+    //if(m_head.isSymbol() && m_head.asSymbol() == "list")
+      //return Expression();
+
     return handle_lookup(m_head, env);
   }
   // handle begin special-form
-  else if(m_head.isSymbol() && m_head.asSymbol() == "begin"){
+  else if(m_head.isSymbol() && m_head.asSymbol() == "begin") {
     return handle_begin(env);
   }
   // handle define special-form
-  else if(m_head.isSymbol() && m_head.asSymbol() == "define"){
+  else if(m_head.isSymbol() && m_head.asSymbol() == "define") {
     return handle_define(env);
   }
   // else attempt to treat as procedure
