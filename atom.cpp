@@ -4,6 +4,7 @@
 #include <cctype>
 #include <cmath>
 #include <limits>
+#include <iostream>
 
 Atom::Atom(): m_type(NoneKind) {}
 
@@ -28,6 +29,9 @@ Atom::Atom(const Token & token): Atom(){
       setNumber(temp);
   }
   else{ // else assume symbol
+
+    //if(token.asString() == "list")
+      //setList();
     // make sure does not start with number
     if(!std::isdigit(token.asString()[0]))
       setSymbol(token.asString());
@@ -35,15 +39,12 @@ Atom::Atom(const Token & token): Atom(){
 }
 
 Atom::Atom(const std::string & value): Atom() {
+  std::cout << value << std::endl;
   if(value == "list")
     setList();
   else
     setSymbol(value);
 }
-
-/*Atom::Atom(const std::vector<Atom> valueList) {
-  setList();
-}*/
 
 Atom::Atom(const Atom & x): Atom(){
   if(x.isNumber())
@@ -70,6 +71,9 @@ Atom & Atom::operator=(const Atom & x){
     }
     else if(x.m_type == SymbolKind){
       setSymbol(x.stringValue);
+    }
+    else if(x.m_type == ListKind) {
+      setList();
     }
   }
   return *this;
@@ -251,6 +255,6 @@ std::ostream & operator<<(std::ostream & out, const Atom & a){
   if(a.isSymbol()){
     out << a.asSymbol();
   }
-  
+
   return out;
 }

@@ -71,8 +71,8 @@ public:
   /// value of Atom as a number, returns empty-string if not a Symbol
   std::string asSymbol() const noexcept;
 
-  // value of Atom(s) as a list, returns empty vector<Atom> if not a list
-  std::vector<Atom> asList() const noexcept;
+  // helper to set type and values for list
+  void setList(); //const std::vector<Atom> & list_values
 
   /// equality comparison based on type and value
   bool operator==(const Atom & right) const noexcept;
@@ -102,9 +102,6 @@ private:
 
   // helper to set type and value of Symbol
   void setSymbol(const std::string & value);
-
-  // helper to set type and values for list
-  void setList(); //const std::vector<Atom> & list_values
 };
 
 /// inequality comparison for Atom

@@ -32,6 +32,13 @@ Expression::Expression(const Expression & a){
   }
 }
 
+Expression::Expression(const std::vector<Expression> & a) {
+  m_head.setList();
+  for(auto e : a){
+    m_tail.push_back(e);
+  }
+}
+
 Expression & Expression::operator=(const Expression & a){
 
   // prevent self-assignment
@@ -64,7 +71,7 @@ bool Expression::isHeadComplex() const noexcept {
 }
 
 bool Expression::isHeadList() const noexcept {
-  return m_head.isList();
+  return (m_head.asSymbol() == "list");
 }
 
 bool Expression::isHeadSymbol() const noexcept{
@@ -116,8 +123,10 @@ Expression apply(const Atom & op, const std::vector<Expression> & args, const En
 
 Expression Expression::handle_lookup(const Atom & head, const Environment & env){
     if(head.isSymbol()){ // if symbol is in env return value
-      if(head.asSymbol() == "list")
+      if(head.asSymbol() == "list") {
+        std::cout << "symbol but a list\n";
         return Expression();
+      }
 
       if(env.is_exp(head)){
 	        return env.get_exp(head);
@@ -181,30 +190,12 @@ Expression Expression::handle_define(Environment & env){
   return result;
 }
 
-/*Expression Expression::handle_list(Environment & env) {
-  if(m_tail.size() == 0)
-    return Expression();
-
-  Expression result;
-  for(Expression::IteratorType it = m_tail.begin(); it != m_tail.end(); ++it){
-    result = it->eval(env);
-  }
-
-  return result;
-
-}*/
-
 // this is a simple recursive version. the iterative version is more
 // difficult with the ast data structure used (no parent pointer).
 // this limits the practical depth of our AST
 Expression Expression::eval(Environment & env){
 
-  /*if(m_head.isSymbol() && m_head.asSymbol() == "list") {
-    return handle_list(env);
-  }*/
-  if(m_tail.empty()){
-    //if(m_head.isSymbol() && m_head.asSymbol() == "list")
-      //return Expression();
+  if(m_tail.empty()) {
 
     return handle_lookup(m_head, env);
   }

@@ -344,23 +344,22 @@ Expression buildList(const std::vector<Expression>& args) {
   if(nargs_equal(args,0))
     return Expression();
 
-  Expression result;
-  for( auto & a :args) {
-
-    if(a.isHeadNumber())
-      result.append(Atom(a.head().asNumber()));
-    else if(a.isHeadComplex())
-      result.append(Atom(a.head().asComplex()));
-    else if(a.isHeadList()) {
-      result.append(buildList(std::vector<Expression>(1,a)).head());
-      std::cout << "Recursive\n";
-    }
-    else
-      throw SemanticError("Error in call for list: invalid argument.");
-
-  }
+  std::vector<Expression> result;
+  for( auto & a :args)
+    result.push_back(a);
 
   return Expression(result);
+}
+
+// Unary function for getting the first value in a list
+Expression first(const std::vector<Expression>& args) {
+  if(!nargs_equal(args,1))
+    throw SemanticError("Error in call to first: invalid number of arguments.");
+
+  //if(!args[0].isHeadList())
+    //throw SemanticError("Error in call to first: invalid argument.");
+
+  Expression list = buildList(args);
 }
 
 
@@ -502,7 +501,7 @@ void Environment::reset(){
   envmap.emplace("list", EnvResult(ProcedureType, buildList));
 
   // Procedure: first
-  //envmap.emplace("first", EnvResult(ProcedureType, first));
+  envmap.emplace("first", EnvResult(ProcedureType, first));
 
   // Procedure: rest
   //envmap.emplace("rest", EnvResult(ProcedureType, rest));
