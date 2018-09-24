@@ -251,17 +251,6 @@ std::ostream & operator<<(std::ostream & out, const Atom & a){
   if(a.isSymbol()){
     out << a.asSymbol();
   }
-  /*if(a.isList()) {
-    for( auto & a :a.asList()) {
-      out << '(';
-      if(a.isNumber()) {
-        out << a.asNumber();
-      }
-      else if(a.isComplex()) {
-        out << real(a.asComplex()) << ',' << imag(a.asComplex());
-      }
-      out << ") ";
-    }
-  }*/
+  
   return out;
 }

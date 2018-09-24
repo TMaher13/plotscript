@@ -350,7 +350,7 @@ Expression buildList(const std::vector<Expression>& args) {
     if(a.isHeadNumber())
       result.append(Atom(a.head().asNumber()));
     else if(a.isHeadComplex())
-      result.append(Atom(a.head().asNumber()));
+      result.append(Atom(a.head().asComplex()));
     else if(a.isHeadList()) {
       result.append(buildList(std::vector<Expression>(1,a)).head());
       std::cout << "Recursive\n";
