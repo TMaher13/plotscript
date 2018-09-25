@@ -370,6 +370,7 @@ Expression first(const std::vector<Expression>& args) {
 
 }
 
+// Binary function that returns the list without the first item
 Expression rest(const std::vector<Expression>& args) {
   if(!nargs_equal(args,1))
     throw SemanticError("Error in call to rest: invalid number of arguments.");
@@ -388,6 +389,7 @@ Expression rest(const std::vector<Expression>& args) {
   return result_exp;
 }
 
+// Unary function that returns the length of a list
 Expression length(const std::vector<Expression>& args) {
   if(!nargs_equal(args,1))
     throw SemanticError("Error in call to rest: invalid number of arguments.");
@@ -398,9 +400,80 @@ Expression length(const std::vector<Expression>& args) {
     throw SemanticError("Error in call to rest: argument to first is not a list.");
   }
 
-  double result;
-  result = args[0].getTail().size();
-  return Expression(result);
+  //double result;
+  //result = args[0].getTail().size();
+  return Expression(args[0].getTail().size());
+}
+
+// Adds a second list as last node of first list
+Expression append(const std::vector<Expression>& args) {
+  if(!nargs_equal(args,2))
+    throw SemanticError("Error in call to rest: invalid number of arguments.");
+
+  if(!args[0].isHeadList() || !args[1].isHeadList())
+    throw SemanticError("Error in call to rest: argument to first is not a list or is empty.");
+
+  Expression toReturn = args[0];
+  //Expression toAdd = args[1];
+
+  toReturn.append(args[1]);
+
+  return toReturn;
+}
+
+// Joings 2 lists into one linear node
+Expression join(const std::vector<Expression>& args) {
+  if(!nargs_equal(args,2))
+    throw SemanticError("Error in call to rest: invalid number of arguments.");
+
+  if(!args[0].isHeadList() || !args[1].isHeadList())
+    throw SemanticError("Error in call to rest: argument to first is not a list or is empty.");
+
+  Expression toReturn;
+
+  for( auto & a :args[0].getTail())
+    toReturn.append(a);
+
+  for( auto & a :args[1].getTail()) {
+    if(a.isHeadNumber() || a.isHeadComplex())
+      toReturn.append(a.head());
+    else
+      toReturn.append(a);
+  }
+
+  return toReturn;
+
+}
+
+// Create a range of numbers from arg1 to arg2 in increments of arg3
+Expression range(const std::vector<Expression>& args) {
+
+  if(!nargs_equal(args,3))
+    throw SemanticError("Error in call to range: invalid number of arguments");
+
+  if(!args[0].head().isNumber() || !args[1].head().isNumber() || !args[2].head().isNumber())
+    throw SemanticError("Error in call to range: invalid argument(s).");
+
+  if(args[0].head().asNumber() > args[1].head().asNumber())
+    throw SemanticError("Error in call to range: beginning term larger than end term.");
+
+  if(args[2].head().asNumber() <= 0)
+    throw SemanticError("Error in call to range: negative or zero increment.");
+
+
+  double begin = args[0].head().asNumber();
+  double end = args[1].head().asNumber();
+  double inc = args[2].head().asNumber();
+
+  std::cout << begin << " " << end << " " << inc << std::endl;
+
+  std::vector<Expression> toReturn;
+  for(double i = begin; i <= end; i=i+inc) {
+    //std::cout << i << std::endl;
+    toReturn.push_back(Atom(i));
+  }
+
+  return Expression(toReturn);
 }
 
 
@@ -537,7 +610,6 @@ void Environment::reset(){
   // Procedure: conj
   envmap.emplace("conj", EnvResult(ProcedureType, conj));
 
-
   // Procedure: list
   envmap.emplace("list", EnvResult(ProcedureType, buildList));
 
@@ -551,10 +623,11 @@ void Environment::reset(){
   envmap.emplace("length", EnvResult(ProcedureType, length));
 
   // Procedure: append
-  //envmap.emplace()
+  envmap.emplace("append", EnvResult(ProcedureType, append));
 
   // Procedure: join
-  //envmap.emplace("")
+  envmap.emplace("join", EnvResult(ProcedureType, join));
 
   // Procedure: range
+  envmap.emplace("range", EnvResult(ProcedureType, range));
 }
