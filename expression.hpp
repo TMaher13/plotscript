@@ -61,6 +61,9 @@ public:
   /// return a const-iterator to the tail end
   ConstIteratorType tailConstEnd() const noexcept;
 
+  // Returns the tail of the expression
+  std::vector<Expression> getTail();
+
   /// convienience member to determine if head atom is a number
   bool isHeadNumber() const noexcept;
 

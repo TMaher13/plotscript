@@ -71,7 +71,10 @@ bool Expression::isHeadComplex() const noexcept {
 }
 
 bool Expression::isHeadList() const noexcept {
-  return (m_head.asSymbol() == "list");
+  if(m_head.isSymbol())
+    return (m_head.asSymbol() == "list");
+  else
+    return m_head.isList();
 }
 
 bool Expression::isHeadSymbol() const noexcept{
@@ -102,6 +105,10 @@ Expression::ConstIteratorType Expression::tailConstEnd() const noexcept{
   return m_tail.cend();
 }
 
+std::vector<Expression> Expression::getTail() {
+  return m_tail;
+}
+
 Expression apply(const Atom & op, const std::vector<Expression> & args, const Environment & env){
 
   // head must be a symbol
@@ -124,7 +131,7 @@ Expression apply(const Atom & op, const std::vector<Expression> & args, const En
 Expression Expression::handle_lookup(const Atom & head, const Environment & env){
     if(head.isSymbol()){ // if symbol is in env return value
       if(head.asSymbol() == "list") {
-        std::cout << "symbol but a list\n";
+        //std::cout << "symbol but a list\n";
         return Expression();
       }
 

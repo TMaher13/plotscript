@@ -356,10 +356,39 @@ Expression first(const std::vector<Expression>& args) {
   if(!nargs_equal(args,1))
     throw SemanticError("Error in call to first: invalid number of arguments.");
 
-  //if(!args[0].isHeadList())
-    //throw SemanticError("Error in call to first: invalid argument.");
+  if(!args[0].isHeadList())
+    throw SemanticError("Error in call to first: argument to first is not a list.");
 
   Expression list = buildList(args);
+
+  // Stupid but it works
+  for( auto & a : list.getTail())
+    return a.getTail().at(0);
+
+}
+
+Expression rest(const std::vector<Expression>& args) {
+  if(!nargs_equal(args,1))
+    throw SemanticError("Error in call to rest: invalid number of arguments.");
+
+  if(!args[0].isHeadList())
+    throw SemanticError("Error in call to rest: argument to first is not a list.");
+
+  Expression list = buildList(args);
+  std::vector<Expression> list_tail = list.getTail();
+  //std::cout << list_tail.size() << std::endl;
+  //list_tail.erase(list_tail.begin()+0);
+  //std::cout << list_tail.size() << std::endl;
+  std::vector<Expression> result;
+  int i = 1;
+  // Stupid but it works
+  for( auto & a : list_tail) {
+    //std::cout << a.getTail().at(i) << std::endl;
+    result.push_back(a.getTail().at(i));
+    i++;
+  }
+
+  return result;
 }
 
 
@@ -504,7 +533,7 @@ void Environment::reset(){
   envmap.emplace("first", EnvResult(ProcedureType, first));
 
   // Procedure: rest
-  //envmap.emplace("rest", EnvResult(ProcedureType, rest));
+  envmap.emplace("rest", EnvResult(ProcedureType, rest));
 
   // Procedure: length
   //envmap.emplace("length", EnvResult(ProcedureType, length));
