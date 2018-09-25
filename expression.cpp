@@ -14,15 +14,6 @@ Expression::Expression(const Atom & a){
   m_head = a;
 }
 
-/*Expression::Expression(const std::vector<Atom>& a) {
-
-  m_head = a;
-  for(auto & index : a) {
-    m_tail.push_back(Expression(index));
-  }
-
-}*/
-
 // recursive copy
 Expression::Expression(const Expression & a){
 
@@ -33,7 +24,8 @@ Expression::Expression(const Expression & a){
 }
 
 Expression::Expression(const std::vector<Expression> & a) {
-  m_head.setList();
+  //m_head.setList();
+  //isList = true;
   for(auto e : a){
     m_tail.push_back(e);
   }
@@ -81,6 +73,10 @@ bool Expression::isHeadSymbol() const noexcept{
   return m_head.isSymbol();
 }
 
+void Expression::setHeadList() {
+  m_head.setList();
+}
+
 
 void Expression::append(const Atom & a){
   m_tail.emplace_back(a);
@@ -105,7 +101,7 @@ Expression::ConstIteratorType Expression::tailConstEnd() const noexcept{
   return m_tail.cend();
 }
 
-std::vector<Expression> Expression::getTail() {
+std::vector<Expression> Expression::getTail() const {
   return m_tail;
 }
 

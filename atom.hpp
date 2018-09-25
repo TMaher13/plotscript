@@ -32,9 +32,6 @@ public:
   /// Construct an Atom of type Comlex with value
   Atom(const std::complex<double> value);
 
-  ///Construct an Atom of type List with value_list
-  Atom(const std::vector<Atom> value_list);
-
   /// Construct an Atom directly from a Token
   Atom(const Token & token);
 
@@ -80,7 +77,7 @@ public:
 private:
 
   // internal enum of known types
-  enum Type {NoneKind, NumberKind, SymbolKind, ComplexKind, ListKind}; // ComplexKind
+  enum Type {NoneKind, NumberKind, SymbolKind, ComplexKind, ListKind}; // ListKind
 
   // track the type
   Type m_type;

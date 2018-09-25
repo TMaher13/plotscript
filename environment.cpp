@@ -348,7 +348,10 @@ Expression buildList(const std::vector<Expression>& args) {
   for( auto & a :args)
     result.push_back(a);
 
-  return Expression(result);
+  Expression result_exp = Expression(result);
+  result_exp.setHeadList();
+
+  return result_exp;
 }
 
 // Unary function for getting the first value in a list
@@ -372,23 +375,32 @@ Expression rest(const std::vector<Expression>& args) {
     throw SemanticError("Error in call to rest: invalid number of arguments.");
 
   if(!args[0].isHeadList())
-    throw SemanticError("Error in call to rest: argument to first is not a list.");
+    throw SemanticError("Error in call to rest: argument to first is not a list or is empty.");
 
-  Expression list = buildList(args);
-  std::vector<Expression> list_tail = list.getTail();
-  //std::cout << list_tail.size() << std::endl;
-  //list_tail.erase(list_tail.begin()+0);
-  //std::cout << list_tail.size() << std::endl;
   std::vector<Expression> result;
-  int i = 1;
-  // Stupid but it works
-  for( auto & a : list_tail) {
-    //std::cout << a.getTail().at(i) << std::endl;
-    result.push_back(a.getTail().at(i));
-    i++;
+  for( auto & a :args[0].getTail())
+    result.push_back(a);
+
+  result.erase(result.begin());
+  Expression result_exp = Expression(result);
+  result_exp.setHeadList();
+
+  return result_exp;
+}
+
+Expression length(const std::vector<Expression>& args) {
+  if(!nargs_equal(args,1))
+    throw SemanticError("Error in call to rest: invalid number of arguments.");
+
+  if(!args[0].isHeadList()) {
+    if(args[0] == Expression())
+      return Expression(0);
+    throw SemanticError("Error in call to rest: argument to first is not a list.");
   }
 
-  return result;
+  double result;
+  result = args[0].getTail().size();
+  return Expression(result);
 }
 
 
@@ -536,7 +548,7 @@ void Environment::reset(){
   envmap.emplace("rest", EnvResult(ProcedureType, rest));
 
   // Procedure: length
-  //envmap.emplace("length", EnvResult(ProcedureType, length));
+  envmap.emplace("length", EnvResult(ProcedureType, length));
 
   // Procedure: append
   //envmap.emplace()

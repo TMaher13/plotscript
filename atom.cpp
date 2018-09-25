@@ -30,8 +30,8 @@ Atom::Atom(const Token & token): Atom(){
   }
   else{ // else assume symbol
 
-    //if(token.asString() == "list")
-      //setList();
+    if(token.asString() == "list")
+      setList();
     // make sure does not start with number
     if(!std::isdigit(token.asString()[0]))
       setSymbol(token.asString());
@@ -168,20 +168,6 @@ std::string Atom::asSymbol() const noexcept{
   return result;
 }
 
-// Converts other type into a list
-/*std::vector<Atom> Atom::asList() const noexcept {
-  if(m_type == SymbolKind)
-    return std::vector<Atom>(1,Atom(stringValue));
-  else if(m_type == NumberKind)
-    return std::vector<Atom>(1,Atom(numberValue));
-  else if(m_type == ComplexKind)
-    return std::vector<Atom>(1,Atom(complexValue));
-  else if(m_type == ListKind)
-    return listValue;
-  else // If it doesn't have a type return empty list
-    return std::vector<Atom>();
-}*/
-
 bool Atom::operator==(const Atom & right) const noexcept{
 
   if(m_type != right.m_type) return false;
@@ -216,20 +202,6 @@ bool Atom::operator==(const Atom & right) const noexcept{
       return stringValue == right.stringValue;
     }
     break;
-  /*case ListKind:
-    {
-      if(right.m_type != ListKind) return false;
-
-      std::vector<Atom> dleft = listValue;
-      std::vector<Atom> dright = right.listValue;
-      std::vector<Atom> diff = fabs(dleft - dright);
-      if(diff!=diff) return false; //|| (diff > std::numeric_limits<double>::epsilon())) return false;
-      for(int i = 0; i < dleft.size(); i++) {
-        if(dleft.at(i) != dright.at(i))
-          return false;
-      }
-    }
-    break;*/
   default:
     return false;
   }

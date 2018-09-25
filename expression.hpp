@@ -49,6 +49,9 @@ public:
   /// return a const-reference to the head Atom
   const Atom & head() const;
 
+  // Set the head of the expression to list type
+  void setHeadList();
+
   /// append Atom to tail of the expression
   void append(const Atom & a);
 
@@ -62,7 +65,7 @@ public:
   ConstIteratorType tailConstEnd() const noexcept;
 
   // Returns the tail of the expression
-  std::vector<Expression> getTail();
+  std::vector<Expression> getTail() const;
 
   /// convienience member to determine if head atom is a number
   bool isHeadNumber() const noexcept;
@@ -101,6 +104,7 @@ private:
 
   // My implementation of list
   //Expression handle_list(Environment & env);
+  //bool isList;
 };
 
 /// Render expression to output stream
