@@ -362,6 +362,9 @@ Expression first(const std::vector<Expression>& args) {
   if(!args[0].isHeadList())
     throw SemanticError("Error in call to first: argument to first is not a list.");
 
+  if(args[0].getTail() == std::vector<Expression>())
+    throw SemanticError("Error in call to first: empty list.");
+
   Expression list = buildList(args);
 
   // Stupid but it works
@@ -378,11 +381,14 @@ Expression rest(const std::vector<Expression>& args) {
   if(!args[0].isHeadList())
     throw SemanticError("Error in call to rest: argument to first is not a list or is empty.");
 
+  if(args[0].getTail() == std::vector<Expression>())
+    throw SemanticError("Error in call to rest: empty list.");
+
   std::vector<Expression> result;
   for( auto & a :args[0].getTail())
     result.push_back(a);
 
-  result.erase(result.begin());
+  result.erase(result.begin()); // Erase first item in list
   Expression result_exp = Expression(result);
   result_exp.setHeadList();
 
@@ -408,25 +414,31 @@ Expression length(const std::vector<Expression>& args) {
 // Adds a second list as last node of first list
 Expression append(const std::vector<Expression>& args) {
   if(!nargs_equal(args,2))
-    throw SemanticError("Error in call to rest: invalid number of arguments.");
+    throw SemanticError("Error in call to append: invalid number of arguments.");
 
-  if(!args[0].isHeadList() || !args[1].isHeadList()) {
-    if(args[0] == Expression()) {
-      Expression toReturn;
-      toReturn.append(Expression());
-
-    }
-
-
-    throw SemanticError("Error in call to rest: argument to first is not a list.");
+  if(!args[0].isHeadList()) {
+    throw SemanticError("Error in call to append: argument to first is not a list.");
   }
 
+  Expression toReturn;
 
+  if(args[0] == Expression())
+    toReturn.append(Expression());
+  else
+    toReturn = args[0];
 
-  Expression toReturn = args[0];
-  //Expression toAdd = args[1];
+  if(args[1] == Expression())
+    toReturn.append(Expression());
+  else {
+    if(args[1].head().isNumber())
+      toReturn.append(args[1].head().asNumber());
+    else if(args[1].head().isComplex())
+      toReturn.append(args[1].head().asComplex());
+    else
+      throw SemanticError("Error in call to append: invalid argument.");
+  }
 
-  toReturn.append(args[1]);
+  toReturn.head().setList();
 
   return toReturn;
 }
@@ -441,15 +453,25 @@ Expression join(const std::vector<Expression>& args) {
 
   Expression toReturn;
 
-  for( auto & a :args[0].getTail())
-    toReturn.append(a);
-
-  for( auto & a :args[1].getTail()) {
-    if(a.isHeadNumber() || a.isHeadComplex())
-      toReturn.append(a.head());
-    else
+  if(args[0] == Expression())
+    toReturn.append(Expression());
+  else {
+    for( auto & a :args[0].getTail())
       toReturn.append(a);
   }
+
+  if(args[1] == Expression())
+    toReturn.append(Expression());
+  else {
+    for( auto & a :args[1].getTail()) {
+      if(a.isHeadNumber() || a.isHeadComplex())
+        toReturn.append(a.head());
+      else
+        toReturn.append(a);
+    }
+  }
+
+  toReturn.head().setList();
 
   return toReturn;
 
@@ -483,7 +505,10 @@ Expression range(const std::vector<Expression>& args) {
     toReturn.push_back(Atom(i));
   }
 
-  return Expression(toReturn);
+  Expression final_exp = Expression(toReturn);
+  final_exp.head().setList();
+
+  return final_exp;
 }
 
 
