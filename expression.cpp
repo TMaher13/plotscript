@@ -231,12 +231,19 @@ std::ostream & operator<<(std::ostream & out, const Expression & exp){
 
   out << "(";
   out << exp.head();
+  bool begin = true; // To know when to add spaces to output
 
   for(auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); ++e){
+    if(begin == false) // Kind of wonky but oh well
+      out << " ";
+
     out << *e;
+    begin = false;
   }
 
   out << ")";
+
+
 
   return out;
 }
