@@ -132,7 +132,9 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
     if(head.isSymbol()){ // if symbol is in env return value
       if(head.asSymbol() == "list") {
         //std::cout << "symbol but a list\n";
-        return Expression();
+        Expression toReturn = Expression();
+        toReturn.head().setList();
+        return toReturn;
       }
 
       if(env.is_exp(head)){

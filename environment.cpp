@@ -394,11 +394,11 @@ Expression length(const std::vector<Expression>& args) {
   if(!nargs_equal(args,1))
     throw SemanticError("Error in call to rest: invalid number of arguments.");
 
-  if(!args[0].isHeadList()) {
-    if(args[0] == Expression())
-      return Expression(0);
+  if(!args[0].isHeadList())
     throw SemanticError("Error in call to rest: argument to first is not a list.");
-  }
+
+  if(args[0] == Expression())
+    return Expression(0);
 
   //double result;
   //result = args[0].getTail().size();
@@ -410,8 +410,18 @@ Expression append(const std::vector<Expression>& args) {
   if(!nargs_equal(args,2))
     throw SemanticError("Error in call to rest: invalid number of arguments.");
 
-  if(!args[0].isHeadList() || !args[1].isHeadList())
-    throw SemanticError("Error in call to rest: argument to first is not a list or is empty.");
+  if(!args[0].isHeadList() || !args[1].isHeadList()) {
+    if(args[0] == Expression()) {
+      Expression toReturn;
+      toReturn.append(Expression());
+
+    }
+
+
+    throw SemanticError("Error in call to rest: argument to first is not a list.");
+  }
+
+
 
   Expression toReturn = args[0];
   //Expression toAdd = args[1];
