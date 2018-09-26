@@ -199,6 +199,10 @@ Expression Expression::handle_define(Environment & env){
   return result;
 }
 
+//Expression Expression::handle_lambda(Environment & env) {
+  //std::cout << "Entered handle_lambda\n";
+//}
+
 // this is a simple recursive version. the iterative version is more
 // difficult with the ast data structure used (no parent pointer).
 // this limits the practical depth of our AST
