@@ -40,7 +40,7 @@ Expression add(const std::vector<Expression> & args){
 
   for( auto & a :args){
     if(a.isHeadComplex() || isComplex) {
-      std::cout << "Is complex\n";
+
       if(result != 0.0) { // In case we need to switch from Number type to Complex type mid-calculation
         std::complex<double> add_result(result,0);
         comp_result += add_result;
@@ -345,7 +345,7 @@ Expression buildList(const std::vector<Expression>& args) {
     return Expression();
 
   std::vector<Expression> result;
-  for( auto & a :args)
+  for(auto & a :args)
     result.push_back(a);
 
   Expression result_exp = Expression(result);
@@ -434,6 +434,9 @@ Expression append(const std::vector<Expression>& args) {
       toReturn.append(args[1].head().asNumber());
     else if(args[1].head().isComplex())
       toReturn.append(args[1].head().asComplex());
+    else if(args[1].head().isList()) {
+      toReturn.append(args[1].getTail());
+    }
     else
       throw SemanticError("Error in call to append: invalid argument.");
   }
@@ -443,7 +446,7 @@ Expression append(const std::vector<Expression>& args) {
   return toReturn;
 }
 
-// Joings 2 lists into one linear node
+// Joins 2 lists into one list node
 Expression join(const std::vector<Expression>& args) {
   if(!nargs_equal(args,2))
     throw SemanticError("Error in call to rest: invalid number of arguments.");
@@ -464,10 +467,10 @@ Expression join(const std::vector<Expression>& args) {
     toReturn.append(Expression());
   else {
     for( auto & a :args[1].getTail()) {
-      if(a.isHeadNumber() || a.isHeadComplex())
-        toReturn.append(a.head());
-      else
-        toReturn.append(a);
+      //if(a.isHeadNumber() || a.isHeadComplex())
+        //toReturn.append(a.head());
+      //else
+      toReturn.append(a);
     }
   }
 
@@ -486,24 +489,20 @@ Expression range(const std::vector<Expression>& args) {
   if(!args[0].head().isNumber() || !args[1].head().isNumber() || !args[2].head().isNumber())
     throw SemanticError("Error in call to range: invalid argument(s).");
 
-  if(args[0].head().asNumber() > args[1].head().asNumber())
+  if(args[0].head().asNumber() >= args[1].head().asNumber())
     throw SemanticError("Error in call to range: beginning term larger than end term.");
 
   if(args[2].head().asNumber() <= 0)
     throw SemanticError("Error in call to range: negative or zero increment.");
 
-
+  // Save values for ease of use
   double begin = args[0].head().asNumber();
   double end = args[1].head().asNumber();
   double inc = args[2].head().asNumber();
 
-  std::cout << begin << " " << end << " " << inc << std::endl;
-
   std::vector<Expression> toReturn;
-  for(double i = begin; i <= end; i=i+inc) {
-    //std::cout << i << std::endl;
+  for(double i = begin; i <= end; i=i+inc)
     toReturn.push_back(Atom(i));
-  }
 
   Expression final_exp = Expression(toReturn);
   final_exp.head().setList();
