@@ -664,4 +664,5 @@ void Environment::reset(){
 
   // Procedure: range
   envmap.emplace("range", EnvResult(ProcedureType, range));
+
 }

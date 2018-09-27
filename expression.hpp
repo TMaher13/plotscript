@@ -52,6 +52,9 @@ public:
   // Set the head of the expression to list type
   void setHeadList();
 
+  // set the head of the expression to lambda type
+  void setHeadLambda();
+
   /// append Atom to tail of the expression
   void append(const Atom & a);
 
@@ -85,6 +88,9 @@ public:
   /// Evaluate expression using a post-order traversal (recursive)
   Expression eval(Environment & env);
 
+  /// Method for creating a copy of the environment for lambda functions
+  Expression shadow_copy(Environment & env);
+
   /// equality comparison for two expressions (recursive)
   bool operator==(const Expression & exp) const noexcept;
 
@@ -104,6 +110,9 @@ private:
   Expression handle_lookup(const Atom & head, const Environment & env);
   Expression handle_define(Environment & env);
   Expression handle_begin(Environment & env);
+
+  // Implementation special form for handling lambda functions
+  Expression handle_lambda(Environment & env);
 
   // My implementation of list
   //Expression handle_list(Environment & env);

@@ -59,6 +59,9 @@ public:
   /// predicate to determine if it is of type list
   bool isList() const noexcept;
 
+  /// predicate to determine if it is of tpye lambda
+  bool isLambda() const noexcept;
+
   /// value of Atom as a number, return 0 if not a Number
   double asNumber() const noexcept;
 
@@ -68,8 +71,11 @@ public:
   /// value of Atom as a number, returns empty-string if not a Symbol
   std::string asSymbol() const noexcept;
 
-  // helper to set type and values for list
-  void setList(); //const std::vector<Atom> & list_values
+  // helper to set type to list
+  void setList();
+
+  // helper to set type to procedure
+  void setLambda();
 
   /// equality comparison based on type and value
   bool operator==(const Atom & right) const noexcept;
@@ -77,7 +83,7 @@ public:
 private:
 
   // internal enum of known types
-  enum Type {NoneKind, NumberKind, SymbolKind, ComplexKind, ListKind}; // ListKind
+  enum Type {NoneKind, NumberKind, SymbolKind, ComplexKind, ListKind, LambdaKind};
 
   // track the type
   Type m_type;
@@ -88,7 +94,6 @@ private:
     double numberValue;
     std::string stringValue;
     std::complex<double> complexValue;
-    //std::vector<Atom> listValue;
   };
 
   // helper to set type and value of Number

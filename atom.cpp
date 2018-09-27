@@ -107,6 +107,10 @@ bool Atom::isList() const noexcept {
   return m_type == ListKind;
 }
 
+bool Atom::isLambda() const noexcept {
+  return m_type == LambdaKind;
+}
+
 
 void Atom::setNumber(double value){
 
@@ -135,6 +139,10 @@ void Atom::setSymbol(const std::string & value){
 void Atom::setList() { //const std::vector<Atom> & value_list
   m_type = ListKind;
   //listValue = value_list;
+}
+
+void Atom::setLambda() {
+  m_type = LambdaKind;
 }
 
 double Atom::asNumber() const noexcept{

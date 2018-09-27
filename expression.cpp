@@ -77,6 +77,10 @@ void Expression::setHeadList() {
   m_head.setList();
 }
 
+void Expression::setHeadLambda() {
+  m_head.setLambda();
+}
+
 
 void Expression::append(const Atom & a){
   m_tail.emplace_back(a);
@@ -119,6 +123,10 @@ Expression apply(const Atom & op, const std::vector<Expression> & args, const En
   // must map to a proc
   if(!env.is_proc(op)){
     throw SemanticError("Error during evaluation: symbol does not name a procedure");
+  }
+
+  if(op.asSymbol() == "lambda") {
+
   }
 
   // map from symbol to proc
@@ -181,7 +189,7 @@ Expression Expression::handle_define(Environment & env){
 
   // but tail[0] must not be a special-form or procedure
   std::string s = m_tail[0].head().asSymbol();
-  if((s == "define") || (s == "begin"))
+  if((s == "define") || (s == "begin") || (s == "lambda"))
     throw SemanticError("Error during evaluation: attempt to redefine a special-form");
 
   if(env.is_proc(m_head))
@@ -193,35 +201,66 @@ Expression Expression::handle_define(Environment & env){
   if(env.is_exp(m_head))
     throw SemanticError("Error during evaluation: attempt to redefine a previously defined symbol");
 
-  //and add to env
+  //if(m_tail[1].head().asSymbol() == "lambda")
+    //envmap.emplace(m_tail[0].head(), EnvResult(ProcedureType, lambda));
+  //else {
+    //and add to env
   env.add_exp(m_tail[0].head(), result);
+  //}
 
   return result;
 }
 
-//Expression Expression::handle_lambda(Environment & env) {
-  //std::cout << "Entered handle_lambda\n";
-//}
+// Helper function that makes a copy of environment so we can edit temporarily defined variables
+Expression Expression::shadow_copy(Environment & env) {
+  Environment copyEnv = env;
+
+  return handle_lambda(copyEnv);
+}
+
+// Special form method to handle a lambda function created by the user
+// Always called from shadow_copy method to ensure that we only make edits on the copy environment
+Expression Expression::handle_lambda(Environment & env) {
+  std::cout << "Entered handle_lambda\n";
+
+  if(m_tail.size() != 2)
+    throw SemanticError("Error during evaluation: invalid number of arguments to define");
+
+  // create the list of arguments to be created
+  Expression result;// = m_tail[1];
+  m_tail[0].m_tail.insert(m_tail[0].m_tail.begin(), Expression(m_tail[0].head())); // push input argument in head into tail as part of list
+  m_tail[0].setHeadList(); // Set as list
+
+  // Create returnable lambda expression
+  result.m_tail.push_back(m_tail[0]);
+  result.m_tail.push_back(m_tail[1]);
+
+  // Evaluate expression for tail[1] (the lambda procedure expression)
+  //Expression result = m_tail[1].eval(env);
+  result.setHeadLambda();
+
+  return result;
+}
 
 // this is a simple recursive version. the iterative version is more
 // difficult with the ast data structure used (no parent pointer).
 // this limits the practical depth of our AST
-Expression Expression::eval(Environment & env){
+Expression Expression::eval(Environment & env) {
 
   if(m_tail.empty()) {
 
     return handle_lookup(m_head, env);
   }
-  // handle begin special-form
-  else if(m_head.isSymbol() && m_head.asSymbol() == "begin") {
+  else if(m_head.isSymbol() && m_head.asSymbol() == "begin") { // handle begin special-form
     return handle_begin(env);
   }
-  // handle define special-form
-  else if(m_head.isSymbol() && m_head.asSymbol() == "define") {
+  else if(m_head.isSymbol() && m_head.asSymbol() == "define") { // handle define special-form
     return handle_define(env);
   }
-  // else attempt to treat as procedure
-  else{
+  else if(m_head.isSymbol() && m_head.asSymbol() == "lambda") { // handle lambda special-form
+    return shadow_copy(env);
+  }
+  else { // else attempt to treat as procedure
     std::vector<Expression> results;
     for(Expression::IteratorType it = m_tail.begin(); it != m_tail.end(); ++it){
       results.push_back(it->eval(env));
@@ -236,6 +275,8 @@ std::ostream & operator<<(std::ostream & out, const Expression & exp){
   out << "(";
   out << exp.head();
   bool begin = true; // To know when to add spaces to output
+  if(exp.head().isSymbol() && (exp.getTail() != std::vector<Expression>()))
+    out << ' ';
 
   for(auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); ++e){
     if(begin == false) // Kind of wonky but oh well
