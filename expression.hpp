@@ -49,6 +49,9 @@ public:
   /// return a const-reference to the head Atom
   const Atom & head() const;
 
+  /// Sets head of Expression from Atom
+  void setHead(const Atom & a);
+
   // Set the head of the expression to list type
   void setHeadList();
 
@@ -115,6 +118,8 @@ private:
 
   // Implementation special form for handling lambda functions
   Expression handle_lambda(Environment & env);
+  Expression handle_apply(Environment & env);
+  Expression handle_map(Environment & env);
 
   // My implementation of list
   //Expression handle_list(Environment & env);

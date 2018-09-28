@@ -62,7 +62,7 @@ Expression add(const std::vector<Expression> & args){
 };
 
 
-// Method to mu;tiply arguments together. Works for both Numbers and Complex types
+// Method to multiply arguments together. Works for both Numbers and Complex types
 // If any complex type is found in arguments, complex type is returned
 Expression mul(const std::vector<Expression> & args){
 
@@ -519,16 +519,35 @@ Expression range(const std::vector<Expression>& args) {
 }
 
 
-Expression apply(const std::vector<Expression>& args) {
+/*Expression apply(const std::vector<Expression>& args) {
 
-  //if(!nargs_equal(args,2))
-    //throw SemanticError("Error in call to apply: invalid number of arguments");
+  if(!nargs_equal(args,2))
+    throw SemanticError("Error in call to apply: invalid number of arguments");
 
-  //if(!is_proc(args[0].head()) || args[1].head().isList())
-    //throw SemanticError("Error in call to apply: invalid argument");
+  Environment env;
 
+  if(!args[1].head().isList())
+    throw SemanticError("Error in call to apply: invalid argument");
 
-}
+  //double result;
+  //for(auto & a: args[1].getTail()) {
+  //}
+  if(env.is_proc(args[0].head())) {
+
+    Procedure proc = env.get_proc(args[0].head());
+
+    Expression result = proc(args[1].getTail());
+    //if(result.head().isNumber())
+    return result;
+  }
+  else if(env.is_exp(args[0].head())) {
+    //Expression result;
+    //result.setHead(args[0].head())
+    Expression result = args[0];
+
+    return result.eval(env);
+  }
+}*/
 
 
 const double PI = std::atan2(0, -1);
@@ -686,6 +705,6 @@ void Environment::reset(){
   envmap.emplace("range", EnvResult(ProcedureType, range));
 
   // Procedure: apply
-  envmap.emplace("apply", EnvResult(ProcedureType, range));
+  //envmap.emplace("apply", EnvResult(ProcedureType, apply));
 
 }

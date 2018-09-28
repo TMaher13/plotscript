@@ -136,14 +136,12 @@ Expression Expression::apply(Atom & op, std::vector<Expression> & args, Environm
     std::vector<Expression> lambda_args = args;
     Expression lambda_list = lambda_tail[0];
 
-
-    int i = 0;
+    //int i = 0;
     //for(Expression::IteratorType it = lambda.m_tail[0].begin(); it != lambda.m_tail[0].end(); ++it, i++){
     for(int j = 0; j < lambda_list.getTail().size(); j++) {
       //std::cout << lambda_tail[j].head().asSymbol() << std::endl;
-
-      env.add_exp(lambda_list.m_tail[j].head(), lambda_args[i]);
-      i++;
+      env.add_exp(lambda_list.m_tail[j].head(), lambda_args[j]);
+      //i++;
     }
 
     return lambda_tail[1].eval(env);
@@ -169,7 +167,10 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
       }
 
       if(env.is_exp(head)){
-	        return env.get_exp(head);
+	      return env.get_exp(head);
+      }
+      else if(env.is_proc(head)) {
+        return Expression(head);
       }
       else{
 	       throw SemanticError("Error during evaluation: unknown symbol");
@@ -264,6 +265,66 @@ Expression Expression::handle_lambda(Environment & env) {
   return result;
 }
 
+Expression Expression::handle_apply(Environment & env) {
+  if(m_tail.size() != 2)
+    throw SemanticError("Error in call to apply: invalid number of arguments");
+
+  if(!m_tail[1].isHeadList())
+    throw SemanticError("Error in call to apply: invalid list argument");
+
+  if(!m_tail[0].isHeadSymbol())
+    throw SemanticError("Error in call to apply: invalid symbol argument");
+
+  if(env.is_proc(m_tail[0].head())) {
+
+    Procedure proc = env.get_proc(m_tail[0].head());
+
+    Expression result = proc(m_tail[1].getTail());
+
+    return result;
+  }
+  else if(env.is_exp(m_tail[0].head())) {
+
+    std::vector<Expression> list_args = m_tail[1].getTail();
+
+    return apply(m_tail[0].head(), list_args, env);
+  }
+}
+
+Expression Expression::handle_map(Environment & env) {
+  if(m_tail.size() != 2)
+    throw SemanticError("Error in call to apply: invalid number of arguments");
+
+  if(!m_tail[1].isHeadList())
+    throw SemanticError("Error in call to apply: invalid list argument");
+
+  if(env.is_proc(m_tail[0].head())) {
+
+    Procedure proc = env.get_proc(m_tail[0].head());
+
+    Expression result = proc(m_tail[1].getTail());
+
+    return result;
+  }
+  else if(env.is_exp(m_tail[0].head())) {
+    //Expression result;
+    //result.setHead(args[0].head())
+    Expression result = env.get_exp(m_tail[0].head());
+    std::vector<Expression> list_args;
+    Expression list = result.m_tail[1];
+    for(auto & a: list.m_tail)
+      list_args.push_back(a);
+
+    result.setHeadLambda();
+
+    return apply(result.head(), list_args, env);
+  }
+}
+
+void Expression::setHead(const Atom & a) {
+  m_head = a;
+}
+
 // this is a simple recursive version. the iterative version is more
 // difficult with the ast data structure used (no parent pointer).
 // this limits the practical depth of our AST
@@ -280,8 +341,10 @@ Expression Expression::eval(Environment & env) {
     return handle_define(env);
   }
   else if(m_head.isSymbol() && m_head.asSymbol() == "lambda") { // handle lambda special-form
-    //return shadow_copy(env);
     return handle_lambda(env);
+  }
+  else if(m_head.isSymbol() && m_head.asSymbol() == "apply") { // handle apply special-form
+    return handle_apply(env);
   }
   else { // else attempt to treat as procedure
     std::vector<Expression> results;
