@@ -138,6 +138,9 @@ Expression Expression::apply(Atom & op, std::vector<Expression> & args, Environm
 
     //int i = 0;
     //for(Expression::IteratorType it = lambda.m_tail[0].begin(); it != lambda.m_tail[0].end(); ++it, i++){
+    if(lambda_list.getTail().size() != lambda_args.size())
+      throw SemanticError("Error in call to lambda function: invalid number of arguments.");
+
     for(int j = 0; j < lambda_list.getTail().size(); j++) {
       //std::cout << lambda_tail[j].head().asSymbol() << std::endl;
       env.add_exp(lambda_list.m_tail[j].head(), lambda_args[j]);
@@ -234,14 +237,6 @@ Expression Expression::handle_define(Environment & env){
 
   return result;
 }
-
-// Helper function that makes a copy of environment so we can edit temporarily defined variables
-// To be called when we are defining a lambda and need to apply new expressions and variables
-/*Expression Expression::shadow_copy(Atom & op, std::vector<Expression> & args, Environment & env) {
-  Environment copyEnv = env;
-
-  return apply(op, args, copyEnv);
-}*/
 
 // Special form method to handle a lambda function created by the user
 Expression Expression::handle_lambda(Environment & env) {
