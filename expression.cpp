@@ -272,7 +272,7 @@ Expression Expression::handle_apply(Environment & env) {
   if(!m_tail[1].isHeadList())
     throw SemanticError("Error in call to apply: invalid list argument");
 
-  if(!m_tail[0].isHeadSymbol())
+  if(m_tail[0].m_tail != std::vector<Expression>())
     throw SemanticError("Error in call to apply: invalid symbol argument");
 
   if(env.is_proc(m_tail[0].head())) {
@@ -291,8 +291,11 @@ Expression Expression::handle_apply(Environment & env) {
 
     return apply(m_tail[0].head(), args_eval.m_tail, env);
   }
+  else
+    throw SemanticError("Error in call to apply: invalid symbol argument");
 }
 
+// Similar to apply but run procedure/expression on each item in list
 Expression Expression::handle_map(Environment & env) {
   if(m_tail.size() != 2)
     throw SemanticError("Error in call to apply: invalid number of arguments");
@@ -300,27 +303,39 @@ Expression Expression::handle_map(Environment & env) {
   if(!m_tail[1].isHeadList())
     throw SemanticError("Error in call to apply: invalid list argument");
 
+  if(m_tail[0].m_tail != std::vector<Expression>())
+    throw SemanticError("Error in call to apply: invalid symbol argument");
+
   if(env.is_proc(m_tail[0].head())) {
 
     Procedure proc = env.get_proc(m_tail[0].head());
 
-    Expression result = proc(m_tail[1].getTail());
+    Expression apply_exp = m_tail[1].eval(env);
 
-    return result;
+    Expression return_exp;
+    return_exp.setHeadList();
+
+    for(auto & a: apply_exp.m_tail)
+      return_exp.append(proc(std::vector<Expression>(1,a)));
+
+    return return_exp;
   }
   else if(env.is_exp(m_tail[0].head())) {
-    //Expression result;
-    //result.setHead(args[0].head())
-    Expression result = env.get_exp(m_tail[0].head());
-    std::vector<Expression> list_args;
-    Expression list = result.m_tail[1];
-    for(auto & a: list.m_tail)
-      list_args.push_back(a);
 
-    result.setHeadLambda();
+    Expression args_eval = m_tail[1].eval(env);
 
-    return apply(result.head(), list_args, env);
+    Expression return_exp;
+    return_exp.setHeadList();
+
+    for(int i = 0; i < args_eval.m_tail.size(); i++) {
+      std::vector<Expression> toPass(1,args_eval.m_tail[i]);
+      return_exp.append(apply(m_tail[0].head(), toPass, env));
+    }
+
+    return return_exp;
   }
+  else
+    throw SemanticError("Error in call to apply: invalid symbol argument");
 }
 
 void Expression::setHead(const Atom & a) {
@@ -347,6 +362,9 @@ Expression Expression::eval(Environment & env) {
   }
   else if(m_head.isSymbol() && m_head.asSymbol() == "apply") { // handle apply special-form
     return handle_apply(env);
+  }
+  else if(m_head.isSymbol() && m_head.asSymbol() == "map") { // handle map special-form
+    return handle_map(env);
   }
   else { // else attempt to treat as procedure
     std::vector<Expression> results;

@@ -519,37 +519,6 @@ Expression range(const std::vector<Expression>& args) {
 }
 
 
-/*Expression apply(const std::vector<Expression>& args) {
-
-  if(!nargs_equal(args,2))
-    throw SemanticError("Error in call to apply: invalid number of arguments");
-
-  Environment env;
-
-  if(!args[1].head().isList())
-    throw SemanticError("Error in call to apply: invalid argument");
-
-  //double result;
-  //for(auto & a: args[1].getTail()) {
-  //}
-  if(env.is_proc(args[0].head())) {
-
-    Procedure proc = env.get_proc(args[0].head());
-
-    Expression result = proc(args[1].getTail());
-    //if(result.head().isNumber())
-    return result;
-  }
-  else if(env.is_exp(args[0].head())) {
-    //Expression result;
-    //result.setHead(args[0].head())
-    Expression result = args[0];
-
-    return result.eval(env);
-  }
-}*/
-
-
 const double PI = std::atan2(0, -1);
 const double EXP = std::exp(1);
 const std::complex<double> I(0, 1);
@@ -703,8 +672,5 @@ void Environment::reset(){
 
   // Procedure: range
   envmap.emplace("range", EnvResult(ProcedureType, range));
-
-  // Procedure: apply
-  //envmap.emplace("apply", EnvResult(ProcedureType, apply));
 
 }
