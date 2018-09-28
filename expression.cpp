@@ -119,37 +119,28 @@ Expression Expression::apply(Atom & op, std::vector<Expression> & args, Environm
     throw SemanticError("Error during evaluation: procedure name not symbol or lambda.");
   }
 
-  // must map to a proc
-  if(!env.is_proc(op) && !env.is_exp(op)){ // May need to edit to include lambda
+  // must map to a proc or exp
+  if(!env.is_proc(op) && !env.is_exp(op)){
     throw SemanticError("Error during evaluation: symbol does not name a procedure or lambda.");
   }
 
   // If atom is placeholder for lambda
   if(env.is_exp(op)) {
-    //if(args[0].getTail().size() != env.getTail().size())
-      //throw SemanticError("Invalid call for lambda: invalid number of arguments.");
-
-    //std::vector<Expression> input_val = env.getTail();
 
     Expression lambda = env.get_exp(op);
     std::vector<Expression> lambda_tail = lambda.getTail();
     std::vector<Expression> lambda_args = args;
     Expression lambda_list = lambda_tail[0];
 
-    //int i = 0;
     //for(Expression::IteratorType it = lambda.m_tail[0].begin(); it != lambda.m_tail[0].end(); ++it, i++){
     if(lambda_list.getTail().size() != lambda_args.size())
       throw SemanticError("Error in call to lambda function: invalid number of arguments.");
 
     for(int j = 0; j < lambda_list.getTail().size(); j++) {
-      //std::cout << lambda_tail[j].head().asSymbol() << std::endl;
       env.add_exp(lambda_list.m_tail[j].head(), lambda_args[j]);
-      //i++;
     }
 
     return lambda_tail[1].eval(env);
-
-
   }
   else {
     // map from symbol to proc

@@ -71,6 +71,7 @@ Expression mul(const std::vector<Expression> & args){
   std::complex<double> comp_result;
   bool isComplex = false;
   bool first_arg = true;
+  Environment env;
 
   for( auto & a :args){
     if(a.isHeadComplex() || isComplex) {
@@ -91,6 +92,10 @@ Expression mul(const std::vector<Expression> & args){
     }
     else if(a.isHeadNumber())
       result *= a.head().asNumber();
+    else if(a.isHeadSymbol() && env.is_proc(a.head())) {
+      Procedure proc = env.get_proc(a.head());
+      result *= proc(a.getTail()).head().asNumber();
+    }
     else
       throw SemanticError("Error in call to mul: argument is invalid.");
   }
