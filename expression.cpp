@@ -279,15 +279,17 @@ Expression Expression::handle_apply(Environment & env) {
 
     Procedure proc = env.get_proc(m_tail[0].head());
 
-    Expression result = proc(m_tail[1].getTail());
+    Expression apply_exp = m_tail[1].eval(env);
+
+    Expression result = proc(apply_exp.m_tail);
 
     return result;
   }
   else if(env.is_exp(m_tail[0].head())) {
 
-    std::vector<Expression> list_args = m_tail[1].getTail();
+    Expression args_eval = m_tail[1].eval(env);
 
-    return apply(m_tail[0].head(), list_args, env);
+    return apply(m_tail[0].head(), args_eval.m_tail, env);
   }
 }
 
