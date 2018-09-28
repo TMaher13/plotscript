@@ -236,11 +236,11 @@ Expression Expression::handle_define(Environment & env){
 
 // Helper function that makes a copy of environment so we can edit temporarily defined variables
 // To be called when we are defining a lambda and need to apply new expressions and variables
-Expression Expression::shadow_copy(Atom & op, std::vector<Expression> & args, Environment & env) {
+/*Expression Expression::shadow_copy(Atom & op, std::vector<Expression> & args, Environment & env) {
   Environment copyEnv = env;
 
   return apply(op, args, copyEnv);
-}
+}*/
 
 // Special form method to handle a lambda function created by the user
 Expression Expression::handle_lambda(Environment & env) {
@@ -288,9 +288,6 @@ Expression Expression::eval(Environment & env) {
     for(Expression::IteratorType it = m_tail.begin(); it != m_tail.end(); ++it){
       results.push_back(it->eval(env));
     }
-    //if(m_head.isLambda())
-      //return shadow_copy(m_head, results, env);
-    //else
     return apply(m_head, results, env);
   }
 }

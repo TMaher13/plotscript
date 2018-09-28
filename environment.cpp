@@ -156,6 +156,14 @@ Expression div(const std::vector<Expression> & args){
       throw SemanticError("Error in call to division: invalid argument.");
     }
   }
+  else if(nargs_equal(args,1)) {
+    if(args[0].head().isNumber())
+      return Expression(1.0/args[0].head().asNumber());
+    else if(args[0].head().isComplex())
+      return Expression(1.0/args[0].head().asComplex());
+    else
+      throw SemanticError("Error in call to division: invalid argument.");
+  }
   else{
     throw SemanticError("Error in call to division: invalid number of arguments.");
   }
@@ -511,6 +519,18 @@ Expression range(const std::vector<Expression>& args) {
 }
 
 
+Expression apply(const std::vector<Expression>& args) {
+
+  //if(!nargs_equal(args,2))
+    //throw SemanticError("Error in call to apply: invalid number of arguments");
+
+  //if(!is_proc(args[0].head()) || args[1].head().isList())
+    //throw SemanticError("Error in call to apply: invalid argument");
+
+
+}
+
+
 const double PI = std::atan2(0, -1);
 const double EXP = std::exp(1);
 const std::complex<double> I(0, 1);
@@ -664,5 +684,8 @@ void Environment::reset(){
 
   // Procedure: range
   envmap.emplace("range", EnvResult(ProcedureType, range));
+
+  // Procedure: apply
+  envmap.emplace("apply", EnvResult(ProcedureType, range));
 
 }

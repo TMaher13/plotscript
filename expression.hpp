@@ -89,7 +89,7 @@ public:
   Expression eval(Environment & env);
 
   /// Method for creating a copy of the environment for lambda functions
-  Expression shadow_copy(Atom & op, std::vector<Expression> & args, Environment & env);
+  //Expression shadow_copy(Atom & op, std::vector<Expression> & args, Environment & env);
 
   Expression apply(Atom & op, std::vector<Expression> & args, Environment & env);
 
