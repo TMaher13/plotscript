@@ -89,7 +89,9 @@ public:
   Expression eval(Environment & env);
 
   /// Method for creating a copy of the environment for lambda functions
-  Expression shadow_copy(Environment & env);
+  Expression shadow_copy(Atom & op, std::vector<Expression> & args, Environment & env);
+
+  Expression apply(Atom & op, std::vector<Expression> & args, Environment & env);
 
   /// equality comparison for two expressions (recursive)
   bool operator==(const Expression & exp) const noexcept;

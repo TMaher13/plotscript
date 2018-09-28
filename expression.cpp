@@ -113,27 +113,50 @@ std::vector<Expression> Expression::getTail() const {
   return m_tail;
 }
 
-Expression apply(const Atom & op, const std::vector<Expression> & args, const Environment & env){
+Expression Expression::apply(Atom & op, std::vector<Expression> & args, Environment & env) {
 
-  // head must be a symbol
-  if(!op.isSymbol()){
-    throw SemanticError("Error during evaluation: procedure name not symbol");
+  if(!op.isSymbol() && !op.isLambda()){
+    throw SemanticError("Error during evaluation: procedure name not symbol or lambda.");
   }
 
   // must map to a proc
-  if(!env.is_proc(op)){
-    throw SemanticError("Error during evaluation: symbol does not name a procedure");
+  if(!env.is_proc(op) && !env.is_exp(op)){ // May need to edit to include lambda
+    throw SemanticError("Error during evaluation: symbol does not name a procedure or lambda.");
   }
 
-  if(op.asSymbol() == "lambda") {
+  // If atom is placeholder for lambda
+  if(env.is_exp(op)) {
+    //if(args[0].getTail().size() != env.getTail().size())
+      //throw SemanticError("Invalid call for lambda: invalid number of arguments.");
+
+    //std::vector<Expression> input_val = env.getTail();
+
+    Expression lambda = env.get_exp(op);
+    std::vector<Expression> lambda_tail = lambda.getTail();
+    std::vector<Expression> lambda_args = args;
+    Expression lambda_list = lambda_tail[0];
+
+
+    int i = 0;
+    //for(Expression::IteratorType it = lambda.m_tail[0].begin(); it != lambda.m_tail[0].end(); ++it, i++){
+    for(int j = 0; j < lambda_list.getTail().size(); j++) {
+      //std::cout << lambda_tail[j].head().asSymbol() << std::endl;
+
+      env.add_exp(lambda_list.m_tail[j].head(), lambda_args[i]);
+      i++;
+    }
+
+    return lambda_tail[1].eval(env);
+
 
   }
+  else {
+    // map from symbol to proc
+    Procedure proc = env.get_proc(op);
 
-  // map from symbol to proc
-  Procedure proc = env.get_proc(op);
-
-  // call proc with args
-  return proc(args);
+    // call proc with args
+    return proc(args);
+  }
 }
 
 Expression Expression::handle_lookup(const Atom & head, const Environment & env){
@@ -212,16 +235,15 @@ Expression Expression::handle_define(Environment & env){
 }
 
 // Helper function that makes a copy of environment so we can edit temporarily defined variables
-Expression Expression::shadow_copy(Environment & env) {
+// To be called when we are defining a lambda and need to apply new expressions and variables
+Expression Expression::shadow_copy(Atom & op, std::vector<Expression> & args, Environment & env) {
   Environment copyEnv = env;
 
-  return handle_lambda(copyEnv);
+  return apply(op, args, copyEnv);
 }
 
 // Special form method to handle a lambda function created by the user
-// Always called from shadow_copy method to ensure that we only make edits on the copy environment
 Expression Expression::handle_lambda(Environment & env) {
-  std::cout << "Entered handle_lambda\n";
 
   if(m_tail.size() != 2)
     throw SemanticError("Error during evaluation: invalid number of arguments to define");
@@ -258,13 +280,17 @@ Expression Expression::eval(Environment & env) {
     return handle_define(env);
   }
   else if(m_head.isSymbol() && m_head.asSymbol() == "lambda") { // handle lambda special-form
-    return shadow_copy(env);
+    //return shadow_copy(env);
+    return handle_lambda(env);
   }
   else { // else attempt to treat as procedure
     std::vector<Expression> results;
     for(Expression::IteratorType it = m_tail.begin(); it != m_tail.end(); ++it){
       results.push_back(it->eval(env));
     }
+    //if(m_head.isLambda())
+      //return shadow_copy(m_head, results, env);
+    //else
     return apply(m_head, results, env);
   }
 }
@@ -276,7 +302,7 @@ std::ostream & operator<<(std::ostream & out, const Expression & exp){
   out << exp.head();
   bool begin = true; // To know when to add spaces to output
   if(exp.head().isSymbol() && (exp.getTail() != std::vector<Expression>()))
-    out << ' ';
+    out << " ";
 
   for(auto e = exp.tailConstBegin(); e != exp.tailConstEnd(); ++e){
     if(begin == false) // Kind of wonky but oh well
