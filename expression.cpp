@@ -265,9 +265,14 @@ Expression Expression::handle_apply(Environment & env) {
 
     Procedure proc = env.get_proc(m_tail[0].head());
 
-    Expression apply_exp = m_tail[1].eval(env);
+    Expression exp_tail = m_tail[1];
+    std::vector<Expression> pass_exp;
 
-    Expression result = proc(apply_exp.m_tail);
+    for(Expression::IteratorType it = exp_tail.m_tail.begin(); it != exp_tail.m_tail.end(); ++it) {
+      pass_exp.push_back((*it).eval(env));
+    }
+
+    Expression result = proc(pass_exp);
 
     return result;
   }
@@ -296,12 +301,17 @@ Expression Expression::handle_map(Environment & env) {
 
     Procedure proc = env.get_proc(m_tail[0].head());
 
-    Expression apply_exp = m_tail[1].eval(env);
+    Expression exp_tail = m_tail[1];
+    std::vector<Expression> pass_exp;
+
+    for(Expression::IteratorType it = exp_tail.m_tail.begin(); it != exp_tail.m_tail.end(); ++it) {
+      pass_exp.push_back((*it).eval(env));
+    }
 
     Expression return_exp;
     return_exp.setHeadList();
 
-    for(auto & a: apply_exp.m_tail)
+    for(auto & a: pass_exp)
       return_exp.append(proc(std::vector<Expression>(1,a)));
 
     return return_exp;
