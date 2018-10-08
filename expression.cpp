@@ -136,11 +136,13 @@ Expression Expression::apply(Atom & op, std::vector<Expression> & args, Environm
     if(lambda_list.getTail().size() != lambda_args.size())
       throw SemanticError("Error in call to lambda function: invalid number of arguments.");
 
+    Environment copyEnv = env;
+
     for(int j = 0; j < lambda_list.getTail().size(); j++) {
-      env.add_exp(lambda_list.m_tail[j].head(), lambda_args[j]);
+      copyEnv.add_exp(lambda_list.m_tail[j].head(), lambda_args[j], true);
     }
 
-    return lambda_tail[1].eval(env);
+    return lambda_tail[1].eval(copyEnv);
   }
   else {
     // map from symbol to proc

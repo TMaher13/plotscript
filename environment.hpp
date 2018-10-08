@@ -47,7 +47,7 @@ public:
    * definitions. */
   Environment();
 
-  Environment(const Environment & env);
+  //Environment(const Environment & env);
 
   /*! Determine if a symbol is known to the environment.
     \param sym the sumbol to lookup
@@ -72,7 +72,7 @@ public:
     \param sym the symbol to add
     \param exp the expression the symbol should map to
    */
-  void add_exp(const Atom &sym, const Expression &exp);
+  void add_exp(const Atom &sym, const Expression &exp, bool lambda = false);
 
   /*! Determine if a symbol has been defined as a procedure
     \param sym the symbol to lookup

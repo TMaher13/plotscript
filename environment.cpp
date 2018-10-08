@@ -560,16 +560,20 @@ Expression Environment::get_exp(const Atom & sym) const{
   return exp;
 }
 
-void Environment::add_exp(const Atom & sym, const Expression & exp) {
+void Environment::add_exp(const Atom & sym, const Expression & exp, bool lambda) {
 
   if(!sym.isSymbol()){
     throw SemanticError("Attempt to add non-symbol to environment");
   }
 
   // error if overwriting symbol map
-  if(envmap.find(sym.asSymbol()) != envmap.end()){
+  if((envmap.find(sym.asSymbol()) != envmap.end()) && !lambda){
     throw SemanticError("Attempt to overwrite symbol in environemnt");
   }
+
+  // If function is a lambda and we need to redefine variable
+  if(lambda && (envmap.find(sym.asSymbol()) != envmap.end()))
+    envmap.erase(envmap.find(sym.asSymbol()));
 
   envmap.emplace(sym.asSymbol(), EnvResult(ExpressionType, exp));
 }
