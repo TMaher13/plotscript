@@ -137,6 +137,7 @@ Expression Expression::apply(Atom & op, std::vector<Expression> & args, Environm
       throw SemanticError("Error in call to lambda function: invalid number of arguments.");
 
     Environment copyEnv = env;
+    //copyEnv.setLambda();
 
     for(int j = 0; j < lambda_list.getTail().size(); j++) {
       copyEnv.add_exp(lambda_list.m_tail[j].head(), lambda_args[j], true);
@@ -154,9 +155,14 @@ Expression Expression::apply(Atom & op, std::vector<Expression> & args, Environm
 }
 
 Expression Expression::handle_lookup(const Atom & head, const Environment & env){
+    if(head.asString().front() == '\"') {
+      return Expression(head);
+    }
+
+    //std::cout << head.asSymbol() << '\n';
+
     if(head.isSymbol()){ // if symbol is in env return value
       if(head.asSymbol() == "list") {
-        //std::cout << "symbol but a list\n";
         Expression toReturn = Expression();
         toReturn.head().setList();
         return toReturn;
@@ -175,7 +181,6 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
     else if(head.isNumber() || head.isComplex()){
       return Expression(head);
     }
-    //else if(head)
     else{
       throw SemanticError("Error during evaluation: Invalid type in terminal expression");
     }
@@ -346,6 +351,7 @@ void Expression::setHead(const Atom & a) {
 Expression Expression::eval(Environment & env) {
 
   if(m_tail.empty()) {
+    
 
     return handle_lookup(m_head, env);
   }

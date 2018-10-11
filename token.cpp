@@ -3,6 +3,7 @@
 // system includes
 #include <cctype>
 #include <iostream>
+#include "semantic_error.hpp"
 
 // define constants for special characters
 const char OPENCHAR = '(';
@@ -64,11 +65,21 @@ TokenSequenceType tokenize(std::istream & seq){
     else if(isspace(c)){
       store_ifnot_empty(token, tokens);
     }
+    else if(c == '\"') {
+      token.push_back(c);
+       c = seq.get();
+      while(c != '\"') {
+        token.push_back(c);
+        c = seq.get();
+      }
+      token.push_back(c);
+    }
     else{
       token.push_back(c);
     }
   }
   store_ifnot_empty(token, tokens);
 
+  //std::cout << "Size: " << tokens.size() << '\n';
   return tokens;
 }

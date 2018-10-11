@@ -1,4 +1,5 @@
 #include "parse.hpp"
+#include <iostream>
 
 #include <stack>
 
@@ -6,7 +7,10 @@ bool setHead(Expression &exp, const Token &token) {
 
   Atom a(token);
 
-  exp.head() = a;
+  if(a.asString().front() == '\"')
+    exp.head() = a.asString();
+  else
+    exp.head() = a;
 
   return !a.isNone();
 }
@@ -15,7 +19,10 @@ bool append(Expression *exp, const Token &token) {
 
   Atom a(token);
 
-  exp->append(a);
+  if(a.asString().front() == '\"')
+    exp->append(a.asString());
+  else
+    exp->append(a);
 
   return !a.isNone();
 }
@@ -36,6 +43,7 @@ Expression parse(const TokenSequenceType &tokens) noexcept {
   std::size_t num_tokens_seen = 0;
 
   for (auto &t : tokens) {
+    //std::cout << t.asString() << '\n';
 
     if (t.type() == Token::OPEN) {
       athead = true;
@@ -52,29 +60,31 @@ Expression parse(const TokenSequenceType &tokens) noexcept {
       }
     }
     else {
-
       if (athead) {
         if (stack.empty()) {
+          //std::cout << t.asString() << '\n';
           if (!setHead(ast, t)) {
             return Expression();
           }
           stack.push(&ast);
-        } else {
-          if (stack.empty()) {
+        }
+        else {
+          if(stack.empty())
             return Expression();
-          }
 
-          if (!append(stack.top(), t)) {
+          if(!append(stack.top(), t))
             return Expression();
-          }
+
           stack.push(stack.top()->tail());
         }
         athead = false;
-      } else {
-        if (stack.empty()) {
+      }
+      else {
+        //std::cout << "Looking at string\n";
+        if (stack.empty())
           return Expression();
-        }
 
+        //std::cout << t.asString() << '\n';
         if (!append(stack.top(), t)) {
           return Expression();
         }
@@ -82,6 +92,8 @@ Expression parse(const TokenSequenceType &tokens) noexcept {
     }
     num_tokens_seen += 1;
   }
+
+  //std::cout << ast << '\n';
 
   if (stack.empty() && (num_tokens_seen == tokens.size())) {
     return ast;

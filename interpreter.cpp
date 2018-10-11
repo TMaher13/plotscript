@@ -2,6 +2,7 @@
 
 // system includes
 #include <stdexcept>
+#include <iostream>
 
 // module includes
 #include "token.hpp"
@@ -18,9 +19,9 @@ bool Interpreter::parseStream(std::istream & expression) noexcept{
 
   return (ast != Expression());
 };
-				     
+
 
 Expression Interpreter::evaluate(){
-
+  //std::cout << ast.head().isSymbol() << '\n';
   return ast.eval(env);
 }

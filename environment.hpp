@@ -72,7 +72,7 @@ public:
     \param sym the symbol to add
     \param exp the expression the symbol should map to
    */
-  void add_exp(const Atom &sym, const Expression &exp, bool lambda = false);
+  void add_exp(const Atom &sym, const Expression &exp, bool need_redef = false);
 
   /*! Determine if a symbol has been defined as a procedure
     \param sym the symbol to lookup

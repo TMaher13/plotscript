@@ -21,7 +21,6 @@ Atom::Atom(const Token & token): Atom(){
 
   // is token a number?
   double temp;
-  std::complex<double> tempComp;
   std::istringstream iss(token.asString());
   if(iss >> temp){
     // check for trailing characters if >> succeeds
@@ -33,13 +32,15 @@ Atom::Atom(const Token & token): Atom(){
     if(token.asString() == "list")
       setList();
     // make sure does not start with number
-    if(!std::isdigit(token.asString()[0]))
+    if(token.asString().front() == '\"') {
+      setString(token.asString());
+    }
+    else if(!std::isdigit(token.asString()[0]))
       setSymbol(token.asString());
   }
 }
 
 Atom::Atom(const std::string & value): Atom() {
-  std::cout << value << std::endl;
   if(value == "list")
     setList();
   else
@@ -111,6 +112,10 @@ bool Atom::isLambda() const noexcept {
   return m_type == LambdaKind;
 }
 
+bool Atom::isString() const noexcept {
+  return m_type == StringKind;
+}
+
 
 void Atom::setNumber(double value){
 
@@ -145,6 +150,18 @@ void Atom::setLambda() {
   m_type = LambdaKind;
 }
 
+void Atom::setString(const std::string & value) {
+  // we need to ensure the destructor of the symbol string is called
+  if(m_type == StringKind){
+    stringValue.~basic_string();
+  }
+
+  m_type = StringKind;
+
+  // copy construct in place
+  new (&stringValue) std::string(value);
+}
+
 double Atom::asNumber() const noexcept{
   //if(m_type == ComplexKind)
     //return real(complexValue);
@@ -169,11 +186,18 @@ std::string Atom::asSymbol() const noexcept{
 
   std::string result;
 
-  if(m_type == SymbolKind){
+  if(m_type == SymbolKind || m_type == StringKind){
     result = stringValue;
   }
 
   return result;
+}
+
+std::string Atom::asString() const noexcept {
+  if(m_type == SymbolKind || m_type == StringKind)
+    return stringValue;
+  else
+    return std::string();
 }
 
 bool Atom::operator==(const Atom & right) const noexcept{
