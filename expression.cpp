@@ -22,6 +22,13 @@ Expression::Expression(const Expression & a){
     m_tail.push_back(e);
   }
   property_list = a.property_list;
+  //stored_values = a.stored_values;
+
+  for (std::pair<std::string, Expression*> property : a.property_list) {
+    //std::unordered_map<std::string,Expression*>::const_iterator isFound = property_list.find(property.first);
+    stored_values.push_back(*property.second);
+    property_list[property.first] = &stored_values.back();
+  }
 }
 
 Expression::Expression(const std::vector<Expression> & a) {
@@ -42,6 +49,12 @@ Expression & Expression::operator=(const Expression & a){
       m_tail.push_back(e);
     }
     property_list = a.property_list;
+
+    for (std::pair<std::string, Expression*> property : a.property_list) {
+      //std::unordered_map<std::string,Expression*>::const_iterator isFound = property_list.find(property.first);
+      stored_values.push_back(*property.second);
+      property_list[property.first] = &stored_values.back();
+    }
   }
 
   return *this;
@@ -171,13 +184,13 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
       }
 
       if(env.is_exp(head)){
-	      return env.get_exp(head);
+        return env.get_exp(head);
       }
       else if(env.is_proc(head)) {
         return Expression(head);
       }
       else{
-	       throw SemanticError("Error during evaluation: unknown symbol");
+         throw SemanticError("Error during evaluation: unknown symbol");
       }
     }
     else if(head.isNumber() || head.isComplex()){
@@ -347,12 +360,14 @@ Expression Expression::handle_map(Environment & env) {
 ///*
 // Methods for setting and getting properties
 //*/
-void Expression::add_property(const std::string & key, const Atom value) {
-  property_list[key] = value;
+void Expression::add_property(const std::string & key, Expression & value, Environment & env) {
+  Expression temp = value.eval(env);
+  stored_values.push_back(temp);
+  property_list[key] = &stored_values.back();
 }
 
-Atom Expression::get_property(const std::string & key) {
-  return property_list[key];
+Expression Expression::get_property(const std::string & key) {
+  return *property_list[key];
 }
 
 Expression Expression::handle_set_prop(Environment & env) {
@@ -361,7 +376,6 @@ Expression Expression::handle_set_prop(Environment & env) {
 
   if((m_tail[0].head().asSymbol().front() != '\"'))
     throw SemanticError("Error in call to set-property: invalid argument.");
-  std::cout << m_tail[0].head().asString() << '\n';
 
   //std::cout << "Key: " << m_tail[0].head().asString() << '\n';
   //std::cout << "Value: " << m_tail[1].head() << '\n';
@@ -370,7 +384,8 @@ Expression Expression::handle_set_prop(Environment & env) {
   //std::cout << returnExp.head().isLambda() << '\n';
   Expression value = m_tail[1].eval(env);
 
-  returnExp.add_property(m_tail[0].head().asString(), value.head().asString());
+  Expression temp = value.eval(env);
+  returnExp.add_property(m_tail[0].head().asString(), temp, env);
 
 
   return returnExp;
@@ -380,19 +395,21 @@ Expression Expression::handle_get_prop(Environment & env) {
   if(m_tail.size() != 2)
     throw SemanticError("Error in call to set-property: invalid number of arguments.");
 
-  if((!m_tail[0].head().isSymbol()) && (m_tail[0].head().asSymbol().front() != '\"'))
+  if((m_tail[0].head().asSymbol().front() != '\"'))
     throw SemanticError("Error in call to set-property: invalid argument.");
 
   Expression temp;
   //if(env.is_exp(m_tail[1].head()))
   temp = env.get_exp(m_tail[1].head());
 
-  std::unordered_map<std::string,Atom>::const_iterator isFound = temp.property_list.find(m_tail[0].head().asString());
+  std::unordered_map<std::string,Expression*>::const_iterator isFound = temp.property_list.find(m_tail[0].head().asString());
 
-  if(isFound == temp.property_list.end())
+  if(isFound == temp.property_list.end()) {
+    std::cout << "Not found.\n";
     return Expression();
+  }
   else
-    return temp.property_list[m_tail[0].head().asString()];
+    return temp.get_property(m_tail[0].head().asString());
 }
 
 
@@ -478,8 +495,8 @@ bool Expression::operator==(const Expression & exp) const noexcept{
 
   if(result){
     for(auto lefte = m_tail.begin(), righte = exp.m_tail.begin();
-	(lefte != m_tail.end()) && (righte != exp.m_tail.end());
-	++lefte, ++righte){
+  (lefte != m_tail.end()) && (righte != exp.m_tail.end());
+  ++lefte, ++righte){
       result = result && (*lefte == *righte);
     }
   }

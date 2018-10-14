@@ -6,6 +6,7 @@ Defines the Expression type and assiciated functions.
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "token.hpp"
 #include "atom.hpp"
@@ -92,9 +93,9 @@ public:
   Expression eval(Environment & env);
 
   // Helper function to add property to list
-  void add_property(const std::string & value, Atom);
+  void add_property(const std::string & key, Expression & value, Environment & env);
 
-  Atom get_property(const std::string & key);
+  Expression get_property(const std::string & key);
 
   /// Method for creating a copy of the environment for lambda functions
   //Expression shadow_copy(Atom & op, std::vector<Expression> & args, Environment & env);
@@ -109,7 +110,9 @@ private:
   // the head of the expression
   Atom m_head;
 
-  std::unordered_map<std::string, Atom> property_list;
+  std::unordered_map<std::string, Expression*> property_list;
+
+  std::vector<Expression> stored_values;
 
   // the tail list is expressed as a vector for access efficiency
   // and cache coherence, at the cost of wasted memory.
