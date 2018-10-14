@@ -11,6 +11,7 @@ Defines the Atom type and associated functions.
 using namespace std;
 #include <vector>
 #include <list>
+#include <unordered_map>
 
 /*! \class Atom
 \brief A variant type that may be a Number or Symbol or the default type None.

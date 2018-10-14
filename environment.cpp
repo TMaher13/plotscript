@@ -523,6 +523,19 @@ Expression range(const std::vector<Expression>& args) {
   return final_exp;
 }
 
+// Set properties for an expression
+/*Expression set_property(const std::vector<Expression>& args) {
+  if(!nargs_equal(args,3))
+    throw SemanticError("Error in call to range: invalid number of arguments");
+
+  if(!args[0].head().isString())
+    throw SemanticError("Error in call to set-property: invalid argument.");
+
+  if(args[1])
+
+
+}*/
+
 
 const double PI = std::atan2(0, -1);
 const double EXP = std::exp(1);
@@ -681,5 +694,11 @@ void Environment::reset(){
 
   // Procedure: range
   envmap.emplace("range", EnvResult(ProcedureType, range));
+
+  // Procedure: set-property
+  //envmap.emplace("set-property", EnvResult(ProcedureType, set_property));
+
+  // Procedure: get-property
+  //envmap.emplace("get-property", EnvResult(ProcedureType, get_property));
 
 }

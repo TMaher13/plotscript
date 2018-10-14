@@ -91,6 +91,11 @@ public:
   /// Evaluate expression using a post-order traversal (recursive)
   Expression eval(Environment & env);
 
+  // Helper function to add property to list
+  void add_property(const std::string & value, Atom);
+
+  Atom get_property(const std::string & key);
+
   /// Method for creating a copy of the environment for lambda functions
   //Expression shadow_copy(Atom & op, std::vector<Expression> & args, Environment & env);
 
@@ -103,6 +108,8 @@ private:
 
   // the head of the expression
   Atom m_head;
+
+  std::unordered_map<std::string, Atom> property_list;
 
   // the tail list is expressed as a vector for access efficiency
   // and cache coherence, at the cost of wasted memory.
@@ -121,9 +128,10 @@ private:
   Expression handle_apply(Environment & env);
   Expression handle_map(Environment & env);
 
-  // My implementation of list
-  //Expression handle_list(Environment & env);
-  //bool isList;
+  // Implementation of special forms for setting/getting properties for an expression
+  Expression handle_set_prop(Environment & env);
+  Expression handle_get_prop(Environment & env);
+
 };
 
 /// Render expression to output stream

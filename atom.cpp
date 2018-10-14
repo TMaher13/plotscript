@@ -162,6 +162,7 @@ void Atom::setString(const std::string & value) {
   new (&stringValue) std::string(value);
 }
 
+
 double Atom::asNumber() const noexcept{
   //if(m_type == ComplexKind)
     //return real(complexValue);

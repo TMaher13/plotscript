@@ -21,6 +21,7 @@ Expression::Expression(const Expression & a){
   for(auto e : a.m_tail){
     m_tail.push_back(e);
   }
+  property_list = a.property_list;
 }
 
 Expression::Expression(const std::vector<Expression> & a) {
@@ -40,6 +41,7 @@ Expression & Expression::operator=(const Expression & a){
     for(auto e : a.m_tail){
       m_tail.push_back(e);
     }
+    property_list = a.property_list;
   }
 
   return *this;
@@ -338,8 +340,57 @@ Expression Expression::handle_map(Environment & env) {
     return return_exp;
   }
   else
-    throw SemanticError("Error in call to apply: invalid symbol argument");
+    throw SemanticError("Error in call to apply: invalid symbol argument.");
 }
+
+
+///*
+// Methods for setting and getting properties
+//*/
+void Expression::add_property(const std::string & key, const Atom value) {
+  property_list[key] = value;
+}
+
+Atom Expression::get_property(const std::string & key) {
+  return property_list[key];
+}
+
+Expression Expression::handle_set_prop(Environment & env) {
+  if(m_tail.size() != 3)
+    throw SemanticError("Error in call to set-property: invalid number of arguments.");
+
+  if((!m_tail[0].head().isSymbol()) && (m_tail[0].head().asSymbol().front() == '\"'))
+    throw SemanticError("Error in call to set-property: invalid argument.");
+
+  //std::cout << "Key: " << m_tail[0].head().asString() << '\n';
+  //std::cout << "Value: " << m_tail[1].head() << '\n';
+
+  Expression returnExp = m_tail[2].eval(env);
+  Expression value = m_tail[1].eval(env);
+
+  returnExp.add_property(m_tail[0].head().asString(), value.head().asString());
+
+
+  return returnExp;
+}
+
+Expression Expression::handle_get_prop(Environment & env) {
+  if(m_tail.size() != 2)
+    throw SemanticError("Error in call to set-property: invalid number of arguments.");
+
+  if((!m_tail[0].head().isSymbol()) && (m_tail[0].head().asSymbol().front() == '\"'))
+    throw SemanticError("Error in call to set-property: invalid argument.");
+
+  Expression temp;
+  //if(env.is_exp(m_tail[1].head()))
+  temp = env.get_exp(m_tail[1].head());
+  //else if(env.is_proc(m_tail[1].head()))
+    //temp = env.get_proc(m_tail[1].head());
+
+  return temp.property_list[m_tail[0].head().asString()];
+}
+
+
 
 void Expression::setHead(const Atom & a) {
   m_head = a;
@@ -351,7 +402,7 @@ void Expression::setHead(const Atom & a) {
 Expression Expression::eval(Environment & env) {
 
   if(m_tail.empty()) {
-    
+
 
     return handle_lookup(m_head, env);
   }
@@ -369,6 +420,12 @@ Expression Expression::eval(Environment & env) {
   }
   else if(m_head.isSymbol() && m_head.asSymbol() == "map") { // handle map special-form
     return handle_map(env);
+  }
+  else if(m_head.isSymbol() && m_head.asSymbol() == "set-property") {
+    return handle_set_prop(env);
+  }
+  else if(m_head.isSymbol() && m_head.asSymbol() == "get-property") {
+    return handle_get_prop(env);
   }
   else { // else attempt to treat as procedure
     std::vector<Expression> results;
