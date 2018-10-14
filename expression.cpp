@@ -130,7 +130,8 @@ std::vector<Expression> Expression::getTail() const {
 
 Expression Expression::apply(Atom & op, std::vector<Expression> & args, Environment & env) {
 
-  if(!op.isSymbol() && !op.isLambda()){
+  if(!(op.isSymbol() || op.isString()) && !op.isLambda()) {
+    //if(op.asString() != "list")
     throw SemanticError("Error during evaluation: procedure name not symbol or lambda.");
   }
 
@@ -361,8 +362,8 @@ Expression Expression::handle_map(Environment & env) {
 // Methods for setting and getting properties
 //*/
 void Expression::add_property(const std::string & key, Expression & value, Environment & env) {
-  Expression temp = value.eval(env);
-  stored_values.push_back(temp);
+  //Expression temp = value.eval(env);
+  stored_values.push_back(value);
   property_list[key] = &stored_values.back();
 }
 
@@ -381,11 +382,10 @@ Expression Expression::handle_set_prop(Environment & env) {
   //std::cout << "Value: " << m_tail[1].head() << '\n';
 
   Expression returnExp = m_tail[2].eval(env);
-  //std::cout << returnExp.head().isLambda() << '\n';
   Expression value = m_tail[1].eval(env);
 
-  Expression temp = value.eval(env);
-  returnExp.add_property(m_tail[0].head().asString(), temp, env);
+  //Expression temp = value.eval(env);
+  returnExp.add_property(m_tail[0].head().asString(), value, env);
 
 
   return returnExp;
@@ -405,7 +405,6 @@ Expression Expression::handle_get_prop(Environment & env) {
   std::unordered_map<std::string,Expression*>::const_iterator isFound = temp.property_list.find(m_tail[0].head().asString());
 
   if(isFound == temp.property_list.end()) {
-    std::cout << "Not found.\n";
     return Expression();
   }
   else
