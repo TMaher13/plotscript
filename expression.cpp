@@ -166,7 +166,7 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
     if(head.isSymbol()){ // if symbol is in env return value
       if(head.asSymbol() == "list") {
         Expression toReturn = Expression();
-        toReturn.head().setList();
+        //toReturn.head().setList();
         return toReturn;
       }
 
@@ -359,13 +359,15 @@ Expression Expression::handle_set_prop(Environment & env) {
   if(m_tail.size() != 3)
     throw SemanticError("Error in call to set-property: invalid number of arguments.");
 
-  if((!m_tail[0].head().isSymbol()) && (m_tail[0].head().asSymbol().front() == '\"'))
+  if((m_tail[0].head().asSymbol().front() != '\"'))
     throw SemanticError("Error in call to set-property: invalid argument.");
+  std::cout << m_tail[0].head().asString() << '\n';
 
   //std::cout << "Key: " << m_tail[0].head().asString() << '\n';
   //std::cout << "Value: " << m_tail[1].head() << '\n';
 
   Expression returnExp = m_tail[2].eval(env);
+  //std::cout << returnExp.head().isLambda() << '\n';
   Expression value = m_tail[1].eval(env);
 
   returnExp.add_property(m_tail[0].head().asString(), value.head().asString());
@@ -378,16 +380,19 @@ Expression Expression::handle_get_prop(Environment & env) {
   if(m_tail.size() != 2)
     throw SemanticError("Error in call to set-property: invalid number of arguments.");
 
-  if((!m_tail[0].head().isSymbol()) && (m_tail[0].head().asSymbol().front() == '\"'))
+  if((!m_tail[0].head().isSymbol()) && (m_tail[0].head().asSymbol().front() != '\"'))
     throw SemanticError("Error in call to set-property: invalid argument.");
 
   Expression temp;
   //if(env.is_exp(m_tail[1].head()))
   temp = env.get_exp(m_tail[1].head());
-  //else if(env.is_proc(m_tail[1].head()))
-    //temp = env.get_proc(m_tail[1].head());
 
-  return temp.property_list[m_tail[0].head().asString()];
+  std::unordered_map<std::string,Atom>::const_iterator isFound = temp.property_list.find(m_tail[0].head().asString());
+
+  if(isFound == temp.property_list.end())
+    return Expression();
+  else
+    return temp.property_list[m_tail[0].head().asString()];
 }
 
 
@@ -437,7 +442,12 @@ Expression Expression::eval(Environment & env) {
 }
 
 
-std::ostream & operator<<(std::ostream & out, const Expression & exp){
+std::ostream & operator<<(std::ostream & out, const Expression & exp) {
+
+  if(exp == Expression()) {
+    out << "NONE";
+    return out;
+  }
 
   out << "(";
   out << exp.head();
