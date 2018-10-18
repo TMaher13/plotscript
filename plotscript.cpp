@@ -5,6 +5,7 @@
 
 #include "interpreter.hpp"
 #include "semantic_error.hpp"
+#include "startup_config.hpp"
 
 void prompt(){
   std::cout << "\nplotscript> ";
@@ -28,7 +29,7 @@ void info(const std::string & err_str){
 int eval_from_stream(std::istream & stream){
 
   Interpreter interp;
-  
+
   if(!interp.parseStream(stream)){
     error("Invalid Program. Could not parse.");
     return EXIT_FAILURE;
@@ -41,21 +42,21 @@ int eval_from_stream(std::istream & stream){
     catch(const SemanticError & ex){
       std::cerr << ex.what() << std::endl;
       return EXIT_FAILURE;
-    }	
+    }
   }
 
   return EXIT_SUCCESS;
 }
 
 int eval_from_file(std::string filename){
-      
+
   std::ifstream ifs(filename);
-  
+
   if(!ifs){
     error("Could not open file for reading.");
     return EXIT_FAILURE;
   }
-  
+
   return eval_from_stream(ifs);
 }
 
@@ -69,33 +70,34 @@ int eval_from_command(std::string argexp){
 // A REPL is a repeated read-eval-print loop
 void repl(){
   Interpreter interp;
-    
+
   while(!std::cin.eof()){
-    
+
     prompt();
     std::string line = readline();
-    
+
     if(line.empty()) continue;
 
     std::istringstream expression(line);
-    
+
     if(!interp.parseStream(expression)){
       error("Invalid Expression. Could not parse.");
     }
     else{
       try{
-	Expression exp = interp.evaluate();
-	std::cout << exp << std::endl;
+  Expression exp = interp.evaluate();
+  std::cout << exp << std::endl;
       }
       catch(const SemanticError & ex){
-	std::cerr << ex.what() << std::endl;
+  std::cerr << ex.what() << std::endl;
       }
     }
   }
 }
 
 int main(int argc, char *argv[])
-{  
+{
+  int startup = eval_from_file("/vagrant/startup_graphics.pls");
   if(argc == 2){
     return eval_from_file(argv[1]);
   }
@@ -110,6 +112,6 @@ int main(int argc, char *argv[])
   else{
     repl();
   }
-    
+
   return EXIT_SUCCESS;
 }
