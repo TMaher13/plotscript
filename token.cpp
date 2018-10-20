@@ -50,7 +50,7 @@ TokenSequenceType tokenize(std::istream & seq){
     if(c == COMMENTCHAR){
       // chomp until the end of the line
       while((!seq.eof()) && (c != '\n')){
-	       c = seq.get();
+         c = seq.get();
       }
       if(seq.eof()) break;
     }
@@ -77,6 +77,7 @@ TokenSequenceType tokenize(std::istream & seq){
     else{
       token.push_back(c);
     }
+    //std::cout << token << '\n';
   }
   store_ifnot_empty(token, tokens);
 
