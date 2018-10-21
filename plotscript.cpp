@@ -30,17 +30,17 @@ int eval_from_stream(std::istream & stream, bool isFromFile=false){
 
   Interpreter interp;
 
-  /*if(isFromFile) {
+  if(isFromFile) {
     std::ifstream start_stream("/vagrant/startup_graphics.pls");
-    if(!start_stream){
-      error("Could not open startup file for reading.");
-      return EXIT_FAILURE;
-    }
-    if(!interp.parseStream(start_stream))
-      error("Startup file failed to parse.");
-    else
+    //if(!start_stream){
+    //  error("Could not open startup file for reading.");
+    //  return EXIT_FAILURE;
+    //}
+    if(interp.parseStream(start_stream))
       Expression startup_eval = interp.evaluate();
-  }*/
+    //error("Startup file failed to parse.");
+    //else
+  }
 
   if(!interp.parseStream(stream)){
     error("Invalid Program. Could not parse.");
@@ -83,17 +83,15 @@ int eval_from_command(std::string argexp){
 void repl(){
   Interpreter interp;
 
-  /*std::ifstream ifs("/vagrant/startup_graphics.pls");
-  if(!ifs){
-    error("Could not open startup file for reading.");
-    return; // EXIT_FAILURE;
-  }
-  if(!interp.parseStream(ifs))
-    error("Could not parse startup script.");
-  else
+  std::ifstream ifs("/vagrant/startup_graphics.pls");
+  //if(!ifs){
+  //  error("Could not open startup file for reading.");
+  //  return; // EXIT_FAILURE;
+  //}
+  if(interp.parseStream(ifs))
     Expression startup_exp = interp.evaluate();
-  //std::cout << "Unstuck here\n";
-  */
+  //  error("Could not parse startup script.");
+  //else
 
   while(!std::cin.eof()){
 
