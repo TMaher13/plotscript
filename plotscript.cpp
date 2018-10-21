@@ -31,7 +31,7 @@ int eval_from_stream(std::istream & stream, bool isFromFile=false){
   Interpreter interp;
 
   if(isFromFile) {
-    std::ifstream start_stream("/vagrant/startup_graphics.pls");
+    std::ifstream start_stream(STARTUP_FILE);
     //if(!start_stream){
     //  error("Could not open startup file for reading.");
     //  return EXIT_FAILURE;
@@ -83,7 +83,7 @@ int eval_from_command(std::string argexp){
 void repl(){
   Interpreter interp;
 
-  std::ifstream ifs("/vagrant/startup_graphics.pls");
+  std::ifstream ifs(STARTUP_FILE);
   //if(!ifs){
   //  error("Could not open startup file for reading.");
   //  return; // EXIT_FAILURE;
