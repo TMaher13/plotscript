@@ -7,6 +7,7 @@
 #include <QGraphicsTextItem>
 #include <QGraphicsEllipseItem>
 #include <QGraphicsLineItem>
+#include <QString>
 
 
 #include <string>
@@ -20,10 +21,12 @@ public:
 private:
   QGraphicsView * view;
 
-protected slots:
-  //void getError();
-  //void getResult();
-  //void getPlot();
+  QLayout * layout;
+
+public slots:
+  void getError(std::string error);
+  void getResult(std::string result);
+  void getPlot();
 };
 
 #endif

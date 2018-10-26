@@ -31,8 +31,8 @@ protected slots:
 
 
 signals:
-  void sendError(QString error);
-  void sendResult(QString result);
+  void sendError(std::string error);
+  void sendResult(std::string result);
   void sendPlot();
 
 

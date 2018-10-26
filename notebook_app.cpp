@@ -18,48 +18,48 @@
 
 NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent) {
   std::ifstream ifs(STARTUP_FILE);
-  if(interp.parseStream(ifs))
+  if(interp.parseStream(ifs)){
+    std::cout << "Startup success\n";
     Expression startup_exp = interp.evaluate();
+  }
 
   input = new InputWidget();
   QObject::connect(input, &InputWidget::sendInput, this, &NotebookApp::input_cmd);
 
   output = new OutputWidget();
-  //QObject::connect(this,&NotebookApp::sendError, output, &OutputWidget::getError);
-  //QObject::connect(this,&NotebookApp::sendResult, output, &OutputWidget::getResult);
-  //QObject::connect(this,&NotebookApp::sendPlot, output, &OutputWidget::getPlot);
-
-  //QSplitter* splitter = new QSplitter(Qt::Vertical, parent);
-  //splitter->addWidget(input);
-  //splitter->addWidget(output);
+  QObject::connect(this,&NotebookApp::sendError, output, &OutputWidget::getError);
+  QObject::connect(this,&NotebookApp::sendResult, output, &OutputWidget::getResult);
+  QObject::connect(this,&NotebookApp::sendPlot, output, &OutputWidget::getPlot);
 
   auto layout = new QVBoxLayout();
   layout->addWidget(input);
   layout->addWidget(output);
 
   setLayout(layout);
-  //loadStartup(layout);
 }
 
 void NotebookApp::input_cmd(std::string NotebookCmd) {
-  //std::string inputToString = NotebookCmd.toStdString();
   std::stringstream stream(NotebookCmd);
-  //std::cout << "Text received: " << NotebookCmd << '\n';
 
   if(!interp.parseStream(stream)){
-    //error("Invalid Expression. Could not parse.");
-    std::cout << "Invalid Expression. Could not parse.\n";
+    emit sendError("Invalid Expression. Could not parse.");
+    //std::cout << "Invalid Expression. Could not parse.\n";
   }
   else{
     try{
       Expression exp = interp.evaluate();
       // Send exp to output_widget
-      std::cout << exp << '\n';
-      //std::cout << exp << std::endl;
+      std::ostringstream result;
+      result << exp;
+      std::string resultStr = result.str();
+      if(exp.isHeadList())
+        resultStr = resultStr.substr(1, resultStr.size()-2);
+      emit sendResult(resultStr);
     }
     catch(const SemanticError & ex){
         // Send ex.what() to output_widget
-        qDebug() << ex.what();
+        //qDebug() << ex.what();
+        emit sendError(ex.what());
         //std::cerr << ex.what() << std::endl;
     }
   }
