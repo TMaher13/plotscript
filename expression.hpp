@@ -93,7 +93,7 @@ public:
   Expression eval(Environment & env);
 
   // Helper function to add property to list
-  void add_property(const std::string & key, Expression & value, Environment & env);
+  void add_property(const std::string & key, Expression & value);
 
   Expression get_property(const std::string & key);
 

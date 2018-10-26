@@ -361,7 +361,7 @@ Expression Expression::handle_map(Environment & env) {
 ///*
 // Methods for setting and getting properties
 //*/
-void Expression::add_property(const std::string & key, Expression & value, Environment & env) {
+void Expression::add_property(const std::string & key, Expression & value) {
   //Expression temp = value.eval(env);
   stored_values.push_back(value);
   property_list[key] = &stored_values.back();
@@ -385,7 +385,7 @@ Expression Expression::handle_set_prop(Environment & env) {
   Expression value = m_tail[1].eval(env);
 
   //Expression temp = value.eval(env);
-  returnExp.add_property(m_tail[0].head().asString(), value, env);
+  returnExp.add_property(m_tail[0].head().asString(), value);
 
 
   return returnExp;
