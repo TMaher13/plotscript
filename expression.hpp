@@ -105,12 +105,12 @@ public:
   /// equality comparison for two expressions (recursive)
   bool operator==(const Expression & exp) const noexcept;
 
+  std::unordered_map<std::string, Expression*> property_list;
+
 private:
 
   // the head of the expression
   Atom m_head;
-
-  std::unordered_map<std::string, Expression*> property_list;
 
   std::vector<Expression> stored_values;
 

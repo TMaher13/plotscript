@@ -33,7 +33,9 @@ protected slots:
 signals:
   void sendError(std::string error);
   void sendResult(std::string result);
-  void sendPlot();
+  void sendPoint(Expression exp);
+  void sendLine(Expression exp);
+  void sendText(Expression exp);
 
 
 

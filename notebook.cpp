@@ -11,11 +11,9 @@ int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
 
-  NotebookApp Notebook; // = new NotebookApp();
-  //InputWidget input;
+  NotebookApp Notebook;
 
   Notebook.show();
-  //input.show();
 
   return app.exec();
 }

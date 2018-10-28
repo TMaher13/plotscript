@@ -86,6 +86,8 @@ public:
   // helper to set type and value of Symbol
   void setSymbol(const std::string & value);
 
+  void setString(const std::string & value);
+
   /// equality comparison based on type and value
   bool operator==(const Atom & right) const noexcept;
 
@@ -111,7 +113,6 @@ private:
   // Helper to set type and value of Complex
   void setComplex(std::complex<double> value);
 
-  void setString(const std::string & value);
 };
 
 /// inequality comparison for Atom

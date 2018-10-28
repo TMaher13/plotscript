@@ -216,7 +216,7 @@ bool Atom::operator==(const Atom & right) const noexcept{
       double dright = right.numberValue;
       double diff = fabs(dleft - dright);
       if(std::isnan(diff) ||
-	 (diff > std::numeric_limits<double>::epsilon())) return false;
+   (diff > std::numeric_limits<double>::epsilon())) return false;
     }
     break;
   case ComplexKind:

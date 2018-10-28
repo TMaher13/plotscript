@@ -9,6 +9,8 @@
 #include <QGraphicsLineItem>
 #include <QString>
 
+#include "expression.hpp"
+
 
 #include <string>
 
@@ -20,13 +22,17 @@ public:
 
 private:
   QGraphicsView * view;
-
+  QGraphicsScene *scene;
+  int width;
+  int height;
   QLayout * layout;
 
 public slots:
   void getError(std::string error);
   void getResult(std::string result);
-  void getPlot();
+  void getPoint(Expression exp);
+  void getLine(Expression exp);
+  void getText(Expression exp);
 };
 
 #endif

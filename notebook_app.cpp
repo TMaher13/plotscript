@@ -13,13 +13,13 @@
 
 #include "notebook_app.hpp"
 #include "startup_config.hpp"
+#include "expression.hpp"
 
 
 
 NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent) {
   std::ifstream ifs(STARTUP_FILE);
   if(interp.parseStream(ifs)){
-    std::cout << "Startup success\n";
     Expression startup_exp = interp.evaluate();
   }
 
@@ -29,7 +29,9 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent) {
   output = new OutputWidget();
   QObject::connect(this,&NotebookApp::sendError, output, &OutputWidget::getError);
   QObject::connect(this,&NotebookApp::sendResult, output, &OutputWidget::getResult);
-  QObject::connect(this,&NotebookApp::sendPlot, output, &OutputWidget::getPlot);
+  QObject::connect(this,&NotebookApp::sendPoint, output, &OutputWidget::getPoint);
+  QObject::connect(this,&NotebookApp::sendLine, output, &OutputWidget::getLine);
+  QObject::connect(this,&NotebookApp::sendText, output, &OutputWidget::getText);
 
   auto layout = new QVBoxLayout();
   layout->addWidget(input);
@@ -49,12 +51,36 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
     try{
       Expression exp = interp.evaluate();
       // Send exp to output_widget
-      std::ostringstream result;
-      result << exp;
-      std::string resultStr = result.str();
-      if(exp.isHeadList())
-        resultStr = resultStr.substr(1, resultStr.size()-2);
-      emit sendResult(resultStr);
+      std::string name = "\"object-name\"";
+      if(exp.isHeadList()) {
+        std::cout << "Is a list\n";
+        if(exp.property_list.find(name) == exp.property_list.end()) {
+          std::ostringstream result;
+          result << exp;
+          std::string resultStr = result.str();
+          resultStr = resultStr.substr(1, resultStr.size()-2);
+          emit sendResult(resultStr);
+        }
+        else if(exp.get_property(name) == Expression(Atom("\"point\""))) {
+          std::cout << "Is a point\n";
+          emit sendPoint(exp);
+        }
+        else if(exp.get_property(name) == Expression(Atom("\"line\""))) {
+          std::cout << "Is a line\n";
+          sendLine(exp);
+        }
+      }
+      else if((exp.property_list.find(name)!=exp.property_list.end()) && (exp.get_property(name) == Expression(Atom("\"text\"")))) {
+        std::cout << "Is text\n";
+        emit sendText(exp);
+      }
+      else {
+        // Otherwise send result to output widget
+        std::ostringstream result;
+        result << exp;
+        std::string resultStr = result.str();
+        emit sendResult(resultStr);
+      }
     }
     catch(const SemanticError & ex){
         // Send ex.what() to output_widget
@@ -63,16 +89,4 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
         //std::cerr << ex.what() << std::endl;
     }
   }
-
 }
-
-
-// Overwrite KeyPressEvent so that it can read Shift+Enter
-/*void Notebook_App::KeyPressEvent(QKeyEvent * event) {
-  switch (event->key()) {
-    case (Qt::Key_Enter):
-      if (event->modifiers() & Qt::ShiftModifier)
-        qDebug()<<"shift and one";
-      break;
-  }
-}*/
