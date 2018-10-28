@@ -72,6 +72,12 @@ void OutputWidget::getPoint(Expression exp) {
     diameter = exp.get_property("\"size\"").head().asNumber();
     //std::cout << exp.property_list["\"size\""];
     std::cout << diameter << " I am here!\n";
+
+    if(diameter < 0.0) {
+      getError("Error in point size: negative number given.");
+      return;
+    }
+
     scene->addEllipse(x, y, diameter, diameter, pen, QBrush(Qt::black));
   }
   else {
@@ -84,7 +90,23 @@ void OutputWidget::getPoint(Expression exp) {
 }
 
 void OutputWidget::getLine(Expression exp) {
+  int x1, x2, y1, y2 = 0;
+  int width = 0;
 
+  if(exp.property_list.find("\"thickness\"") != exp.property_list.end())
+    width = exp.get_property("\"thickness\"").head().asNumber();
+
+  QPen pen(Qt::black);
+  pen.setWidth(width);
+
+  x1 = exp.getTail().at(0).getTail().at(0).head().asNumber();
+  y1 = exp.getTail().at(0).getTail().at(1).head().asNumber();
+  x2 = exp.getTail().at(1).getTail().at(0).head().asNumber();
+  y2 = exp.getTail().at(1).getTail().at(1).head().asNumber();
+
+  scene->addLine(x1, y1, x2, y2, pen);
+  view->setScene(scene);
+  layout->update();
 
 }
 
