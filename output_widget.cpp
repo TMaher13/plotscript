@@ -54,15 +54,26 @@ void OutputWidget::getResult(std::string result) {
 
 void OutputWidget::getPoint(Expression exp) {
 
-  layout->removeWidget(view);
+  std::cout << "Point\n";
 }
 
 void OutputWidget::getLine(Expression exp) {
 
-  layout->removeWidget(view);
+
 }
 
 void OutputWidget::getText(Expression exp) {
 
-  layout->removeWidget(view);
+  std::string message = exp.head().asSymbol();
+  message = message.substr(1, message.size()-2);
+  QGraphicsTextItem * textMessage = new QGraphicsTextItem;
+  textMessage->setPlainText(QString::fromStdString(message));
+  textMessage->setPos(0,0);
+
+  scene->clear();
+  scene = new QGraphicsScene(view);
+  scene->addItem(textMessage);
+
+  view->setScene(scene);
+  layout->update();
 }

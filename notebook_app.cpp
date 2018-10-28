@@ -56,18 +56,18 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
       // Send exp to output_widget
       std::string name = "\"object-name\"";
       if(exp.isHeadList()) {
-        if(exp.property_list.find(name) == exp.property_list.end()) {
+        if((exp.property_list.find(name) == exp.property_list.end()) && (exp.getTail().at(0).property_list.find(name) == exp.getTail().at(0).property_list.end())) {
           std::ostringstream result;
           result << exp;
           std::string resultStr = result.str();
           resultStr = resultStr.substr(1, resultStr.size()-2);
           emit sendResult(resultStr);
         }
-        else if(exp.get_property(name) == Expression(Atom("\"point\""))) {
+        else if((exp.get_property(name) == Expression(Atom("\"point\""))) || (exp.getTail().at(0).get_property(name) == Expression(Atom("\"point\"")))) {
           emit sendPoint(exp);
         }
-        else if(exp.get_property(name) == Expression(Atom("\"line\""))) {
-          sendLine(exp);
+        else if((exp.get_property(name) == Expression(Atom("\"line\""))) || (exp.getTail().at(0).get_property(name) == Expression(Atom("\"line\"")))) {
+          emit sendLine(exp);
         }
       }
       else if((exp.property_list.find(name)!=exp.property_list.end()) && (exp.get_property(name) == Expression(Atom("\"text\"")))) {
