@@ -32,7 +32,7 @@ protected slots:
 
 signals:
   void sendError(std::string error);
-  void sendResult(std::string result);
+  void sendResult(std::string result); //, bool isDefined);
   void sendPoint(Expression exp);
   void sendLine(Expression exp);
   void sendText(Expression exp);

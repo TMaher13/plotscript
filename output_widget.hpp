@@ -20,16 +20,15 @@ class OutputWidget : public QWidget {
 public:
   OutputWidget(QWidget* parent = nullptr);
 
+  QGraphicsScene *scene;
+
 private:
   QGraphicsView * view;
-  QGraphicsScene *scene;
-  int width;
-  int height;
   QLayout * layout;
 
 public slots:
   void getError(std::string error);
-  void getResult(std::string result);
+  void getResult(std::string result); //, bool isDefined);
   void getPoint(Expression exp);
   void getLine(Expression exp);
   void getText(Expression exp);

@@ -27,18 +27,18 @@ void InputWidget::keyPressEvent(QKeyEvent * event) {
         emit sendInput(notebookCmd);
       }
       else {
-        this->moveCursor(QTextCursor::End);
+        //this->moveCursor(QTextCursor::End);
         this->insertPlainText(QString::fromStdString("\n"));
-        this->moveCursor(QTextCursor::End);
+        //this->moveCursor(QTextCursor::End);
       }
     }
     else if(key->key() == Qt::Key_Backspace) {
       this->textCursor().deletePreviousChar();
     }
     else {
-      this->moveCursor(QTextCursor::End);
+      //this->moveCursor(QTextCursor::End);
       this->insertPlainText(event->text());
-      this->moveCursor(QTextCursor::End);
+      //this->moveCursor(QTextCursor::End);
     }
   }
 }

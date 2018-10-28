@@ -7,6 +7,7 @@ Defines the Expression type and assiciated functions.
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
 
 #include "token.hpp"
 #include "atom.hpp"
@@ -105,14 +106,17 @@ public:
   /// equality comparison for two expressions (recursive)
   bool operator==(const Expression & exp) const noexcept;
 
-  std::unordered_map<std::string, Expression*> property_list;
+  std::map<std::string, Expression> property_list;
 
 private:
 
   // the head of the expression
   Atom m_head;
 
-  std::vector<Expression> stored_values;
+  // If command was a define
+  //bool defined;
+
+  //std::vector<Expression> stored_values;
 
   // the tail list is expressed as a vector for access efficiency
   // and cache coherence, at the cost of wasted memory.

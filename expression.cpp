@@ -24,11 +24,14 @@ Expression::Expression(const Expression & a){
   property_list = a.property_list;
   //stored_values = a.stored_values;
 
-  for (std::pair<std::string, Expression*> property : a.property_list) {
+  /*for (std::pair<std::string, Expression*> property : a.property_list) {
     //std::unordered_map<std::string,Expression*>::const_iterator isFound = property_list.find(property.first);
     stored_values.push_back(*property.second);
+    std::cout << *this << ":  " << property.first << ": " << *property.second << '\n';
     property_list[property.first] = &stored_values.back();
-  }
+    std::cout << "looped through1\n";
+  }*/
+  //std::cout << "Size: " << property_list.size() << '\n';
 }
 
 Expression::Expression(const std::vector<Expression> & a) {
@@ -50,11 +53,13 @@ Expression & Expression::operator=(const Expression & a){
     }
     property_list = a.property_list;
 
-    for (std::pair<std::string, Expression*> property : a.property_list) {
+    /*for (std::pair<std::string, Expression*> property : a.property_list) {
       //std::unordered_map<std::string,Expression*>::const_iterator isFound = property_list.find(property.first);
       stored_values.push_back(*property.second);
+      std::cout << *this << ":  " << property.first << ": " << *property.second << '\n';
       property_list[property.first] = &stored_values.back();
-    }
+      std::cout << "looped through2\n";
+    }*/
   }
 
   return *this;
@@ -219,6 +224,7 @@ Expression Expression::handle_begin(Environment & env){
 
 
 Expression Expression::handle_define(Environment & env){
+  //defined = true;
 
   // tail must have size 3 or error
   if(m_tail.size() != 2)
@@ -363,12 +369,14 @@ Expression Expression::handle_map(Environment & env) {
 //*/
 void Expression::add_property(const std::string & key, Expression & value) {
   //Expression temp = value.eval(env);
-  stored_values.push_back(value);
-  property_list[key] = &stored_values.back();
+  //stored_values.push_back(value);
+  //std::cout << "size: " << stored_values.size() << '\n';
+  //property_list[key] = &stored_values.back();
+  property_list[key] = value;
 }
 
 Expression Expression::get_property(const std::string & key) {
-  return *property_list[key];
+  return property_list[key];
 }
 
 Expression Expression::handle_set_prop(Environment & env) {
@@ -384,6 +392,7 @@ Expression Expression::handle_set_prop(Environment & env) {
   Expression returnExp = m_tail[2].eval(env);
   Expression value = m_tail[1].eval(env);
 
+  //std::cout << m_tail[1] << ' ' << m_tail[2] << '\n';
   //Expression temp = value.eval(env);
   returnExp.add_property(m_tail[0].head().asString(), value);
 
@@ -400,9 +409,10 @@ Expression Expression::handle_get_prop(Environment & env) {
 
   Expression temp;
   //if(env.is_exp(m_tail[1].head()))
-  temp = env.get_exp(m_tail[1].head());
+  //temp = env.get_exp(m_tail[1].head());
+  temp = m_tail[1].eval(env);
 
-  std::unordered_map<std::string,Expression*>::const_iterator isFound = temp.property_list.find(m_tail[0].head().asString());
+  std::map<std::string,Expression>::const_iterator isFound = temp.property_list.find(m_tail[0].head().asString());
 
   if(isFound == temp.property_list.end()) {
     return Expression();
