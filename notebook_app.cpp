@@ -24,9 +24,11 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent) {
   }
 
   input = new InputWidget();
+  input->setObjectName("input");
   QObject::connect(input, &InputWidget::sendInput, this, &NotebookApp::input_cmd);
 
   output = new OutputWidget();
+  output->setObjectName("output");
   QObject::connect(this,&NotebookApp::sendError, output, &OutputWidget::getError);
   QObject::connect(this,&NotebookApp::sendResult, output, &OutputWidget::getResult);
   QObject::connect(this,&NotebookApp::sendPoint, output, &OutputWidget::getPoint);

@@ -6,6 +6,7 @@
 #include <QTextCursor>
 #include <QDebug>
 #include <Qt>
+#include <QString>
 
 #include "input_widget.hpp"
 
@@ -24,6 +25,11 @@ void InputWidget::keyPressEvent(QKeyEvent * event) {
         //qDebug() << "Sending input to NotebookApp";
         notebookCmd = toPlainText().toStdString();
         emit sendInput(notebookCmd);
+      }
+      else {
+        this->moveCursor(QTextCursor::End);
+        this->insertPlainText(QString::fromStdString("\n"));
+        this->moveCursor(QTextCursor::End);
       }
     }
     else if(key->key() == Qt::Key_Backspace) {

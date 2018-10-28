@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QLayout>
 #include <Qt>
+#include <QAbstractScrollArea>
 
 OutputWidget::OutputWidget(QWidget* parent) : QWidget(parent) {
 
@@ -19,6 +20,9 @@ OutputWidget::OutputWidget(QWidget* parent) : QWidget(parent) {
 }
 
 void OutputWidget::getError(std::string error) {
+  width = view->frameSize().width();
+  height = view->frameSize().height();
+
   layout->removeWidget(view);
   QGraphicsTextItem * errorMessage = new QGraphicsTextItem;
   errorMessage->setPlainText(QString::fromStdString(error));
@@ -28,7 +32,9 @@ void OutputWidget::getError(std::string error) {
   scene = new QGraphicsScene;
   scene->addItem(errorMessage);
   //scene->setSceneRect(0,0,view->width(),view->height());
-  view = new QGraphicsView(scene);
+  view = new QGraphicsView();
+  //view->setSceneRect(QRect(QPoint(0, 0), QPoint(width, height)));
+  view->setScene(scene);
 
   layout->addWidget(view);
   setLayout(layout);
@@ -38,6 +44,8 @@ void OutputWidget::getError(std::string error) {
 
 
 void OutputWidget::getResult(std::string result) {
+  width = view->frameSize().width();
+  height = view->frameSize().height();
 
   layout->removeWidget(view);
   QGraphicsTextItem * resultMessage = new QGraphicsTextItem;
@@ -47,7 +55,9 @@ void OutputWidget::getResult(std::string result) {
   //scene->setSceneRect(0,0,view->width(),view->height());
   scene->addItem(resultMessage);
 
-  view = new QGraphicsView(scene);
+  view = new QGraphicsView();
+  //view->setSceneRect(QRect(QPoint(0, 0), QPoint(width, height)));
+  view->setScene(scene);
 
   layout->addWidget(view);
   setLayout(layout);
