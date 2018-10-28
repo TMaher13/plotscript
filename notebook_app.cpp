@@ -38,6 +38,7 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent) {
   auto layout = new QVBoxLayout();
   layout->addWidget(input);
   layout->addWidget(output);
+  layout->setSizeConstraint(QLayout::SetFixedSize);
 
   setLayout(layout);
 }
@@ -55,7 +56,6 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
       // Send exp to output_widget
       std::string name = "\"object-name\"";
       if(exp.isHeadList()) {
-        std::cout << "Is a list\n";
         if(exp.property_list.find(name) == exp.property_list.end()) {
           std::ostringstream result;
           result << exp;
@@ -64,16 +64,13 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
           emit sendResult(resultStr);
         }
         else if(exp.get_property(name) == Expression(Atom("\"point\""))) {
-          std::cout << "Is a point\n";
           emit sendPoint(exp);
         }
         else if(exp.get_property(name) == Expression(Atom("\"line\""))) {
-          std::cout << "Is a line\n";
           sendLine(exp);
         }
       }
       else if((exp.property_list.find(name)!=exp.property_list.end()) && (exp.get_property(name) == Expression(Atom("\"text\"")))) {
-        std::cout << "Is text\n";
         emit sendText(exp);
       }
       else {
