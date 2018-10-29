@@ -26,6 +26,8 @@ private:
   QGraphicsView * view;
   QLayout * layout;
 
+  QGraphicsTextItem * textMessage;
+
 public slots:
   void getError(std::string error);
   void getResult(std::string result);

@@ -81,8 +81,8 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
             else if(item.get_property(name) == Expression(Atom("\"line\""))) {
               emit sendLine(item);
             }
-            else if(item.get_property(name) == Expression(Atom("\"line\""))) {
-              emit sendLine(item);
+            else if(item.get_property(name) == Expression(Atom("\"text\""))) {
+              emit sendText(item);
             }
           }
         }

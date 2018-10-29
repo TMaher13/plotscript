@@ -64,9 +64,10 @@ void OutputWidget::getPoint(Expression exp) {
   if(exp.property_list.find("\"size\"") != exp.property_list.end()) {
     diameter = exp.get_property("\"size\"").head().asNumber();
 
-    if(!exp.get_property("\"size\"").head().isNumber())
-    getError("Error in point size: size is not a Number.");
-    return;
+    if(!exp.get_property("\"size\"").head().isNumber()) {
+      getError("Error in point size: size is not a Number.");
+      return;
+    }
 
     if(diameter < 0) {
       getError("Error in point size: negative Number given.");
@@ -113,7 +114,6 @@ void OutputWidget::getText(Expression exp) {
   int x = 0;
   int y = 0;
   if(exp.property_list.find("\"position\"") != exp.property_list.end()) {
-    std::cout << "Uhh " << exp.get_property("\"position\"").getTail().size() << "Yup\n";;
     if(exp.get_property("\"position\"").getTail().size() != 2) {
       emit getError("Error in call to make-text: invalid argument");
       return;
@@ -128,10 +128,10 @@ void OutputWidget::getText(Expression exp) {
     x = position.getTail().at(0).head().asNumber();
     y = position.getTail().at(1).head().asNumber();
   }
-  std::cout << x << ' ' << y << '\n';
+  //std::cout << x << ' ' << y << '\n';
   std::string message = exp.head().asSymbol();
   message = message.substr(1, message.size()-2);
-  QGraphicsTextItem * textMessage = new QGraphicsTextItem;
+  textMessage = new QGraphicsTextItem();
   textMessage->setPlainText(QString::fromStdString(message));
   textMessage->setPos(x,y);
 
