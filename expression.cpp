@@ -245,8 +245,6 @@ Expression Expression::handle_define(Environment & env){
 // Special form method to handle a lambda function created by the user
 Expression Expression::handle_lambda(Environment & env) {
 
-  //isProc = true;
-
   if(m_tail.size() != 2)
     throw SemanticError("Error during evaluation: invalid number of arguments to define");
 
@@ -259,8 +257,6 @@ Expression Expression::handle_lambda(Environment & env) {
   result.m_tail.push_back(m_tail[0]);
   result.m_tail.push_back(m_tail[1]);
 
-  // Evaluate expression for tail[1] (the lambda procedure expression)
-  //Expression result = m_tail[1].eval(env);
   result.setHeadLambda();
 
   return result;

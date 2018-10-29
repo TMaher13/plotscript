@@ -18,9 +18,6 @@
 
 
 NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
-  std::ifstream ifs(STARTUP_FILE);
-  if(interp.parseStream(ifs))
-    Expression startup_exp = interp.evaluate();
 
   input = new InputWidget();
   input->setObjectName("input");
@@ -40,17 +37,23 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
   layout->setSizeConstraint(QLayout::SetFixedSize);
 
   setLayout(layout);
+
+  std::ifstream ifs(STARTUP_FILE);
+  if(interp.parseStream(ifs))
+    Expression startup_exp = interp.evaluate();
+  else
+    emit sendError("Parse error: Unable to parse startup file.");
 }
 
 void NotebookApp::input_cmd(std::string NotebookCmd) {
   std::stringstream stream(NotebookCmd);
   output->scene->clear();
 
-  if(!interp.parseStream(stream)){
+  if(!interp.parseStream(stream)) {
     emit sendError("Invalid Expression. Could not parse.");
   }
-  else{
-    try{
+  else {
+    try {
       Expression exp = interp.evaluate();
       std::string name = "\"object-name\"";
       if(exp.isHeadList()) {
@@ -72,8 +75,7 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
               resultStr = resultStr.substr(1, resultStr.size()-2);
 
               if(!item.isHeadLambda())
-                emit sendResult(resultStr); //, item.isDefined());
-
+                emit sendResult(resultStr);
             }
             else if(item.get_property(name) == Expression(Atom("\"point\""))) {
               emit sendPoint(item);
@@ -102,11 +104,8 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
         //exp.setDefinedFalse();
       }
     }
-    catch(const SemanticError & ex){
-        // Send ex.what() to output_widget
-        //qDebug() << ex.what();
+    catch(const SemanticError & ex) {
         emit sendError(ex.what());
-        //std::cerr << ex.what() << std::endl;
     }
   }
 }
