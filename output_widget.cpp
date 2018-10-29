@@ -28,9 +28,7 @@ void OutputWidget::getError(std::string error) {
   errorMessage->setPlainText(QString::fromStdString(error));
   errorMessage->setPos(0,0);
 
-  scene = new QGraphicsScene();
   scene->addItem(errorMessage);
-
   view->setScene(scene);
   layout->update();
 

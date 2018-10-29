@@ -74,7 +74,7 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
               std::string resultStr = result.str();
               resultStr = resultStr.substr(1, resultStr.size()-2);
 
-              if(!item.isHeadLambda())
+              if(!item.isHeadLambda() && !(item.head().isNone() && item.getTail().size() > 0))
                 emit sendResult(resultStr);
             }
             else if(item.get_property(name) == Expression(Atom("\"point\""))) {
@@ -97,11 +97,9 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
         std::ostringstream result;
         result << exp;
         std::string resultStr = result.str();
-
-        if(!exp.isHeadLambda())
+        
+        if(!exp.isHeadLambda() && !(exp.head().isNone() && exp.getTail().size() > 0))
           emit sendResult(resultStr); //, exp.isDefined());
-        //if(exp.isDefined())
-        //exp.setDefinedFalse();
       }
     }
     catch(const SemanticError & ex) {

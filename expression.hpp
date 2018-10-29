@@ -111,15 +111,10 @@ public:
 
   std::map<std::string, Expression> property_list;
 
-  //bool is_exp_proc() const noexcept {return isProc;};
-
 private:
 
   // the head of the expression
   Atom m_head;
-
-  // To check if we should print output to GUI or not
-  //bool isProc;
 
   // the tail list is expressed as a vector for access efficiency
   // and cache coherence, at the cost of wasted memory.
