@@ -58,6 +58,12 @@ void OutputWidget::getPoint(Expression exp) {
   int y = 0;
   int diameter = 0;
   QPen pen(Qt::black);
+
+  if(!exp.getTail().at(0).head().isNumber() || !exp.getTail().at(1).head().isNumber()) {
+    getError("Error in point location: point is not a Number.");
+    return;
+  }
+
   x = exp.getTail().at(0).head().asNumber();
   y = exp.getTail().at(1).head().asNumber();
 
@@ -74,7 +80,7 @@ void OutputWidget::getPoint(Expression exp) {
     }
     diameter = exp.get_property("\"size\"").head().asNumber();
 
-    scene->addEllipse(x, y, diameter/2, diameter/2, pen, QBrush(Qt::black));
+    scene->addEllipse(x, y, diameter, diameter, pen, QBrush(Qt::black));
   }
   else
     scene->addEllipse(x, y, 0, 0, pen, QBrush(Qt::black));
