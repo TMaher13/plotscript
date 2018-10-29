@@ -37,9 +37,8 @@ void OutputWidget::getError(std::string error) {
 }
 
 
-void OutputWidget::getResult(std::string result) { //}, bool isDefined) {
+void OutputWidget::getResult(std::string result) {
 
-  //if(!isDefined) {
     QGraphicsTextItem * resultMessage = new QGraphicsTextItem;
     resultMessage->setPlainText(QString::fromStdString(result));
     resultMessage->setPos(0,0);
@@ -49,7 +48,6 @@ void OutputWidget::getResult(std::string result) { //}, bool isDefined) {
 
     view->setScene(scene);
     layout->update();
-  //}
 
 }
 
@@ -64,8 +62,6 @@ void OutputWidget::getPoint(Expression exp) {
 
   if(exp.property_list.find("\"size\"") != exp.property_list.end()) {
     diameter = exp.get_property("\"size\"").head().asNumber();
-    //std::cout << exp.property_list["\"size\""];
-    //std::cout << diameter << " I am here!\n";
 
     if(diameter < 0.0) {
       getError("Error in point size: negative number given.");
@@ -74,10 +70,8 @@ void OutputWidget::getPoint(Expression exp) {
 
     scene->addEllipse(x, y, diameter, diameter, pen, QBrush(Qt::black));
   }
-  else {
-    std::cout << "Can\'t find it\n";
+  else
     scene->addEllipse(x, y, 0, 0, pen, QBrush(Qt::black));
-  }
 
   view->setScene(scene);
   layout->update();
@@ -107,8 +101,8 @@ void OutputWidget::getLine(Expression exp) {
 
 
 void OutputWidget::getText(Expression exp) {
-  int x, y = 0;
 
+  int x, y = 0;
   if(exp.property_list.find("\"position\"") != exp.property_list.end()) {
     Expression position = exp.get_property("\"position\"");
     x = position.getTail().at(0).head().asNumber();
@@ -121,10 +115,7 @@ void OutputWidget::getText(Expression exp) {
   textMessage->setPlainText(QString::fromStdString(message));
   textMessage->setPos(x,y);
 
-  //scene->clear();
-  scene = new QGraphicsScene(view);
   scene->addItem(textMessage);
-
   view->setScene(scene);
   layout->update();
 }
