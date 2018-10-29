@@ -113,11 +113,6 @@ private:
   // the head of the expression
   Atom m_head;
 
-  // If command was a define
-  //bool defined;
-
-  //std::vector<Expression> stored_values;
-
   // the tail list is expressed as a vector for access efficiency
   // and cache coherence, at the cost of wasted memory.
   std::vector<Expression> m_tail;

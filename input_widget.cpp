@@ -26,19 +26,12 @@ void InputWidget::keyPressEvent(QKeyEvent * event) {
         notebookCmd = toPlainText().toStdString();
         emit sendInput(notebookCmd);
       }
-      else {
-        //this->moveCursor(QTextCursor::End);
+      else
         this->insertPlainText(QString::fromStdString("\n"));
-        //this->moveCursor(QTextCursor::End);
-      }
     }
-    else if(key->key() == Qt::Key_Backspace) {
+    else if(key->key() == Qt::Key_Backspace)
       this->textCursor().deletePreviousChar();
-    }
-    else {
-      //this->moveCursor(QTextCursor::End);
+    else
       this->insertPlainText(event->text());
-      //this->moveCursor(QTextCursor::End);
-    }
   }
 }

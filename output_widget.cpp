@@ -14,14 +14,13 @@
 #include <QBrush>
 
 OutputWidget::OutputWidget(QWidget* parent) : QWidget(parent) {
-
   view = new QGraphicsView();
   scene = new QGraphicsScene(view);
   layout = new QVBoxLayout();
   layout->addWidget(view);
   setLayout(layout);
-
 }
+
 
 void OutputWidget::getError(std::string error) {
 
@@ -57,11 +56,6 @@ void OutputWidget::getResult(std::string result) { //}, bool isDefined) {
 
 void OutputWidget::getPoint(Expression exp) {
 
-  /*QGraphicsEllipseItem* circle = new QGraphicsEllipseItem();
-  circle->setRect(-5,-5,5,5);
-  circle->setStartAngle(5760);
-  circle->setSpanAngle(5760);
-  scene->addItem(circle);*/
   int x, y = 0;
   double diameter = 0.0;
   QPen pen(Qt::black);
@@ -71,7 +65,7 @@ void OutputWidget::getPoint(Expression exp) {
   if(exp.property_list.find("\"size\"") != exp.property_list.end()) {
     diameter = exp.get_property("\"size\"").head().asNumber();
     //std::cout << exp.property_list["\"size\""];
-    std::cout << diameter << " I am here!\n";
+    //std::cout << diameter << " I am here!\n";
 
     if(diameter < 0.0) {
       getError("Error in point size: negative number given.");
@@ -88,6 +82,7 @@ void OutputWidget::getPoint(Expression exp) {
   view->setScene(scene);
   layout->update();
 }
+
 
 void OutputWidget::getLine(Expression exp) {
   int x1, x2, y1, y2 = 0;
@@ -109,6 +104,7 @@ void OutputWidget::getLine(Expression exp) {
   layout->update();
 
 }
+
 
 void OutputWidget::getText(Expression exp) {
   int x, y = 0;

@@ -22,16 +22,7 @@ Expression::Expression(const Expression & a){
     m_tail.push_back(e);
   }
   property_list = a.property_list;
-  //stored_values = a.stored_values;
 
-  /*for (std::pair<std::string, Expression*> property : a.property_list) {
-    //std::unordered_map<std::string,Expression*>::const_iterator isFound = property_list.find(property.first);
-    stored_values.push_back(*property.second);
-    std::cout << *this << ":  " << property.first << ": " << *property.second << '\n';
-    property_list[property.first] = &stored_values.back();
-    std::cout << "looped through1\n";
-  }*/
-  //std::cout << "Size: " << property_list.size() << '\n';
 }
 
 Expression::Expression(const std::vector<Expression> & a) {
@@ -53,13 +44,6 @@ Expression & Expression::operator=(const Expression & a){
     }
     property_list = a.property_list;
 
-    /*for (std::pair<std::string, Expression*> property : a.property_list) {
-      //std::unordered_map<std::string,Expression*>::const_iterator isFound = property_list.find(property.first);
-      stored_values.push_back(*property.second);
-      std::cout << *this << ":  " << property.first << ": " << *property.second << '\n';
-      property_list[property.first] = &stored_values.back();
-      std::cout << "looped through2\n";
-    }*/
   }
 
   return *this;

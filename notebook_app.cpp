@@ -67,21 +67,20 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
 
           for(auto & item : exp.getTail()) {
             if(item.property_list.find(name) == item.property_list.end()) {
-              std::cout << "Boo\n";
               std::ostringstream result;
-              result << exp;
+              result << item;
               std::string resultStr = result.str();
               resultStr = resultStr.substr(1, resultStr.size()-2);
               emit sendResult(resultStr); //, item.isDefined());
             }
             else if(item.get_property(name) == Expression(Atom("\"point\""))) {
-              emit sendPoint(exp);
+              emit sendPoint(item);
             }
             else if(item.get_property(name) == Expression(Atom("\"line\""))) {
-              emit sendLine(exp);
+              emit sendLine(item);
             }
             else if(item.get_property(name) == Expression(Atom("\"line\""))) {
-              emit sendLine(exp);
+              emit sendLine(item);
             }
           }
         }
