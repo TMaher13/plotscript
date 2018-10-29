@@ -62,7 +62,6 @@ void OutputWidget::getPoint(Expression exp) {
   y = exp.getTail().at(1).head().asNumber();
 
   if(exp.property_list.find("\"size\"") != exp.property_list.end()) {
-    diameter = exp.get_property("\"size\"").head().asNumber();
 
     if(!exp.get_property("\"size\"").head().isNumber()) {
       getError("Error in point size: size is not a Number.");
@@ -73,12 +72,14 @@ void OutputWidget::getPoint(Expression exp) {
       getError("Error in point size: negative Number given.");
       return;
     }
+    diameter = exp.get_property("\"size\"").head().asNumber();
 
-    scene->addEllipse(x, y, diameter, diameter, pen, QBrush(Qt::black));
+    scene->addEllipse(x, y, diameter/2, diameter/2, pen, QBrush(Qt::black));
   }
   else
     scene->addEllipse(x, y, 0, 0, pen, QBrush(Qt::black));
 
+  //scene->setSceneRect(200,200,200,200);
   view->setScene(scene);
   layout->update();
 }
@@ -128,7 +129,6 @@ void OutputWidget::getText(Expression exp) {
     x = position.getTail().at(0).head().asNumber();
     y = position.getTail().at(1).head().asNumber();
   }
-  //std::cout << x << ' ' << y << '\n';
   std::string message = exp.head().asSymbol();
   message = message.substr(1, message.size()-2);
   textMessage = new QGraphicsTextItem();
