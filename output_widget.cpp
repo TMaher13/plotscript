@@ -61,12 +61,10 @@ void OutputWidget::getPoint(Expression exp) {
   x = exp.getTail().at(0).head().asNumber();
   y = exp.getTail().at(1).head().asNumber();
 
-  if()
-
   if(exp.property_list.find("\"size\"") != exp.property_list.end()) {
     diameter = exp.get_property("\"size\"").head().asNumber();
 
-    if(!exp.get_property("\"size\"").head()isNumber())
+    if(!exp.get_property("\"size\"").head().isNumber())
     getError("Error in point size: size is not a Number.");
     return;
 
