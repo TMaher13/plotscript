@@ -90,6 +90,9 @@ public:
   /// convienience member to determine if head atom is a list
   bool isHeadList() const noexcept;
 
+  /// convienience member to determine if head atom is a lambda
+  bool isHeadLambda() const noexcept {return m_head.isLambda();};
+
   /// Evaluate expression using a post-order traversal (recursive)
   Expression eval(Environment & env);
 
@@ -108,10 +111,15 @@ public:
 
   std::map<std::string, Expression> property_list;
 
+  //bool is_exp_proc() const noexcept {return isProc;};
+
 private:
 
   // the head of the expression
   Atom m_head;
+
+  // To check if we should print output to GUI or not
+  //bool isProc;
 
   // the tail list is expressed as a vector for access efficiency
   // and cache coherence, at the cost of wasted memory.

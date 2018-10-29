@@ -7,7 +7,7 @@
 #include "environment.hpp"
 #include "semantic_error.hpp"
 
-Expression::Expression(){}
+Expression::Expression() {}
 
 Expression::Expression(const Atom & a){
 
@@ -15,7 +15,7 @@ Expression::Expression(const Atom & a){
 }
 
 // recursive copy
-Expression::Expression(const Expression & a){
+Expression::Expression(const Expression & a) {
 
   m_head = a.m_head;
   for(auto e : a.m_tail){
@@ -33,7 +33,7 @@ Expression::Expression(const std::vector<Expression> & a) {
   }
 }
 
-Expression & Expression::operator=(const Expression & a){
+Expression & Expression::operator=(const Expression & a) {
 
   // prevent self-assignment
   if(this != &a){
@@ -244,6 +244,8 @@ Expression Expression::handle_define(Environment & env){
 
 // Special form method to handle a lambda function created by the user
 Expression Expression::handle_lambda(Environment & env) {
+
+  //isProc = true;
 
   if(m_tail.size() != 2)
     throw SemanticError("Error during evaluation: invalid number of arguments to define");

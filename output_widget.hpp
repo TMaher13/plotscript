@@ -28,7 +28,7 @@ private:
 
 public slots:
   void getError(std::string error);
-  void getResult(std::string result); //, bool isDefined);
+  void getResult(std::string result);
   void getPoint(Expression exp);
   void getLine(Expression exp);
   void getText(Expression exp);

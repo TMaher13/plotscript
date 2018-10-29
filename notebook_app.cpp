@@ -17,11 +17,10 @@
 
 
 
-NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent) {
+NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
   std::ifstream ifs(STARTUP_FILE);
-  if(interp.parseStream(ifs)){
+  if(interp.parseStream(ifs))
     Expression startup_exp = interp.evaluate();
-  }
 
   input = new InputWidget();
   input->setObjectName("input");
@@ -71,7 +70,10 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
               result << item;
               std::string resultStr = result.str();
               resultStr = resultStr.substr(1, resultStr.size()-2);
-              emit sendResult(resultStr); //, item.isDefined());
+
+              if(!item.isHeadLambda())
+                emit sendResult(resultStr); //, item.isDefined());
+
             }
             else if(item.get_property(name) == Expression(Atom("\"point\""))) {
               emit sendPoint(item);
@@ -93,8 +95,9 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
         std::ostringstream result;
         result << exp;
         std::string resultStr = result.str();
-        //std::cout << exp.isDefined() << '\n';
-        emit sendResult(resultStr); //, exp.isDefined());
+
+        if(!exp.isHeadLambda())
+          emit sendResult(resultStr); //, exp.isDefined());
         //if(exp.isDefined())
         //exp.setDefinedFalse();
       }

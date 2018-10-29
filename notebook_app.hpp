@@ -26,6 +26,8 @@ private:
   InputWidget* input;
   OutputWidget* output;
 
+  bool isDefined;
+
 protected slots:
   void input_cmd(std::string NotebookCmd);
 
