@@ -42,7 +42,7 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
   if(interp.parseStream(ifs))
     Expression startup_exp = interp.evaluate();
   else
-    emit sendError("Parse error: Unable to parse startup file.");
+    emit sendError("Error: Invalid Expression. Could not parse.");
 }
 
 void NotebookApp::input_cmd(std::string NotebookCmd) {
