@@ -12,6 +12,7 @@
 #include <QPainter>
 #include <QPen>
 #include <QBrush>
+#include <QFont>
 
 OutputWidget::OutputWidget(QWidget* parent) : QWidget(parent) {
   view = new QGraphicsView();
@@ -117,7 +118,9 @@ void OutputWidget::getLine(Expression exp) {
 void OutputWidget::getText(Expression exp) {
 
   int x = 0;
-  int y = 0;
+  int getCenter = exp.head().asSymbol().length() / 2;
+  int y = - getCenter;
+
   if(exp.property_list.find("\"position\"") != exp.property_list.end()) {
     if(exp.get_property("\"position\"").getTail().size() != 2) {
       emit getError("Error in call to make-text: invalid argument");
@@ -130,7 +133,7 @@ void OutputWidget::getText(Expression exp) {
     }
 
     Expression position = exp.get_property("\"position\"");
-    x = position.getTail().at(0).head().asNumber();
+    x += position.getTail().at(0).head().asNumber();
     y = position.getTail().at(1).head().asNumber();
   }
   std::string message = exp.head().asSymbol();
@@ -139,6 +142,11 @@ void OutputWidget::getText(Expression exp) {
   textMessage->setPlainText(QString::fromStdString(message));
   textMessage->setPos(x,y);
 
+  QFont newFont("Courier", 1);
+  //set font of application
+  textMessage->setFont(newFont);
+
+  scene->setSceneRect(textMessage->sceneBoundingRect());
   scene->addItem(textMessage);
   view->setScene(scene);
   layout->update();
