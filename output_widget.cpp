@@ -1,6 +1,7 @@
 // output widget
 #include "output_widget.hpp"
 #include <iostream>
+#include <math.h>
 
 #include <QVBoxLayout>
 #include <QLayout>
@@ -13,6 +14,8 @@
 #include <QPen>
 #include <QBrush>
 #include <QFont>
+#include <QFontMetrics>
+#include <QtMath>
 
 OutputWidget::OutputWidget(QWidget* parent) : QWidget(parent) {
   view = new QGraphicsView();
@@ -85,7 +88,10 @@ void OutputWidget::getPoint(Expression exp) {
     scene->addEllipse(x, y, 0, 0, pen, QBrush(Qt::black));
 
   //scene->setSceneRect(200,200,200,200);
+  scene->setSceneRect(scene->itemsBoundingRect());
   view->setScene(scene);
+  view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+
   layout->update();
 }
 
@@ -109,7 +115,10 @@ void OutputWidget::getLine(Expression exp) {
   y2 = exp.getTail().at(1).getTail().at(1).head().asNumber();
 
   scene->addLine(x1, y1, x2, y2, pen);
+  scene->setSceneRect(scene->itemsBoundingRect());
   view->setScene(scene);
+  view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+
   layout->update();
 
 }
@@ -118,8 +127,13 @@ void OutputWidget::getLine(Expression exp) {
 void OutputWidget::getText(Expression exp) {
 
   int x = 0;
+  int y = 0;
   int getCenter = exp.head().asSymbol().length() / 2;
-  int y = - getCenter;
+
+  QFont newFont("Courier", 1);
+  QFontMetrics fm(newFont);
+  int height = fm.height();
+  int width = fm.width(QString::fromStdString(exp.head().asSymbol()));
 
   if(exp.property_list.find("\"position\"") != exp.property_list.end()) {
     if(exp.get_property("\"position\"").getTail().size() != 2) {
@@ -133,21 +147,50 @@ void OutputWidget::getText(Expression exp) {
     }
 
     Expression position = exp.get_property("\"position\"");
-    x += position.getTail().at(0).head().asNumber();
-    y = position.getTail().at(1).head().asNumber();
+    x = position.getTail().at(0).head().asNumber();
+    y = position.getTail().at(1).head().asNumber() + getCenter;
   }
+
   std::string message = exp.head().asSymbol();
   message = message.substr(1, message.size()-2);
   textMessage = new QGraphicsTextItem();
   textMessage->setPlainText(QString::fromStdString(message));
-  textMessage->setPos(x,y);
 
-  QFont newFont("Courier", 1);
-  //set font of application
   textMessage->setFont(newFont);
 
-  scene->setSceneRect(textMessage->sceneBoundingRect());
+  // To scale the text size
+  if(exp.property_list.find("\"text-scale\"") != exp.property_list.end()) {
+    if(!exp.property_list["\"text-scale\""].head().isNumber())
+      textMessage->setScale(1);
+
+    if(exp.property_list["\"text-scale\""].head().asNumber() < 0)
+      textMessage->setScale(1);
+
+    textMessage->setScale(exp.property_list["\"text-scale\""].head().asNumber());
+  }
+  else
+    textMessage->setScale(1);
+
+  // To rotate the text
+  if(exp.property_list.find("\"text-rotation\"") != exp.property_list.end()) {
+    if(!exp.property_list["\"text-rotation\""].head().isNumber()) {
+      emit getError("Error in call to make-text: rotation is not a Number.");
+      return;
+    }
+
+    double angle = qRadiansToDegrees(exp.property_list["\"text-rotation\""].head().asNumber());
+
+    textMessage->setTransformOriginPoint(textMessage->boundingRect().center());
+    textMessage->setRotation(angle);
+  }
+  else
+    textMessage->setPos(x,y);
+
+
   scene->addItem(textMessage);
+  scene->setSceneRect(scene->itemsBoundingRect());
   view->setScene(scene);
+  view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+
   layout->update();
 }

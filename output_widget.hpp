@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QGraphicsView>
+#include <QGraphicsScene>
 #include <QGraphicsTextItem>
 #include <QGraphicsEllipseItem>
 #include <QGraphicsLineItem>
