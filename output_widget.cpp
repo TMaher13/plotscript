@@ -33,7 +33,10 @@ void OutputWidget::getError(std::string error) {
   errorMessage->setPos(0,0);
 
   scene->addItem(errorMessage);
+  scene->setSceneRect(scene->itemsBoundingRect());
   view->setScene(scene);
+  view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+
   layout->update();
 
 }
@@ -48,7 +51,9 @@ void OutputWidget::getResult(std::string result) {
     scene = new QGraphicsScene(view);
     scene->addItem(resultMessage);
 
+    scene->setSceneRect(scene->itemsBoundingRect());
     view->setScene(scene);
+    view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
     layout->update();
 
 }
@@ -127,8 +132,8 @@ void OutputWidget::getLine(Expression exp) {
 void OutputWidget::getText(Expression exp) {
 
   int x = 0;
-  int y = 0;
   int getCenter = exp.head().asSymbol().length() / 2;
+  int y = -getCenter;
 
   QFont newFont("Courier", 1);
   QFontMetrics fm(newFont);
@@ -148,7 +153,7 @@ void OutputWidget::getText(Expression exp) {
 
     Expression position = exp.get_property("\"position\"");
     x = position.getTail().at(0).head().asNumber();
-    y = position.getTail().at(1).head().asNumber() + getCenter;
+    y += position.getTail().at(1).head().asNumber() + getCenter;
   }
 
   std::string message = exp.head().asSymbol();
