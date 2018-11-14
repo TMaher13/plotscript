@@ -534,10 +534,17 @@ Expression Expression::handle_discrete_plot(Environment & env) {
   toReturn.append(line3);
   toReturn.append(line4);
 
+  //std::cout << "list of lists: " << m_tail[0].getTail() << '\n';
+
+  Expression evaluatedData = m_tail[0].eval(env);
+
+  std::cout << "Evaluated list: " << evaluatedData << '\n';
   if(m_tail[0].getTail().size() != 0) {
-    for(auto & list: m_tail[0].getTail()) {
+    for(auto & list: evaluatedData.getTail()) {
       if(!list.isHeadList())
         throw SemanticError("Error in call to discrete-plot: argument not a list.");
+
+      std::cout << "New item: " << list << '\n';
 
       Expression newPoint;
       Expression pointSize(0.5);
@@ -556,34 +563,33 @@ Expression Expression::handle_discrete_plot(Environment & env) {
       else if(list.getTail().at(1).head().asNumber() > maxY)
         maxY = list.getTail().at(1).head().asNumber();
 
-      Expression xAxis1; Expression xAxis2;
-      xAxis1.add_property(std::string("\"object-name\""), type2); xAxis2.add_property(std::string("\"object-name\""), type2);
-      Expression yAxis1; Expression yAxis2;
-      yAxis1.add_property(std::string("\"object-name\""), type1); yAxis2.add_property(std::string("\"object-name\""), type1);
-      xAxis1.setHeadList(); xAxis2.setHeadList();
-      yAxis1.setHeadList(); yAxis2.setHeadList();
-      xAxis1.append(-10+(20/(maxX-minX))*(-minX)); xAxis1.append(-10);
-      xAxis2.append(-10+(20/(maxX-minX))*(-minX)); xAxis2.append(10);
-      yAxis1.append(-10); yAxis1.append(-10+(20/(maxY-minY))*(-minY));
-      yAxis2.append(10); yAxis2.append(-10+(20/(maxY-minY))*(-minY));
-
-      Expression xAxis; Expression yAxis;
-      xAxis.add_property(std::string("\"object-name\""), type1); yAxis.add_property(std::string("\"object-name\""), type1);
-      xAxis.append(xAxis1); xAxis.append(xAxis2);
-      yAxis.append(yAxis1); yAxis.append(yAxis2);
-
-      if(minY < 0)
-        toReturn.append(yAxis);
-      if(minX < 0)
-        toReturn.append(xAxis);
-
       toReturn.append(newPoint);
     }
   }
-  /*else {
 
-  }*/
-  //std::cout << toReturn << '\n';
+  Expression xAxis1; Expression xAxis2;
+  xAxis1.add_property(std::string("\"object-name\""), type2); xAxis2.add_property(std::string("\"object-name\""), type2);
+  Expression yAxis1; Expression yAxis2;
+  yAxis1.add_property(std::string("\"object-name\""), type1); yAxis2.add_property(std::string("\"object-name\""), type1);
+  xAxis1.setHeadList(); xAxis2.setHeadList();
+  yAxis1.setHeadList(); yAxis2.setHeadList();
+  xAxis1.append(-10+(20/(maxX-minX))*(-minX)); xAxis1.append(-10);
+  xAxis2.append(-10+(20/(maxX-minX))*(-minX)); xAxis2.append(10);
+  yAxis1.append(-10); yAxis1.append(10-(20/(maxY-minY))*(-minY));
+  yAxis2.append(10); yAxis2.append(10-(20/(maxY-minY))*(-minY));
+
+  Expression xAxis; Expression yAxis;
+  xAxis.add_property(std::string("\"object-name\""), type1); yAxis.add_property(std::string("\"object-name\""), type1);
+  xAxis.append(xAxis1); xAxis.append(xAxis2);
+  yAxis.append(yAxis1); yAxis.append(yAxis2);
+
+  std::cout << "Max point: (" << maxX << ' ' << maxY << '\n';
+  std::cout << "Min point: (" << minX << ' ' << minY << '\n';
+
+  if(minY<0 && maxY>0)
+    toReturn.append(yAxis);
+  if(minX<0 && maxX>0)
+    toReturn.append(xAxis);
 
   return toReturn;
 }
