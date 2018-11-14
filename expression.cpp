@@ -411,10 +411,10 @@ Expression Expression::handle_discrete_plot(Environment & env) {
   double scaleVal = 1;
   bool isScaled = false;
 
-  double minY = 0;
-  double maxY = 0;
-  double minX = 0;
-  double maxX = 0;
+  double minY = m_tail[1].getTail()[0].head().asNumber();
+  double maxY = m_tail[1].getTail()[0].head().asNumber();
+  double minX = m_tail[0].getTail()[0].head().asNumber();
+  double maxX = m_tail[0].getTail()[0].head().asNumber();
 
   Expression toReturn;
   toReturn.setHeadList();
@@ -438,50 +438,55 @@ Expression Expression::handle_discrete_plot(Environment & env) {
   if(!m_tail[1].isHeadList())
     throw SemanticError("Error in call to discrete-plot: argument 2 not a list.");
 
-  for(auto & option: m_tail[1].getTail()) {
-    if(!option.isHeadList())
-      throw SemanticError("Error in call to discrete-plot: argument not a list.");
+  if(m_tail[0].size() == 0 || m_tail[1].size() == 0)
+    throw SemanticError("Error in call to discrete-plot: empty list argument.");
 
-    if(option.getTail().at(0).head().asString() == "\"text-scale\"") {
-      isScaled = true;
-      scaleVal = option.getTail().at(1).head().asNumber();
-    }
-    else {
+  if(m_tail[1].getTail().size() != 0) {
+    for(auto & option: m_tail[1].getTail()) {
+      if(!option.isHeadList())
+        throw SemanticError("Error in call to discrete-plot: argument not a list.");
 
-      Expression optionName(option.getTail().at(0).head());
-
-      //std::cout << "item: " << option.getTail().at(1).head().asString() << '\n';
-      Expression newOption = Expression(option.getTail().at(1).head().asString());
-      //std::cout << newOption << ' ';
-      newOption.add_property(objName, type);
-      //std::cout << newOption.get_property(objName) << '\n';
-      newOption.add_property(optionProp, optionName);
-
-      // Location of the option in the graph
-      Expression textLocation;
-      textLocation.clearTail(); // Just to make sure tail is empty
-      textLocation.setHeadList();
-      textLocation.add_property(objName, type2);
-
-      if(option.getTail().at(0).head().asString() == "\"title\"") {
-        textLocation.append(0);
-        textLocation.append(-13);
+      if(option.getTail().at(0).head().asString() == "\"text-scale\"") {
+        isScaled = true;
+        scaleVal = option.getTail().at(1).head().asNumber();
       }
-      else if(option.getTail().at(0).head().asString() == "\"abscissa-label\"") {
-        textLocation.append(0);
-        textLocation.append(13);
+      else {
+
+        Expression optionName(option.getTail().at(0).head());
+
+        //std::cout << "item: " << option.getTail().at(1).head().asString() << '\n';
+        Expression newOption = Expression(option.getTail().at(1).head().asString());
+        //std::cout << newOption << ' ';
+        newOption.add_property(objName, type);
+        //std::cout << newOption.get_property(objName) << '\n';
+        newOption.add_property(optionProp, optionName);
+
+        // Location of the option in the graph
+        Expression textLocation;
+        textLocation.clearTail(); // Just to make sure tail is empty
+        textLocation.setHeadList();
+        textLocation.add_property(objName, type2);
+
+        if(option.getTail().at(0).head().asString() == "\"title\"") {
+          textLocation.append(0);
+          textLocation.append(-13);
+        }
+        else if(option.getTail().at(0).head().asString() == "\"abscissa-label\"") {
+          textLocation.append(0);
+          textLocation.append(13);
+        }
+        else if(option.getTail().at(0).head().asString() == "\"ordinate-label\"") {
+          textLocation.append(-13);
+          textLocation.append(0);
+
+          Expression rotation(4.71);
+          newOption.add_property(std::string("\"text-rotation\""), rotation);
+        }
+
+        newOption.add_property(std::string("\"position\""), textLocation);
+
+        toReturn.append(newOption);
       }
-      else if(option.getTail().at(0).head().asString() == "\"ordinate-label\"") {
-        textLocation.append(-13);
-        textLocation.append(0);
-
-        Expression rotation(4.71);
-        newOption.add_property(std::string("\"text-rotation\""), rotation);
-      }
-
-      newOption.add_property(std::string("\"position\""), textLocation);
-
-      toReturn.append(newOption);
     }
   }
 
@@ -507,6 +512,7 @@ Expression Expression::handle_discrete_plot(Environment & env) {
   point4.append(-10);
 
 
+  // Lines for bounding box
   Expression line1; line1.setHeadList();
   line1.add_property(std::string("\"object-name\""), type1);
   line1.append(point1); line1.append(point2);
@@ -528,20 +534,55 @@ Expression Expression::handle_discrete_plot(Environment & env) {
   toReturn.append(line3);
   toReturn.append(line4);
 
+  if(m_tail[0].getTail().size() != 0) {
+    for(auto & list: m_tail[0].getTail()) {
+      if(!list.isHeadList())
+        throw SemanticError("Error in call to discrete-plot: argument not a list.");
 
-  for(auto & list: m_tail[0].getTail()) {
-    if(!list.isHeadList())
-      throw SemanticError("Error in call to discrete-plot: argument not a list.");
+      Expression newPoint;
+      Expression pointSize(0.5);
+      newPoint.add_property(std::string("\"object-name\""), type2);
+      newPoint.add_property(std::string("\"size\""), pointSize);
+      newPoint.append(list.getTail().at(0).head().asNumber());
+      newPoint.append(list.getTail().at(1).head().asNumber());
 
-    Expression newPoint;
-    Expression pointSize(0.5);
-    newPoint.add_property(std::string("\"object-name\""), type2);
-    newPoint.add_property(std::string("\"size\""), pointSize);
-    newPoint.append(list.getTail().at(0).head().asNumber());
-    newPoint.append(list.getTail().at(1).head().asNumber());
+      if(list.getTail().at(0).head().asNumber() < minX)
+        minX = list.getTail().at(0).head().asNumber();
+      else if(list.getTail().at(0).head().asNumber() > maxX)
+        maxX = list.getTail().at(0).head().asNumber();
 
-    toReturn.append(newPoint);
+      if(list.getTail().at(1).head().asNumber() < minY)
+        minY = list.getTail().at(1).head().asNumber();
+      else if(list.getTail().at(1).head().asNumber() > maxY)
+        maxY = list.getTail().at(1).head().asNumber();
+
+      Expression xAxis1; Expression xAxis2;
+      xAxis1.add_property(std::string("\"object-name\""), type2); xAxis2.add_property(std::string("\"object-name\""), type2);
+      Expression yAxis1; Expression yAxis2;
+      yAxis1.add_property(std::string("\"object-name\""), type1); yAxis2.add_property(std::string("\"object-name\""), type1);
+      xAxis1.setHeadList(); xAxis2.setHeadList();
+      yAxis1.setHeadList(); yAxis2.setHeadList();
+      xAxis1.append(-10+(20/(maxX-minX))*(-minX)); xAxis1.append(-10);
+      xAxis2.append(-10+(20/(maxX-minX))*(-minX)); xAxis2.append(10);
+      yAxis1.append(-10); yAxis1.append(-10+(20/(maxY-minY))*(-minY));
+      yAxis2.append(10); yAxis2.append(-10+(20/(maxY-minY))*(-minY));
+
+      Expression xAxis; Expression yAxis;
+      xAxis.add_property(std::string("\"object-name\""), type1); yAxis.add_property(std::string("\"object-name\""), type1);
+      xAxis.append(xAxis1); xAxis.append(xAxis2);
+      yAxis.append(yAxis1); yAxis.append(yAxis2);
+
+      if(minY < 0)
+        toReturn.append(yAxis);
+      if(minX < 0)
+        toReturn.append(xAxis);
+
+      toReturn.append(newPoint);
+    }
   }
+  /*else {
+
+  }*/
   //std::cout << toReturn << '\n';
 
   return toReturn;
