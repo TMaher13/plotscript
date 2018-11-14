@@ -50,7 +50,8 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
   output->scene->clear();
 
   if(!interp.parseStream(stream)) {
-    emit sendError("Error: Invalid Expression. Could not parse.");
+
+    emit sendError("Error: Invalid Expression. Could not parse in GUI.");
   }
   else {
     try {

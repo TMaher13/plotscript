@@ -34,7 +34,7 @@ void OutputWidget::getError(std::string error) {
   errorMessage->setPos(0,0);
 
   scene->addItem(errorMessage);
-  //scene->setSceneRect(scene->itemsBoundingRect());
+  scene->setSceneRect(scene->itemsBoundingRect());
   view->setScene(scene);
   view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 
@@ -52,7 +52,7 @@ void OutputWidget::getResult(std::string result) {
     scene = new QGraphicsScene(view);
     scene->addItem(resultMessage);
 
-    //scene->setSceneRect(scene->itemsBoundingRect());
+    scene->setSceneRect(scene->itemsBoundingRect());
     view->setScene(scene);
     view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
     layout->update();
@@ -94,7 +94,7 @@ void OutputWidget::getPoint(Expression exp) {
     scene->addEllipse(x, y, 0, 0, pen, QBrush(Qt::black));
 
   //scene->setSceneRect(200,200,200,200);
-  //scene->setSceneRect(scene->itemsBoundingRect());
+  scene->setSceneRect(scene->itemsBoundingRect());
   view->setScene(scene);
   view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 
@@ -103,17 +103,22 @@ void OutputWidget::getPoint(Expression exp) {
 
 
 void OutputWidget::getLine(Expression exp) {
-  int x1 = 0;
-  int x2 = 0;
-  int y1 = 0;
-  int y2 = 0;
-  int width = 0;
+  double x1 = 0;
+  double x2 = 0;
+  double y1 = 0;
+  double y2 = 0;
+  double width = 1;
 
   if(exp.property_list.find("\"thickness\"") != exp.property_list.end())
     width = exp.get_property("\"thickness\"").head().asNumber();
 
   QPen pen(Qt::black);
-  pen.setWidth(width);
+  if(width == 0.0)
+    pen.setCosmetic(true);
+  else
+    pen.setWidth(width);
+
+  std::cout << "Is cosmetic: " << pen.isCosmetic() << '\n';
 
   x1 = exp.getTail().at(0).getTail().at(0).head().asNumber();
   y1 = exp.getTail().at(0).getTail().at(1).head().asNumber();
@@ -121,7 +126,7 @@ void OutputWidget::getLine(Expression exp) {
   y2 = exp.getTail().at(1).getTail().at(1).head().asNumber();
 
   scene->addLine(x1, y1, x2, y2, pen);
-  //scene->setSceneRect(scene->itemsBoundingRect());
+  scene->setSceneRect(scene->itemsBoundingRect());
   view->setScene(scene);
   view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 
@@ -193,6 +198,7 @@ void OutputWidget::getText(Expression exp) {
   }
 
   scene->addItem(textMessage);
+  scene->setSceneRect(scene->itemsBoundingRect());
   view->setScene(scene);
   view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 
