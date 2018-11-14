@@ -16,6 +16,7 @@
 #include <QFont>
 #include <QFontMetrics>
 #include <QtMath>
+#include <QDebug>
 
 OutputWidget::OutputWidget(QWidget* parent) : QWidget(parent) {
   view = new QGraphicsView();
@@ -131,14 +132,11 @@ void OutputWidget::getLine(Expression exp) {
 
 void OutputWidget::getText(Expression exp) {
 
-  int y = 0;
-  int getCenter = exp.head().asSymbol().length() / 2;
-  int x = -getCenter;
+  double x = 0;
+  double y = 0;
 
-  QFont newFont("Courier", 1);
-  QFontMetrics fm(newFont);
-  int height = fm.height();
-  int width = fm.width(QString::fromStdString(exp.head().asSymbol()));
+  QFont newFont("Courier");
+  newFont.setPointSize(1);
 
   if(exp.property_list.find("\"position\"") != exp.property_list.end()) {
     if(exp.get_property("\"position\"").getTail().size() != 2) {
@@ -153,7 +151,7 @@ void OutputWidget::getText(Expression exp) {
 
     Expression position = exp.get_property("\"position\"");
     x = position.getTail().at(0).head().asNumber();
-    y += position.getTail().at(1).head().asNumber();
+    y = position.getTail().at(1).head().asNumber();
   }
 
   std::string message = exp.head().asSymbol();
@@ -176,6 +174,11 @@ void OutputWidget::getText(Expression exp) {
   else
     textMessage->setScale(1);
 
+
+  QRectF textRect = textMessage->boundingRect();
+  double height = textRect.height();
+  double width = textRect.width();
+  textMessage->setPos(x-width/2,y-height/2);
   // To rotate the text
   if(exp.property_list.find("\"text-rotation\"") != exp.property_list.end()) {
     if(!exp.property_list["\"text-rotation\""].head().isNumber()) {
@@ -188,15 +191,8 @@ void OutputWidget::getText(Expression exp) {
     textMessage->setTransformOriginPoint(textMessage->boundingRect().center());
     textMessage->setRotation(angle);
   }
-  else {
-    //textMessage->setParent(view);
-    textMessage->setPos(x,y);
-  }
 
   scene->addItem(textMessage);
-  //scene->setSceneRect(scene->itemsBoundingRect());
-  //textMessage->prepareGeometryChange();
-  //std::cout << "Location: " << textMessage->scenePos() << '\n';
   view->setScene(scene);
   view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 
