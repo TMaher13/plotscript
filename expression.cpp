@@ -3,6 +3,8 @@
 #include <sstream>
 #include <list>
 #include <iostream>
+#include <iomanip>
+#include <cmath>
 
 #include "environment.hpp"
 #include "semantic_error.hpp"
@@ -479,7 +481,7 @@ Expression Expression::handle_discrete_plot(Environment & env) {
           textLocation.append(-13);
           textLocation.append(0);
 
-          Expression rotation(4.71);
+          Expression rotation(std::atan(1)*6);
           newOption.add_property(std::string("\"text-rotation\""), rotation);
         }
 
@@ -583,13 +585,51 @@ Expression Expression::handle_discrete_plot(Environment & env) {
   xAxis.append(xAxis1); xAxis.append(xAxis2);
   yAxis.append(yAxis1); yAxis.append(yAxis2);
 
-  std::cout << "Max point: (" << maxX << ' ' << maxY << '\n';
-  std::cout << "Min point: (" << minX << ' ' << minY << '\n';
+  std::cout << "Max point: (" << maxX << ' ' << maxY << ")\n";
+  std::cout << "Min point: (" << minX << ' ' << minY << ")\n";
 
   if(minY<0 && maxY>0)
     toReturn.append(yAxis);
   if(minX<0 && maxX>0)
     toReturn.append(xAxis);
+
+  std::stringstream maxXStream;
+  std::stringstream minXStream;
+  std::stringstream maxYStream;
+  std::stringstream minYStream;
+  maxXStream << fixed << setprecision(2) << maxX;
+  minXStream << fixed << setprecision(2) << minX;
+  maxYStream << fixed << setprecision(2) << maxY;
+  minYStream << fixed << setprecision(2) << minY;
+  string maxXStr = maxXStream.str();
+  string minXStr = minXStream.str();
+  string maxYStr = maxYStream.str();
+  string minYStr = minYStream.str();
+
+  std::cout << "Bounds: " << minXStr << ' ' << maxXStr << ' ' << minYStr << ' ' << maxYStr << '\n';
+
+  Expression UpperX(maxXStr); Expression LowerX(minXStr);
+  UpperX.add_property(objName, type); LowerX.add_property(objName, type);
+  Expression UpXLoc; Expression LowXLoc;
+  UpXLoc.add_property(objName, type2); LowXLoc.add_property(objName, type2);
+  UpXLoc.append(10); UpXLoc.append(12);
+  LowXLoc.append(-10); LowXLoc.append(12);
+  UpperX.add_property(std::string("\"position\""), UpXLoc);
+  LowerX.add_property(std::string("\"position\""), LowXLoc);
+
+  Expression UpperY(maxYStr); Expression LowerY(minYStr);
+  UpperY.add_property(objName, type); LowerY.add_property(objName, type);
+  Expression UpYLoc; Expression LowYLoc;
+  UpYLoc.add_property(objName, type2); LowYLoc.add_property(objName, type2);
+  UpYLoc.append(-12); UpYLoc.append(-10);
+  LowYLoc.append(-12); LowYLoc.append(10);
+  UpperY.add_property(std::string("\"position\""), UpYLoc);
+  LowerY.add_property(std::string("\"position\""), LowYLoc);
+
+  toReturn.append(LowerX);
+  toReturn.append(UpperX);
+  toReturn.append(LowerY);
+  toReturn.append(UpperY);
 
   return toReturn;
 }
@@ -602,7 +642,6 @@ Expression Expression::handle_continuous_plot(Environment & env) {
 
   return Expression();
 }
-
 
 
 void Expression::setHead(const Atom & a) {
