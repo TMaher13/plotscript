@@ -514,21 +514,26 @@ Expression Expression::handle_discrete_plot(Environment & env) {
   point4.append(-10);
 
 
+  Expression lineThickness(0);
   // Lines for bounding box
   Expression line1; line1.setHeadList();
   line1.add_property(std::string("\"object-name\""), type1);
+  line1.add_property(std::string("\"thickness\""), lineThickness);
   line1.append(point1); line1.append(point2);
 
   Expression line2; line2.setHeadList();
   line2.add_property(std::string("\"object-name\""), type1);
+  line2.add_property(std::string("\"thickness\""), lineThickness);
   line2.append(point2); line2.append(point4);
 
   Expression line3; line3.setHeadList();
   line3.add_property(std::string("\"object-name\""), type1);
+  line3.add_property(std::string("\"thickness\""), lineThickness);
   line3.append(point4); line3.append(point3);
 
   Expression line4; line4.setHeadList();
   line4.add_property(std::string("\"object-name\""), type1);
+  line4.add_property(std::string("\"thickness\""), lineThickness);
   line4.append(point3); line4.append(point1);
 
   toReturn.append(line1);
@@ -597,10 +602,10 @@ Expression Expression::handle_discrete_plot(Environment & env) {
   std::stringstream minXStream;
   std::stringstream maxYStream;
   std::stringstream minYStream;
-  maxXStream << fixed << setprecision(2) << maxX;
-  minXStream << fixed << setprecision(2) << minX;
-  maxYStream << fixed << setprecision(2) << maxY;
-  minYStream << fixed << setprecision(2) << minY;
+  maxXStream << setprecision(2) << "\"" << maxX << "\"";
+  minXStream << setprecision(2) << "\"" << minX << "\"";
+  maxYStream << setprecision(2) << "\"" << maxY << "\"";
+  minYStream << setprecision(2) << "\"" << minY << "\"";
   string maxXStr = maxXStream.str();
   string minXStr = minXStream.str();
   string maxYStr = maxYStream.str();
