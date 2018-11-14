@@ -57,6 +57,7 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
       Expression exp = interp.evaluate();
       std::string name = "\"object-name\"";
       if(exp.isHeadList()) {
+
         if(exp.property_list.find(name) != exp.property_list.end()) {
           if(exp.get_property(name) == Expression(Atom("\"point\""))) {
             emit sendPoint(exp);

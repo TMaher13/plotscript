@@ -143,7 +143,6 @@ void Atom::setSymbol(const std::string & value){
 
 void Atom::setList() { //const std::vector<Atom> & value_list
   m_type = ListKind;
-  //listValue = value_list;
 }
 
 void Atom::setLambda() {

@@ -300,13 +300,15 @@ Expression Expression::handle_apply(Environment & env) {
 // Similar to apply but run procedure/expression on each item in list
 Expression Expression::handle_map(Environment & env) {
   if(m_tail.size() != 2)
-    throw SemanticError("Error in call to apply: invalid number of arguments");
+    throw SemanticError("Error in call to map: invalid number of arguments");
 
-  if(!m_tail[1].isHeadList())
-    throw SemanticError("Error in call to apply: invalid list argument");
+  //std::cout << m_tail[1] << '\n';
+
+  if(!m_tail[1].isHeadList() && m_tail[1].head().asString() != "range")
+    throw SemanticError("Error in call to mapy: invalid list argument");
 
   if(m_tail[0].m_tail != std::vector<Expression>())
-    throw SemanticError("Error in call to apply: invalid symbol argument");
+    throw SemanticError("Error in call to map: invalid symbol argument");
 
   if(env.is_proc(m_tail[0].head())) {
 
@@ -404,6 +406,157 @@ Expression Expression::handle_get_prop(Environment & env) {
 }
 
 
+Expression Expression::handle_discrete_plot(Environment & env) {
+
+  double scaleVal = 1;
+  bool isScaled = false;
+
+  double minY = 0;
+  double maxY = 0;
+  double minX = 0;
+  double maxX = 0;
+
+  Expression toReturn;
+  toReturn.setHeadList();
+
+  std::string objName = "\"object-name\"";
+  std::string textType = "\"text\"";
+  std::string lineType = "\"line\"";
+  std::string pointType = "\"point\"";
+  Expression type2(pointType);
+  Expression type1(lineType);
+  Expression type(textType);
+  std::string optionProp = "\"option\"";
+
+  if(m_tail.size() != 2)
+    throw SemanticError("Error in call to discrete-plot: invalid number of arguments.");
+
+  //std::cout << "Head: " << m_tail[0].head() << '\n';
+  if(!m_tail[0].isHeadList() && m_tail[0].head().asSymbol() != "map" && m_tail[0].head().asSymbol() != "range")
+    throw SemanticError("Error in call to discrete-plot: argument 1 not a list.");
+
+  if(!m_tail[1].isHeadList())
+    throw SemanticError("Error in call to discrete-plot: argument 2 not a list.");
+
+  for(auto & option: m_tail[1].getTail()) {
+    if(!option.isHeadList())
+      throw SemanticError("Error in call to discrete-plot: argument not a list.");
+
+    if(option.getTail().at(0).head().asString() == "\"text-scale\"") {
+      isScaled = true;
+      scaleVal = option.getTail().at(1).head().asNumber();
+    }
+    else {
+
+      Expression optionName(option.getTail().at(0).head());
+
+      //std::cout << "item: " << option.getTail().at(1).head().asString() << '\n';
+      Expression newOption = Expression(option.getTail().at(1).head().asString());
+      //std::cout << newOption << ' ';
+      newOption.add_property(objName, type);
+      //std::cout << newOption.get_property(objName) << '\n';
+      newOption.add_property(optionProp, optionName);
+
+      // Location of the option in the graph
+      Expression textLocation;
+      textLocation.clearTail(); // Just to make sure tail is empty
+      textLocation.setHeadList();
+      textLocation.add_property(objName, type2);
+
+      if(option.getTail().at(0).head().asString() == "\"title\"") {
+        textLocation.append(0);
+        textLocation.append(-13);
+      }
+      else if(option.getTail().at(0).head().asString() == "\"abscissa-label\"") {
+        textLocation.append(0);
+        textLocation.append(13);
+      }
+      else if(option.getTail().at(0).head().asString() == "\"ordinate-label\"") {
+        textLocation.append(-13);
+        textLocation.append(0);
+
+        Expression rotation(4.71);
+        newOption.add_property(std::string("\"text-rotation\""), rotation);
+      }
+
+      newOption.add_property(std::string("\"position\""), textLocation);
+
+      toReturn.append(newOption);
+    }
+  }
+
+  Expression point1;
+  point1.setHeadList();
+  point1.add_property(objName, type1);
+  point1.append(10);
+  point1.append(10);
+
+  Expression point2;
+  point2.setHeadList();
+  point2.append(-10);
+  point2.append(10);
+
+  Expression point3;
+  point3.setHeadList();
+  point3.append(10);
+  point3.append(-10);
+
+  Expression point4;
+  point4.setHeadList();
+  point4.append(-10);
+  point4.append(-10);
+
+
+  Expression line1; line1.setHeadList();
+  line1.add_property(std::string("\"object-name\""), type1);
+  line1.append(point1); line1.append(point2);
+
+  Expression line2; line2.setHeadList();
+  line2.add_property(std::string("\"object-name\""), type1);
+  line2.append(point2); line2.append(point4);
+
+  Expression line3; line3.setHeadList();
+  line3.add_property(std::string("\"object-name\""), type1);
+  line3.append(point4); line3.append(point3);
+
+  Expression line4; line4.setHeadList();
+  line4.add_property(std::string("\"object-name\""), type1);
+  line4.append(point3); line4.append(point1);
+
+  toReturn.append(line1);
+  toReturn.append(line2);
+  toReturn.append(line3);
+  toReturn.append(line4);
+
+
+  for(auto & list: m_tail[0].getTail()) {
+    if(!list.isHeadList())
+      throw SemanticError("Error in call to discrete-plot: argument not a list.");
+
+    Expression newPoint;
+    Expression pointSize(0.5);
+    newPoint.add_property(std::string("\"object-name\""), type2);
+    newPoint.add_property(std::string("\"size\""), pointSize);
+    newPoint.append(list.getTail().at(0).head().asNumber());
+    newPoint.append(list.getTail().at(1).head().asNumber());
+
+    toReturn.append(newPoint);
+  }
+  //std::cout << toReturn << '\n';
+
+  return toReturn;
+}
+
+
+Expression Expression::handle_continuous_plot(Environment & env) {
+
+  if(!isHeadList())
+    throw SemanticError("Error in call to set-property: invalid number of arguments.");
+
+  return Expression();
+}
+
+
 
 void Expression::setHead(const Atom & a) {
   m_head = a;
@@ -439,6 +592,12 @@ Expression Expression::eval(Environment & env) {
   }
   else if(m_head.isSymbol() && m_head.asSymbol() == "get-property") {
     return handle_get_prop(env);
+  }
+  else if(m_head.isSymbol() && m_head.asSymbol() == "discrete-plot") {
+    return handle_discrete_plot(env);
+  }
+  else if(m_head.isSymbol() && m_head.asSymbol() == "continuous-plot") {
+    return handle_continuous_plot(env);
   }
   else { // else attempt to treat as procedure
     std::vector<Expression> results;

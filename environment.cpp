@@ -384,6 +384,9 @@ Expression first(const std::vector<Expression>& args) {
   for( auto & a : list.getTail())
     return a.getTail().at(0);
 
+  // So that compiler doesn't get angry, this line never actually runs
+  return Expression();
+
 }
 
 // Binary function that returns the list without the first item
@@ -518,7 +521,7 @@ Expression range(const std::vector<Expression>& args) {
     toReturn.push_back(Atom(i));
 
   Expression final_exp = Expression(toReturn);
-  final_exp.head().setList();
+  final_exp.setHeadList();
 
   return final_exp;
 }

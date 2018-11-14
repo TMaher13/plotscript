@@ -78,6 +78,11 @@ public:
   // Returns the tail of the expression
   std::vector<Expression> getTail() const;
 
+  // Clear the tail, used in discrete-plot
+  void clearTail() {
+    m_tail.clear();
+  }
+
   /// convienience member to determine if head atom is a number
   bool isHeadNumber() const noexcept;
 
@@ -136,6 +141,10 @@ private:
   // Implementation of special forms for setting/getting properties for an expression
   Expression handle_set_prop(Environment & env);
   Expression handle_get_prop(Environment & env);
+
+  // Implemented for plots in the GUI
+  Expression handle_discrete_plot(Environment & env);
+  Expression handle_continuous_plot(Environment & env);
 
 };
 
