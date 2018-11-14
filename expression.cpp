@@ -432,13 +432,13 @@ Expression Expression::handle_discrete_plot(Environment & env) {
   if(!m_tail[0].isHeadList() && m_tail[0].head().asSymbol() != "map" && m_tail[0].head().asSymbol() != "range")
     throw SemanticError("Error in call to discrete-plot: argument 1 not a list.");
 
-  if(!m_tail[1].isHeadList())
-    throw SemanticError("Error in call to discrete-plot: argument 2 not a list.");
+  //if(!m_tail[1].isHeadList())
+    //throw SemanticError("Error in call to discrete-plot: argument 2 not a list.");
 
   //if(m_tail[0].size() == 0 || m_tail[1].size() == 0)
     //throw SemanticError("Error in call to discrete-plot: empty list argument.");
 
-  if(m_tail[1] != Expression()) {
+  if(m_tail[1] != Expression() && m_tail.size()!=1) {
     for(auto & option: m_tail[1].getTail()) {
       if(!option.isHeadList())
         throw SemanticError("Error in call to discrete-plot: argument not a list.");
