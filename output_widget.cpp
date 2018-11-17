@@ -118,6 +118,7 @@ void OutputWidget::getLine(Expression exp) {
   else
     pen.setWidth(width);
 
+  // Get the poits for the line in between
   x1 = exp.getTail().at(0).getTail().at(0).head().asNumber();
   y1 = exp.getTail().at(0).getTail().at(1).head().asNumber();
   x2 = exp.getTail().at(1).getTail().at(0).head().asNumber();

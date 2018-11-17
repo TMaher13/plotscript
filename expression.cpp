@@ -543,18 +543,10 @@ Expression Expression::handle_discrete_plot(Environment & env) {
     maxX = m_tail[0].getTail()[0].head().asNumber();
     hasPoints = true;
 
+    // FInd the max and min of the points
     for(auto & list: evaluatedData.getTail()) {
       if(!list.isHeadList())
         throw SemanticError("Error in call to discrete-plot: argument not a list.");
-
-      std::cout << "New item: " << list << '\n';
-
-      Expression newPoint;
-      Expression pointSize(0.5);
-      newPoint.add_property(std::string("\"object-name\""), type2);
-      newPoint.add_property(std::string("\"size\""), pointSize);
-      newPoint.append(list.getTail().at(0).head().asNumber());
-      newPoint.append(list.getTail().at(1).head().asNumber());
 
       if(list.getTail().at(0).head().asNumber() < minX)
         minX = list.getTail().at(0).head().asNumber();
@@ -565,9 +557,8 @@ Expression Expression::handle_discrete_plot(Environment & env) {
         minY = list.getTail().at(1).head().asNumber();
       else if(list.getTail().at(1).head().asNumber() > maxY)
         maxY = list.getTail().at(1).head().asNumber();
-
-      toReturn.append(newPoint);
     }
+
 
     Expression xAxis1; Expression xAxis2;
     xAxis1.add_property(std::string("\"object-name\""), type2); xAxis2.add_property(std::string("\"object-name\""), type2);
@@ -594,6 +585,40 @@ Expression Expression::handle_discrete_plot(Environment & env) {
       toReturn.append(yAxis);
     if((minX<0) && (maxX>0))
       toReturn.append(xAxis);
+
+    double x, y;
+    // Run through the list again to plot the points/lines at the scaled values
+    for(auto & list: evaluatedData.getTail()) {
+
+      std::cout << "New item: " << list << '\n';
+      x = list.getTail().at(0).head().asNumber();
+      x = -10 + 20*(x - minX)/(maxX-minX);
+      y = list.getTail().at(1).head().asNumber();
+      y = 10 - 20*(y-minY)/(maxY-minY);
+
+      Expression newPoint;
+      Expression pointSize(0.5);
+      newPoint.add_property(std::string("\"object-name\""), type2);
+      newPoint.add_property(std::string("\"size\""), pointSize);
+      newPoint.append(x);
+      newPoint.append(y);
+      std::cout << "New point at: (" << x << ',' << y << ")\n\n";
+
+      Expression newLine;
+      newLine.setHeadList(); newLine.add_property(std::string("\"object-name\""), type1);
+      newLine.add_property(std::string("\"thickness\""), lineThickness);
+      Expression point1, point2;
+      point1.setHeadList(); point2.setHeadList();
+      point1.append(x);
+      point1.append(10-(20/(maxY-minY))*(-minY));
+      point2.append(x);
+      point2.append(y);
+
+      newLine.append(point1); newLine.append(point2);
+
+      toReturn.append(newLine);
+      toReturn.append(newPoint);
+    }
 
     std::stringstream maxXStream;
     std::stringstream minXStream;
