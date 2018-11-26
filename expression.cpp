@@ -590,7 +590,7 @@ Expression Expression::handle_discrete_plot(Environment & env) {
     // Run through the list again to plot the points/lines at the scaled values
     for(auto & list: evaluatedData.getTail()) {
 
-      std::cout << "New item: " << list << '\n';
+      //std::cout << "New item: " << list << '\n';
       x = list.getTail().at(0).head().asNumber();
       x = -10 + 20*(x - minX)/(maxX-minX);
       y = list.getTail().at(1).head().asNumber();
@@ -602,7 +602,7 @@ Expression Expression::handle_discrete_plot(Environment & env) {
       newPoint.add_property(std::string("\"size\""), pointSize);
       newPoint.append(x);
       newPoint.append(y);
-      std::cout << "New point at: (" << x << ',' << y << ")\n\n";
+      //std::cout << "New point at: (" << x << ',' << y << ")\n\n";
 
       Expression newLine;
       newLine.setHeadList(); newLine.add_property(std::string("\"object-name\""), type1);

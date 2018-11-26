@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <thread>
 
 #include "interpreter.hpp"
 #include "semantic_error.hpp"
