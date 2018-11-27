@@ -90,7 +90,7 @@ void OutputWidget::getPoint(Expression exp) {
 
     //std::cout << "Diameter: " << diameter << '\n';
 
-    scene->addEllipse(x - diameter, y - diameter, diameter*2, diameter*2, QPen(Qt::NoPen), QBrush(Qt::black));
+    scene->addEllipse(x - diameter/2, y - diameter/2, diameter, diameter, QPen(Qt::NoPen), QBrush(Qt::black));
   }
   else
     scene->addEllipse(x, y, 0, 0, QPen(Qt::NoPen), QBrush(Qt::black));
