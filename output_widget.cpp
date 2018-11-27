@@ -167,24 +167,24 @@ void OutputWidget::getText(Expression exp) {
 
   textMessage->setFont(newFont);
 
-  // To scale the text size
-  if(exp.property_list.find("\"text-scale\"") != exp.property_list.end()) {
-    if(!exp.property_list["\"text-scale\""].head().isNumber())
-      textMessage->setScale(1);
-
-    if(exp.property_list["\"text-scale\""].head().asNumber() < 0)
-      textMessage->setScale(1);
-
-    textMessage->setScale(exp.property_list["\"text-scale\""].head().asNumber());
-  }
-  else
-    textMessage->setScale(1);
-
-
   QRectF textRect = textMessage->boundingRect();
   double height = textRect.height();
   double width = textRect.width();
   textMessage->setPos(x-width/2,y-height/2);
+
+  // To scale the text size
+  textMessage->setTransformOriginPoint(textMessage->boundingRect().center());
+  if(exp.property_list.find("\"text-scale\"") != exp.property_list.end()) {
+    if(!exp.property_list["\"text-scale\""].head().isNumber())
+      textMessage->setScale(1);
+    else if(exp.property_list["\"text-scale\""].head().asNumber() < 0)
+      textMessage->setScale(1);
+    else
+      textMessage->setScale(exp.property_list["\"text-scale\""].head().asNumber());
+  }
+  else
+    textMessage->setScale(1);
+
   // To rotate the text
   if(exp.property_list.find("\"text-rotation\"") != exp.property_list.end()) {
     if(!exp.property_list["\"text-rotation\""].head().isNumber()) {
@@ -194,7 +194,7 @@ void OutputWidget::getText(Expression exp) {
 
     double angle = qRadiansToDegrees(exp.property_list["\"text-rotation\""].head().asNumber());
 
-    textMessage->setTransformOriginPoint(textMessage->boundingRect().center());
+    //textMessage->setTransformOriginPoint(textMessage->boundingRect().center());
     textMessage->setRotation(angle);
   }
 

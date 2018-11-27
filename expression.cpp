@@ -582,6 +582,13 @@ Expression Expression::handle_discrete_plot(Environment & env) {
 
 
     if(m_tail.size()!=1) {
+      // 0 if not scaled, if > 0 then change scale of all text
+      double isScaled = 0;
+      for(auto & option: m_tail[1].getTail()) {
+        if(option.getTail().at(0).head().asString() == "\"text-scale\"")
+          isScaled = option.getTail().at(1).head().asNumber();
+      }
+
       for(auto & option: m_tail[1].getTail()) {
         if(!option.isHeadList())
           throw SemanticError("Error in call to discrete-plot: argument not a list.");
@@ -618,6 +625,11 @@ Expression Expression::handle_discrete_plot(Environment & env) {
 
             Expression rotation(std::atan(1)*6);
             newOption.add_property(std::string("\"text-rotation\""), rotation);
+          }
+
+          Expression scaledText(isScaled);
+          if(isScaled != 0) {
+            newOption.add_property(std::string("\"text-scale\""), scaledText);
           }
 
           newOption.add_property(std::string("\"position\""), textLocation);
