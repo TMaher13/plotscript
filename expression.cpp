@@ -533,8 +533,8 @@ Expression Expression::handle_discrete_plot(Environment & env) {
     yAxis.append(yAxis1); yAxis.append(yAxis2);
     yAxis.add_property(std::string("\"thickness\""), lineThickness);
 
-    std::cout << "Max point: (" << maxX << ' ' << maxY << ")\n";
-    std::cout << "Min point: (" << minX << ' ' << minY << ")\n";
+    //std::cout << "Max point: (" << maxX << ' ' << maxY << ")\n";
+    //std::cout << "Min point: (" << minX << ' ' << minY << ")\n";
 
     if((minY<0) && (maxY>0))
       toReturn.append(yAxis);
@@ -543,9 +543,9 @@ Expression Expression::handle_discrete_plot(Environment & env) {
 
     double x, y;
 
-    std::cout << "Size of bounding box: " << xScale*(maxX-minX) << " x " << yScale*(maxY-minY) << '\n';
-    std::cout << "X from " << minX*xScale << " to " << maxX*xScale << '\n';
-    std::cout << "Y from " << minY*yScale << " to " << maxY*yScale << '\n';
+    //std::cout << "Size of bounding box: " << xScale*(maxX-minX) << " x " << yScale*(maxY-minY) << '\n';
+    //std::cout << "X from " << minX*xScale << " to " << maxX*xScale << '\n';
+    //std::cout << "Y from " << minY*yScale << " to " << maxY*yScale << '\n';
     // Run through the list again to plot the points/lines at the scaled values
     for(auto & list: evaluatedData.getTail()) {
 
@@ -640,7 +640,7 @@ Expression Expression::handle_discrete_plot(Environment & env) {
     string maxYStr = maxYStream.str();
     string minYStr = minYStream.str();
 
-    std::cout << "Bounds: " << minXStr << ' ' << maxXStr << ' ' << minYStr << ' ' << maxYStr << '\n';
+    //std::cout << "Bounds: " << minXStr << ' ' << maxXStr << ' ' << minYStr << ' ' << maxYStr << '\n';
 
     Expression UpperX(maxXStr); Expression LowerX(minXStr);
     UpperX.add_property(objName, type); LowerX.add_property(objName, type);
