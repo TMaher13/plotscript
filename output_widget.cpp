@@ -88,7 +88,7 @@ void OutputWidget::getPoint(Expression exp) {
     }
     diameter = exp.get_property("\"size\"").head().asNumber();
 
-    scene->addEllipse(x - diameter/2, y - diameter/2, diameter, diameter, pen, QBrush(Qt::black));
+    scene->addEllipse(x - diameter/2, y - diameter/2, diameter, diameter, QPen(Qt::NoPen), QBrush(Qt::black));
   }
   else
     scene->addEllipse(x, y, 0, 0, pen, QBrush(Qt::black));

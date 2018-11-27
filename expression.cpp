@@ -438,7 +438,7 @@ Expression Expression::handle_discrete_plot(Environment & env) {
   double minY, maxY, minX, maxX, xScale, yScale;
   bool hasPoints = false;
 
-  std::cout << "Evaluated list: " << evaluatedData << '\n';
+  //std::cout << "Evaluated list: " << evaluatedData << '\n';
   if(m_tail[0].getTail().size() != 0) {
     minY = m_tail[0].getTail()[1].head().asNumber();
     maxY = m_tail[0].getTail()[1].head().asNumber();
@@ -542,6 +542,10 @@ Expression Expression::handle_discrete_plot(Environment & env) {
       toReturn.append(xAxis);
 
     double x, y;
+
+    std::cout << "Size of bounding box: " << xScale*(maxX-minX) << " x " << yScale*(maxY-minY) << '\n';
+    std::cout << "X from " << minX*xScale << " to " << maxX*xScale << '\n';
+    std::cout << "Y from " << minY*yScale << " to " << maxY*yScale << '\n';
     // Run through the list again to plot the points/lines at the scaled values
     for(auto & list: evaluatedData.getTail()) {
 
