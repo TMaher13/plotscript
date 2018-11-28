@@ -440,10 +440,10 @@ Expression Expression::handle_discrete_plot(Environment & env) {
 
   //std::cout << "Evaluated list: " << evaluatedData << '\n';
   if(m_tail[0].getTail().size() != 0) {
-    minY = m_tail[0].getTail()[1].head().asNumber();
-    maxY = m_tail[0].getTail()[1].head().asNumber();
-    minX = m_tail[0].getTail()[0].head().asNumber();
-    maxX = m_tail[0].getTail()[0].head().asNumber();
+    minY = 100000;
+    maxY = -100000;
+    minX = 100000;
+    maxX = -100000;
     hasPoints = true;
 
     // FInd the max and min of the points
@@ -453,14 +453,17 @@ Expression Expression::handle_discrete_plot(Environment & env) {
 
       if(list.getTail().at(0).head().asNumber() < minX)
         minX = list.getTail().at(0).head().asNumber();
-      else if(list.getTail().at(0).head().asNumber() > maxX)
+      if(list.getTail().at(0).head().asNumber() > maxX)
         maxX = list.getTail().at(0).head().asNumber();
 
       if(list.getTail().at(1).head().asNumber() < minY)
         minY = list.getTail().at(1).head().asNumber();
-      else if(list.getTail().at(1).head().asNumber() > maxY)
+      if(list.getTail().at(1).head().asNumber() > maxY)
         maxY = list.getTail().at(1).head().asNumber();
     }
+
+    std::cout << "X: " << minX << ' ' << maxX << '\n';
+    std::cout << "Y: " << minY << ' ' << maxY << '\n';
 
     xScale = 20/(maxX - minX);
     yScale = 20/(maxY - minY);
@@ -470,21 +473,25 @@ Expression Expression::handle_discrete_plot(Environment & env) {
     point1.add_property(objName, type1);
     point1.append(maxX*xScale);
     point1.append(-maxY*yScale);
+    std::cout << point1 << '\n';
 
     Expression point2;
     point2.setHeadList();
     point2.append(minX*xScale);
     point2.append(-maxY*yScale);
+    std::cout << point2 << '\n';
 
     Expression point3;
     point3.setHeadList();
     point3.append(maxX*xScale);
     point3.append(-minY*yScale);
+    std::cout << point3 << '\n';
 
     Expression point4;
     point4.setHeadList();
     point4.append(minX*xScale);
     point4.append(-minY*yScale);
+    std::cout << point4 << '\n';
 
 
     Expression lineThickness(0.0);
@@ -521,10 +528,13 @@ Expression Expression::handle_discrete_plot(Environment & env) {
     yAxis1.add_property(std::string("\"object-name\""), type1); yAxis2.add_property(std::string("\"object-name\""), type1);
     xAxis1.setHeadList(); xAxis2.setHeadList();
     yAxis1.setHeadList(); yAxis2.setHeadList();
-    xAxis1.append(0); xAxis1.append(-minY*yScale);
-    xAxis2.append(0); xAxis2.append(-maxY*yScale);
-    yAxis1.append(minX*xScale); yAxis1.append(0);
-    yAxis2.append(maxX*xScale); yAxis2.append(0);
+
+    std::cout << "Scales: " << xScale << ' ' << yScale << '\n';
+
+    yAxis1.append(0); yAxis1.append(-minY*yScale);
+    yAxis2.append(0); yAxis2.append(-maxY*yScale);
+    xAxis1.append(minX*xScale); xAxis1.append(0);
+    xAxis2.append(maxX*xScale); xAxis2.append(0);
 
     Expression xAxis; Expression yAxis;
     xAxis.add_property(std::string("\"object-name\""), type1); yAxis.add_property(std::string("\"object-name\""), type1);
@@ -570,7 +580,10 @@ Expression Expression::handle_discrete_plot(Environment & env) {
       Expression point1, point2;
       point1.setHeadList(); point2.setHeadList();
       point1.append(x);
-      point1.append(0);
+      if(minY<=0)
+        point1.append(0);
+      else
+        point1.append(-minY*yScale);
       point2.append(x);
       point2.append(y);
 
