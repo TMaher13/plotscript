@@ -410,8 +410,8 @@ Expression Expression::handle_get_prop(Environment & env) {
 
 Expression Expression::handle_discrete_plot(Environment & env) {
 
-  double scaleVal = 1;
-  bool isScaled = false;
+  //double scaleVal = 1;
+  //bool isScaled = false;
 
   Expression toReturn;
   toReturn.setHeadList();
@@ -580,7 +580,7 @@ Expression Expression::handle_discrete_plot(Environment & env) {
       Expression point1, point2;
       point1.setHeadList(); point2.setHeadList();
       point1.append(x);
-      if(minY<=0)
+      if(minY<=0 && (maxY>0))
         point1.append(0);
       else
         point1.append(-minY*yScale);
@@ -598,19 +598,17 @@ Expression Expression::handle_discrete_plot(Environment & env) {
       // 0 if not scaled, if > 0 then change scale of all text
       double isScaled = 0;
       for(auto & option: m_tail[1].getTail()) {
-        if(option.getTail().at(0).head().asString() == "\"text-scale\"")
+        if(option.getTail().at(0).head().asString() == "\"text-scale\"") {
           isScaled = option.getTail().at(1).head().asNumber();
+          std::cout << "Scale: " << isScaled << '\n';
+        }
       }
 
       for(auto & option: m_tail[1].getTail()) {
         if(!option.isHeadList())
           throw SemanticError("Error in call to discrete-plot: argument not a list.");
 
-        if(option.getTail().at(0).head().asString() == "\"text-scale\"") {
-          isScaled = true;
-          scaleVal = option.getTail().at(1).head().asNumber();
-        }
-        else {
+        if(option.getTail().at(0).head().asString() != "\"text-scale\"") {
 
           Expression optionName(option.getTail().at(0).head());
 
