@@ -277,17 +277,20 @@ Expression cos(const std::vector<Expression>& args) {
 Expression tan(const std::vector<Expression>& args) {
 
   if(nargs_equal(args, 1)) {
-    return Expression(std::tan(args[0].head().asNumber()));
+    if(!args[0].head().isNumber())
+      throw SemanticError("Error in call to tan function: invalid argument.");
+    else
+      return Expression(std::tan(args[0].head().asNumber()));
   }
   else
-    throw SemanticError("Error in call to sine function: invalid number of arguments.");
+    throw SemanticError("Error in call to tan function: invalid number of arguments.");
 };
 
 
 // Returns the real part of a complex argument
 Expression real(const std::vector<Expression>& args) {
   if(!nargs_equal(args,1))
-    throw SemanticError("Error in call to conj function: invalid number of arguments.");
+    throw SemanticError("Error in call to real function: invalid number of arguments.");
 
   if(args[0].isHeadComplex()) {
     double real_part = real(args[0].head().asComplex());
@@ -300,7 +303,7 @@ Expression real(const std::vector<Expression>& args) {
 // Returns the imaginary part of a complex argument
 Expression imag(const std::vector<Expression>& args) {
   if(!nargs_equal(args,1))
-    throw SemanticError("Error in call to conj function: invalid number of arguments.");
+    throw SemanticError("Error in call to imag function: invalid number of arguments.");
 
   if(args[0].isHeadComplex()) {
     double imag_part = imag(args[0].head().asComplex());
@@ -313,7 +316,7 @@ Expression imag(const std::vector<Expression>& args) {
 // Returns the absolute magnitude of a complex argument
 Expression mag(const std::vector<Expression>& args) {
   if(!nargs_equal(args,1))
-    throw SemanticError("Error in call to conj function: invalid number of arguments.");
+    throw SemanticError("Error in call to mag function: invalid number of arguments.");
 
   if(args[0].isHeadComplex()) {
     double magnitude = abs(args[0].head().asComplex());
@@ -326,7 +329,7 @@ Expression mag(const std::vector<Expression>& args) {
 // Returns the phase angle of a complex argument
 Expression arg(const std::vector<Expression>& args) {
   if(!nargs_equal(args,1))
-    throw SemanticError("Error in call to conj function: invalid number of arguments.");
+    throw SemanticError("Error in call to arg function: invalid number of arguments.");
 
   if(args[0].isHeadComplex()) {
     double angle = arg(args[0].head().asComplex());
@@ -414,10 +417,10 @@ Expression rest(const std::vector<Expression>& args) {
 // Unary function that returns the length of a list
 Expression length(const std::vector<Expression>& args) {
   if(!nargs_equal(args,1))
-    throw SemanticError("Error in call to rest: invalid number of arguments.");
+    throw SemanticError("Error in call to length: invalid number of arguments.");
 
-  if(!args[0].isHeadList())
-    throw SemanticError("Error in call to rest: argument to first is not a list.");
+  if(!args[0].isHeadList() && args[0]!=Expression())
+    throw SemanticError("Error in call to length: argument to first is not a list.");
 
   if(args[0] == Expression())
     return Expression(0);

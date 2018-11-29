@@ -15,6 +15,11 @@ InputWidget::InputWidget(QWidget* parent) : QPlainTextEdit(parent) {
 
 }
 
+void InputWidget::setPlainText(QString text) {
+  this->clear();
+  this->appendPlainText(text);
+}
+
 
 void InputWidget::keyPressEvent(QKeyEvent * event) {
 

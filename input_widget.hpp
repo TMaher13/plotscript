@@ -17,6 +17,8 @@ public:
 
   void keyPressEvent(QKeyEvent * event);
 
+  void setPlainText(QString text);
+
 private:
   std::string notebookCmd;
 

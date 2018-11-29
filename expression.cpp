@@ -600,7 +600,7 @@ Expression Expression::handle_discrete_plot(Environment & env) {
       for(auto & option: m_tail[1].getTail()) {
         if(option.getTail().at(0).head().asString() == "\"text-scale\"") {
           isScaled = option.getTail().at(1).head().asNumber();
-          std::cout << "Scale: " << isScaled << '\n';
+          //std::cout << "Scale: " << isScaled << '\n';
         }
       }
 

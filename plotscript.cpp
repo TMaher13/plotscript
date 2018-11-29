@@ -7,6 +7,9 @@
 #include "interpreter.hpp"
 #include "semantic_error.hpp"
 #include "startup_config.hpp"
+#include "thread_safe_queue.hpp"
+#include "interpreter_thread.hpp"
+#include "output_thread.hpp"
 
 void prompt(){
   std::cout << "\nplotscript> ";
@@ -89,11 +92,20 @@ void repl(){
   //  error("Could not open startup file for reading.");
   //  return; // EXIT_FAILURE;
   //}
+  std::cout << "Makes it here\n";
   if(interp.parseStream(ifs))
     Expression startup_exp = interp.evaluate();
+
+  // Make thread queues and interpreter thread
+  ThreadSafeQueue<std::string> input_queue;
+  ThreadSafeQueue<output_type> output_queue;
+  InterpreterThread interpThread(&input_queue, &output_queue, interp);
+
+  std::thread int_th(interpThread);
   //  error("Could not parse startup script.");
   //else
-
+  std::cout << "Makes it here\n";
+  // Change to event loop trying to read from the output queue
   while(!std::cin.eof()){
 
     prompt();
@@ -101,9 +113,14 @@ void repl(){
 
     if(line.empty()) continue;
 
-    std::istringstream expression(line);
+    //std::istringstream expression(line);
 
-    if(!interp.parseStream(expression)){
+    input_queue.push(line);
+
+    OutputThread outThread(&output_queue);
+    std::thread out_th(outThread);
+
+    /*if(!interp.parseStream(expression)){
       error("Invalid Expression. Could not parse.");
     }
     else{
@@ -114,8 +131,13 @@ void repl(){
       catch(const SemanticError & ex){
           std::cerr << ex.what() << std::endl;
       }
-    }
+    }*/
+
+    out_th.join();
+    //prompt();
   }
+
+  int_th.join();
 }
 
 int main(int argc, char *argv[])

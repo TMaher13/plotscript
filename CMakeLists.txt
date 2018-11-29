@@ -11,6 +11,9 @@ set(interpreter_src
   expression.hpp expression.cpp
   parse.hpp parse.cpp
   interpreter.hpp interpreter.cpp
+  thread_safe_queue.hpp thread_safe_queue.cpp
+  interpreter_thread.hpp
+  output_thread.hpp
   )
 
 set(STARTUP_FILE ${CMAKE_SOURCE_DIR}/startup_graphics.pls)

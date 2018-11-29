@@ -1,39 +1,26 @@
-#include <QTest>
+//#include <QtTest>
 #include "notebook_app.hpp"
 #include "input_widget.hpp"
 #include "output_widget.hpp"
+#include <iostream>
+#include "catch.hpp"
+#include <string>
 
 #include <QApplication>
 #include <QWidget>
 #include <QObject>
-#include <QTest>
+#include <QtTest/QtTest>
 
 class NotebookTest : public QObject {
   Q_OBJECT
 
 private slots:
 
-  void initTestCase();
+  void testDiscretePlotLayout();
 
   // TODO: implement additional tests here
-public:
-   void testDiscretePlotLayout();
-
-private:
-   InputWidget* inputWidget;
-   OutputWidget* outputWidget;
-
 
 };
-
-void NotebookTest::initTestCase(){
-
-}
-
-
-QTEST_MAIN(NotebookTest)
-#include "notebook_test.moc"
-
 
 /*
 findLines - find lines in a scene contained within a bounding box
@@ -119,6 +106,11 @@ int intersectsLine(QGraphicsScene * scene, QPointF center, qreal radius){
 
 void NotebookTest::testDiscretePlotLayout() {
 
+  InputWidget* inputWidget;
+  OutputWidget* outputWidget;
+
+  std::cout << "Starts here\n";
+
   std::string program = R"(
 (discrete-plot (list (list -1 -1) (list 1 1))
     (list (list "title" "The Title")
@@ -127,10 +119,13 @@ void NotebookTest::testDiscretePlotLayout() {
 )";
 
   inputWidget->setPlainText(QString::fromStdString(program));
-  QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier);
+  std::cout << "Got here\n";
+
+  QTest::keyClick(inputWidget, Qt::Key_Return, Qt::ShiftModifier, 100);
 
   auto view = outputWidget->findChild<QGraphicsView *>();
   QVERIFY2(view, "Could not find QGraphicsView as child of OutputWidget");
+  std::cout << "Got here 3\n";
 
   auto scene = view->scene();
 
@@ -199,3 +194,7 @@ void NotebookTest::testDiscretePlotLayout() {
   // check the point at (1,1)
   QCOMPARE(findPoints(scene, QPointF(10, -10), 0.6), 1);
 }
+
+
+QTEST_MAIN(NotebookTest)
+#include "notebook_test.moc"
