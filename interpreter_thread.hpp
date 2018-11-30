@@ -32,7 +32,7 @@ public:
       std::string m;
       if(inputQueuePtr->try_pop(m)) {
 
-        if(m == "%stop" || m == "%reset")
+        if(m=="%stop" || m=="%reset" || m=="%exit")
           break;
 
         std::istringstream expression(m);

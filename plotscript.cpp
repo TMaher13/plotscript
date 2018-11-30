@@ -132,6 +132,13 @@ void repl(){
       InterpRunning = true;
 
     }
+    else if(line == "%exit") {
+      if(InterpRunning) {
+        input_queue.push(line);
+        int_th.join();
+      }
+      return;
+    }
     else { // For any normal plotscript command
 
       if(!InterpRunning)
