@@ -72,7 +72,7 @@ bool Expression::isHeadList() const noexcept {
   if(m_head.isSymbol())
     return (m_head.asSymbol() == "list");
   else
-    return m_head.isList();
+    return isList;
 }
 
 bool Expression::isHeadSymbol() const noexcept{
@@ -81,6 +81,8 @@ bool Expression::isHeadSymbol() const noexcept{
 
 void Expression::setHeadList() {
   m_head.setList();
+  std::cout << "Setting head\n";
+  isList = true;
 }
 
 void Expression::setHeadLambda() {
@@ -171,7 +173,7 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
     if(head.isSymbol()){ // if symbol is in env return value
       if(head.asSymbol() == "list") {
         Expression toReturn = Expression();
-        //toReturn.head().setList();
+        toReturn.setHeadList();
         return toReturn;
       }
 
@@ -755,7 +757,8 @@ Expression Expression::eval(Environment & env) {
 
 std::ostream & operator<<(std::ostream & out, const Expression & exp) {
 
-  if(exp == Expression()) {
+  //std::cout << exp.head().isNone() << '\n';
+  if(exp == Expression() && !exp.isHeadList()) {
     out << "NONE";
     return out;
   }

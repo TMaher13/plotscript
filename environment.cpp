@@ -355,10 +355,15 @@ Expression conj(const std::vector<Expression>& args) {
 
 /// Builds a list of expressions
 Expression buildList(const std::vector<Expression>& args) {
-  //std::vector<Atom> result;
 
-  if(nargs_equal(args,0))
-    return Expression();
+  if(nargs_equal(args,0)) {
+    Expression toReturn;
+    std::cout << "Come here\n";
+    toReturn.setHeadList();
+    return toReturn;
+  }
+
+  std::cout << "Args: " << args << '\n';
 
   std::vector<Expression> result;
   for(auto & a :args)
