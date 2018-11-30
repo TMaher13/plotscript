@@ -11,6 +11,10 @@
 #include "interpreter_thread.hpp"
 #include "output_thread.hpp"
 
+/*void InterpreterThread::killThread() {
+  forceStop = true;
+}*/
+
 void prompt(){
   std::cout << "\nplotscript> ";
 }
@@ -83,16 +87,15 @@ int eval_from_command(std::string argexp){
   return eval_from_stream(expression);
 }
 
+
 // A REPL is a repeated read-eval-print loop
 void repl(){
   Interpreter interp;
 
+  // Startup file for points, lines, and text in GUI
   std::ifstream ifs(STARTUP_FILE);
-  //if(!ifs){
-  //  error("Could not open startup file for reading.");
-  //  return; // EXIT_FAILURE;
-  //}
-  std::cout << "Makes it here\n";
+
+
   if(interp.parseStream(ifs))
     Expression startup_exp = interp.evaluate();
 
@@ -101,11 +104,14 @@ void repl(){
   ThreadSafeQueue<output_type> output_queue;
   InterpreterThread interpThread(&input_queue, &output_queue, interp);
 
-  std::thread int_th(interpThread);
-  //  error("Could not parse startup script.");
-  //else
-  std::cout << "Makes it here\n";
-  // Change to event loop trying to read from the output queue
+  bool InterpRunning = false;
+
+  //std::thread int_th(interpThread);
+  //interpThread.killThread();
+  //int_th.join();
+  //bool initialized = false;
+  std::thread int_th;
+
   while(!std::cin.eof()){
 
     prompt();
@@ -113,31 +119,49 @@ void repl(){
 
     if(line.empty()) continue;
 
-    //std::istringstream expression(line);
-
-    input_queue.push(line);
-
-    OutputThread outThread(&output_queue);
-    std::thread out_th(outThread);
-
-    /*if(!interp.parseStream(expression)){
-      error("Invalid Expression. Could not parse.");
+    if(line == "%start") {
+      int_th = std::thread(interpThread);
+      InterpRunning = true;
     }
-    else{
-      try{
-        Expression exp = interp.evaluate();
-        std::cout << exp << std::endl;
+    else if(line == "%stop") {
+      if(InterpRunning) {
+        //interpThread.killThread();
+        input_queue.push(line);
+        int_th.join();
       }
-      catch(const SemanticError & ex){
-          std::cerr << ex.what() << std::endl;
+      std::cout << "Gets here\n";
+      InterpRunning = false;
+    }
+    else if(line == "%reset") {
+      if(InterpRunning) {
+        //interpThread.killThread();
+        input_queue.push(line);
+        int_th.join();
       }
-    }*/
+      //Interpreter newInterp; // Create new environment
+      //InterpreterThread newInterpThread(&input_queue, &output_queue, newInterp);
+      int_th = std::thread(interpThread);
+      InterpRunning = true;
 
-    out_th.join();
-    //prompt();
+    }
+    else { // For any normal plotscript command
+
+      if(!InterpRunning)
+        error("interpreter kernel not running");
+      else {
+        input_queue.push(line);
+
+        OutputThread outThread(&output_queue);
+        std::thread out_th(outThread);
+
+        out_th.join();
+      }
+    }
+
   }
 
-  int_th.join();
+  if(InterpRunning)
+    int_th.join();
 }
 
 int main(int argc, char *argv[])
@@ -159,3 +183,17 @@ int main(int argc, char *argv[])
 
   return EXIT_SUCCESS;
 }
+
+/*std::istringstream expression(line);
+if(!interp.parseStream(expression)){
+  error("Invalid Expression. Could not parse.");
+}
+else{
+  try{
+    Expression exp = interp.evaluate();
+    std::cout << exp << std::endl;
+  }
+  catch(const SemanticError & ex){
+      std::cerr << ex.what() << std::endl;
+  }
+}*/
