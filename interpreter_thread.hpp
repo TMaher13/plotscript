@@ -16,17 +16,12 @@ private:
   ThreadSafeQueue<std::string>* inputQueuePtr;
   ThreadSafeQueue<output_type>* outputQueuePtr;
 
-  //bool forceStop;
-
 public:
-
-  void killThread(); // {
 
   InterpreterThread(ThreadSafeQueue<std::string>* input_queue_ptr, ThreadSafeQueue<output_type>* output_queue_ptr, Interpreter& interpreter) {
     inputQueuePtr = input_queue_ptr;
     outputQueuePtr = output_queue_ptr;
     interp = interpreter;
-    //forceStop = false;
     //std::cout << "Interpreter thread created.\n";
   };
 
@@ -39,7 +34,7 @@ public:
 
         if(m == "%stop" || m == "%reset")
           break;
-          
+
         std::istringstream expression(m);
         output_type toSend;
 

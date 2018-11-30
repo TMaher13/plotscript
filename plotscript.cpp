@@ -11,10 +11,6 @@
 #include "interpreter_thread.hpp"
 #include "output_thread.hpp"
 
-/*void InterpreterThread::killThread() {
-  forceStop = true;
-}*/
-
 void prompt(){
   std::cout << "\nplotscript> ";
 }
@@ -104,13 +100,9 @@ void repl(){
   ThreadSafeQueue<output_type> output_queue;
   InterpreterThread interpThread(&input_queue, &output_queue, interp);
 
-  bool InterpRunning = false;
+  bool InterpRunning = true;
 
-  //std::thread int_th(interpThread);
-  //interpThread.killThread();
-  //int_th.join();
-  //bool initialized = false;
-  std::thread int_th;
+  std::thread int_th(interpThread);
 
   while(!std::cin.eof()){
 
@@ -120,26 +112,22 @@ void repl(){
     if(line.empty()) continue;
 
     if(line == "%start") {
-      int_th = std::thread(interpThread);
+      if(!InterpRunning)
+        int_th = std::thread(interpThread);
       InterpRunning = true;
     }
     else if(line == "%stop") {
       if(InterpRunning) {
-        //interpThread.killThread();
         input_queue.push(line);
         int_th.join();
       }
-      std::cout << "Gets here\n";
       InterpRunning = false;
     }
     else if(line == "%reset") {
       if(InterpRunning) {
-        //interpThread.killThread();
         input_queue.push(line);
         int_th.join();
       }
-      //Interpreter newInterp; // Create new environment
-      //InterpreterThread newInterpThread(&input_queue, &output_queue, newInterp);
       int_th = std::thread(interpThread);
       InterpRunning = true;
 
@@ -183,17 +171,3 @@ int main(int argc, char *argv[])
 
   return EXIT_SUCCESS;
 }
-
-/*std::istringstream expression(line);
-if(!interp.parseStream(expression)){
-  error("Invalid Expression. Could not parse.");
-}
-else{
-  try{
-    Expression exp = interp.evaluate();
-    std::cout << exp << std::endl;
-  }
-  catch(const SemanticError & ex){
-      std::cerr << ex.what() << std::endl;
-  }
-}*/
