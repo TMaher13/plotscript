@@ -25,9 +25,13 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
 
   // PushButtons for GUI kernel commands
   startButton = new QPushButton("Start Kernel");
+  startButton->setObjectName("start");
   stopButton = new QPushButton("Stop Kernel");
+  stopButton->setObjectName("stop");
   resetButton = new QPushButton("Reset Kernel");
+  resetButton->setObjectName("reset");
   interruptButton = new QPushButton("Interrupt");
+  interruptButton->setObjectName("interrupt");
 
   connect(startButton, SIGNAL (released()), this, SLOT (handle_start()));
   connect(stopButton, SIGNAL (released()), this, SLOT (handle_stop()));
