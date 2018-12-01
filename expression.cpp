@@ -14,7 +14,6 @@ Expression::Expression() : isList(false) {}
 Expression::Expression(const Atom & a) : isList(false) {
 
   m_head = a;
-  std::cout << "Number: " << a.isNumber() << '\n';
 }
 
 // recursive copy
@@ -167,8 +166,6 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
     if(head.asString().front() == '\"') {
       return Expression(head);
     }
-
-    std::cout << "Here" << '\n';
 
     if(head.isSymbol()){ // if symbol is in env return value
       if(head.asSymbol() == "list") {
