@@ -72,7 +72,7 @@ bool Expression::isHeadList() const noexcept {
   if(m_head.isSymbol())
     return (m_head.asSymbol() == "list");
   else
-    return isList;
+    return (isList || m_head.isList());
 }
 
 bool Expression::isHeadSymbol() const noexcept{
@@ -81,7 +81,6 @@ bool Expression::isHeadSymbol() const noexcept{
 
 void Expression::setHeadList() {
   m_head.setList();
-  std::cout << "Setting head\n";
   isList = true;
 }
 

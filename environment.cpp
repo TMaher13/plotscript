@@ -358,12 +358,9 @@ Expression buildList(const std::vector<Expression>& args) {
 
   if(nargs_equal(args,0)) {
     Expression toReturn;
-    std::cout << "Come here\n";
     toReturn.setHeadList();
     return toReturn;
   }
-
-  std::cout << "Args: " << args << '\n';
 
   std::vector<Expression> result;
   for(auto & a :args)
