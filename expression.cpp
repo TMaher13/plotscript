@@ -186,8 +186,14 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
          throw SemanticError("Error during evaluation: unknown symbol");
       }
     }
-    else if(head.isNumber() || head.isComplex()){
-      return Expression(head);
+    else if(head.isNumber()) { // || head.isComplex()){
+      Expression toReturn; //(head.asNumber());
+      toReturn.head().setNumber(head.asNumber());
+      //std::cout << "Correct spot here\n";
+      return toReturn;
+    }
+    else if(head.isComplex()){
+      return Expression(head.asComplex());
     }
     else{
       throw SemanticError("Error during evaluation: Invalid type in terminal expression");

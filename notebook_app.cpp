@@ -59,6 +59,8 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
       std::string name = "\"object-name\"";
       if(exp.isHeadList()) {
 
+        std::cout << exp << "\n";
+
         if(exp.property_list.find(name) != exp.property_list.end()) {
           if(exp.get_property(name) == Expression(Atom("\"point\""))) {
             emit sendPoint(exp);
@@ -69,7 +71,11 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
         }
         else {
 
+          bool isPlot = false;
+
           for(auto & item : exp.getTail()) {
+
+            /*std::cout << item << "\n";
             if(item.property_list.find(name) == item.property_list.end()) {
               std::ostringstream result;
               result << item;
@@ -78,16 +84,30 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
 
               if(!item.isHeadLambda()) // && !(item.head().isNone() && item.getTail().size() > 0))
                 emit sendResult(resultStr);
-            }
-            else if(item.get_property(name) == Expression(Atom("\"point\""))) {
+            }*/
+            if(item.get_property(name) == Expression(Atom("\"point\""))) {
               emit sendPoint(item);
+              isPlot = true;
             }
             else if(item.get_property(name) == Expression(Atom("\"line\""))) {
               emit sendLine(item);
+              isPlot = true;
             }
             else if(item.get_property(name) == Expression(Atom("\"text\""))) {
               emit sendText(item);
+              isPlot = true;
             }
+          }
+
+          if(!isPlot) {
+            std::ostringstream result;
+            //for(auto & item : exp.getTail()) {
+            result << exp;
+            //}
+
+            std::string resultStr = result.str();
+            resultStr = resultStr.substr(1, resultStr.size()-2);
+            emit sendResult(resultStr);
           }
         }
       }
@@ -99,7 +119,7 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
         std::ostringstream result;
         result << exp;
         std::string resultStr = result.str();
-
+        //std::cout << resultStr << '\n';
         if(!exp.isHeadLambda()) // && !(exp.head().isNone() && exp.getTail().size() > 0))
           emit sendResult(resultStr); //, exp.isDefined());
       }

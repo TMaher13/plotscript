@@ -362,12 +362,17 @@ Expression buildList(const std::vector<Expression>& args) {
     return toReturn;
   }
 
-  std::vector<Expression> result;
+  Expression result_exp;
+  //std::vector<Expression> result;
   for(auto & a :args)
-    result.push_back(a);
+    result_exp.append(Expression(a));
 
-  Expression result_exp = Expression(result);
+   //= Expression(result);
   result_exp.setHeadList();
+
+  //std::cout << result_exp << '\n';
+
+  //std::cout << "Here\n";
 
   return result_exp;
 }

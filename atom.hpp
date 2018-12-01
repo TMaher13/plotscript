@@ -88,6 +88,9 @@ public:
 
   void setString(const std::string & value);
 
+  // helper to set type and value of Number
+  void setNumber(double value);
+
   /// equality comparison based on type and value
   bool operator==(const Atom & right) const noexcept;
 
@@ -106,9 +109,6 @@ private:
     std::string stringValue;
     std::complex<double> complexValue;
   };
-
-  // helper to set type and value of Number
-  void setNumber(double value);
 
   // Helper to set type and value of Complex
   void setComplex(std::complex<double> value);
