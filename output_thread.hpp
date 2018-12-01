@@ -7,6 +7,8 @@
 #include "semantic_error.hpp"
 #include "thread_safe_queue.hpp"
 
+#include <iostream>
+
 class OutputThread {
 
 public:

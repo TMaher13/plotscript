@@ -19,6 +19,21 @@
 
 NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
 
+  interpThread = InterpreterThread(&input_queue, &output_queue, interp);
+  int_th = std::thread(interpThread);
+  interpRunning = true;
+
+  // PushButtons for GUI kernel commands
+  startButton = new QPushButton("Start Kernel");
+  stopButton = new QPushButton("Stop Kernel");
+  resetButton = new QPushButton("Reset Kernel");
+  interruptButton = new QPushButton("Interrupt");
+
+  connect(startButton, SIGNAL (released()), this, SLOT (handle_start()));
+  connect(stopButton, SIGNAL (released()), this, SLOT (handle_stop()));
+  connect(resetButton, SIGNAL (released()), this, SLOT (handle_reset()));
+  connect(interruptButton, SIGNAL (released()), this, SLOT (handle_interrupt()));
+
   input = new InputWidget();
   input->setObjectName("input");
   QObject::connect(input, &InputWidget::sendInput, this, &NotebookApp::input_cmd);
@@ -31,7 +46,16 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
   QObject::connect(this,&NotebookApp::sendLine, output, &OutputWidget::getLine);
   QObject::connect(this,&NotebookApp::sendText, output, &OutputWidget::getText);
 
+  //std::cout << "Built objects\n";
+
+  auto layoutButtons = new QHBoxLayout();
+  layoutButtons->addWidget(startButton);
+  layoutButtons->addWidget(stopButton);
+  layoutButtons->addWidget(resetButton);
+  layoutButtons->addWidget(interruptButton);
+
   auto layout = new QVBoxLayout();
+  layout->addLayout(layoutButtons);
   layout->addWidget(input);
   layout->addWidget(output);
   layout->setSizeConstraint(QLayout::SetFixedSize);
@@ -49,6 +73,13 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
   std::stringstream stream(NotebookCmd);
   output->scene->clear();
 
+  std::cout << interpRunning << '\n';
+  if(!interpRunning) {
+    std::cout << "Here\n";
+    emit sendError("Error: interpreter kernel not running");
+    return;
+  }
+
   if(!interp.parseStream(stream)) {
 
     emit sendError("Error: Invalid Expression. Could not parse in GUI.");
@@ -58,8 +89,6 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
       Expression exp = interp.evaluate();
       std::string name = "\"object-name\"";
       if(exp.isHeadList()) {
-
-        std::cout << exp << "\n";
 
         if(exp.property_list.find(name) != exp.property_list.end()) {
           if(exp.get_property(name) == Expression(Atom("\"point\""))) {
@@ -74,17 +103,6 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
           bool isPlot = false;
 
           for(auto & item : exp.getTail()) {
-
-            /*std::cout << item << "\n";
-            if(item.property_list.find(name) == item.property_list.end()) {
-              std::ostringstream result;
-              result << item;
-              std::string resultStr = result.str();
-              resultStr = resultStr.substr(1, resultStr.size()-2);
-
-              if(!item.isHeadLambda()) // && !(item.head().isNone() && item.getTail().size() > 0))
-                emit sendResult(resultStr);
-            }*/
             if(item.get_property(name) == Expression(Atom("\"point\""))) {
               emit sendPoint(item);
               isPlot = true;
@@ -128,4 +146,33 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
         emit sendError(ex.what());
     }
   }
+}
+
+void NotebookApp::handle_start() {
+  if(!interpRunning)
+    int_th = std::thread(interpThread);
+  interpRunning = true;
+}
+
+void NotebookApp::handle_stop() {
+  if(interpRunning) {
+    input_queue.push("%stop");
+    int_th.join();
+  }
+  interpRunning = false;
+}
+
+void NotebookApp::handle_reset() {
+  if(interpRunning) {
+    input_queue.push("%reset");
+    int_th.join();
+  }
+  interp = Interpreter();
+  int_th = std::thread(interpThread);
+  interpRunning = true;
+
+}
+
+void NotebookApp::handle_interrupt() {
+
 }

@@ -9,15 +9,16 @@
 #include "environment.hpp"
 #include "semantic_error.hpp"
 
-Expression::Expression() {}
+Expression::Expression() : isList(false) {}
 
-Expression::Expression(const Atom & a){
+Expression::Expression(const Atom & a) : isList(false) {
 
   m_head = a;
+  std::cout << "Number: " << a.isNumber() << '\n';
 }
 
 // recursive copy
-Expression::Expression(const Expression & a) {
+Expression::Expression(const Expression & a) : isList(false) {
 
   m_head = a.m_head;
   for(auto e : a.m_tail){
@@ -167,7 +168,7 @@ Expression Expression::handle_lookup(const Atom & head, const Environment & env)
       return Expression(head);
     }
 
-    //std::cout << head.asSymbol() << '\n';
+    std::cout << "Here" << '\n';
 
     if(head.isSymbol()){ // if symbol is in env return value
       if(head.asSymbol() == "list") {

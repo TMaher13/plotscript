@@ -18,6 +18,8 @@ private:
 
 public:
 
+  InterpreterThread() {};
+
   InterpreterThread(ThreadSafeQueue<std::string>* input_queue_ptr, ThreadSafeQueue<output_type>* output_queue_ptr, Interpreter& interpreter) {
     inputQueuePtr = input_queue_ptr;
     outputQueuePtr = output_queue_ptr;
