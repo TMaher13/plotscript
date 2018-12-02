@@ -7,6 +7,7 @@
 
 #include <sstream>
 #include <thread>
+#include <csignal>
 
 #include "interpreter.hpp"
 #include "semantic_error.hpp"
@@ -24,6 +25,10 @@ class NotebookApp : public QWidget {
 
 public:
   NotebookApp(QWidget* parent = nullptr);
+
+  virtual ~NotebookApp() {
+    int_th.join();
+  }
 
 private:
   QString notebookCmd;
