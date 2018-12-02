@@ -27,7 +27,10 @@ public:
   NotebookApp(QWidget* parent = nullptr);
 
   virtual ~NotebookApp() {
-    int_th.join();
+    if(interpRunning) {
+      input_queue.push("%stop");
+      int_th.join();
+    }
   }
 
 private:
