@@ -20,6 +20,7 @@ Expression::Expression() : isList(false) {}
 Expression::Expression(const Atom & a) : isList(false) {
 
   m_head = a;
+  isInterrupted = false;
   //install_handler();
 }
 
@@ -31,6 +32,7 @@ Expression::Expression(const Expression & a) : isList(false) {
     m_tail.push_back(e);
   }
   property_list = a.property_list;
+  isInterrupted = false;
   //install_handler();
 
 }
@@ -41,6 +43,7 @@ Expression::Expression(const std::vector<Expression> & a) {
   for(auto e : a){
     m_tail.push_back(e);
   }
+  isInterrupted = false;
   //install_handler();
 }
 
