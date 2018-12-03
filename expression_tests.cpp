@@ -16,6 +16,8 @@ TEST_CASE( "Test double expression", "[expression]" ) {
 
   REQUIRE(exp.isHeadNumber());
   REQUIRE(!exp.isHeadSymbol());
+
+  exp.clearTail();
 }
 
 
@@ -26,4 +28,3 @@ TEST_CASE( "Test symbol expression", "[expression]" ) {
   REQUIRE(!exp.isHeadNumber());
   REQUIRE(exp.isHeadSymbol());
 }
-

@@ -299,3 +299,22 @@ TEST_CASE( "Test semeantic errors", "[environment]" ) {
     REQUIRE_THROWS_AS(exp.eval(env), SemanticError);
   }
 }
+
+TEST_CASE("Testing lists and list functions", "[environment]") {
+  Environment env;
+  std::vector<Expression> args;
+
+  Procedure plist = env.get_proc(Atom("list"));
+  double one = 1;
+  double two = 2;
+  double three = 3;
+  args.emplace_back(one);
+  args.emplace_back(two);
+  args.emplace_back(three);
+
+  Expression test_list; test_list.setHeadList();
+  test_list.append(1); test_list.append(2); test_list.append(3);
+
+  //REQUIRE(plist(args) == test_list);
+
+}
