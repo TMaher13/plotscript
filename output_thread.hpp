@@ -9,25 +9,43 @@
 
 #include <iostream>
 
+
 class OutputThread {
 
 public:
 
+  void endEventLoop() {
+    endLoop = true;
+  }
+
   OutputThread(ThreadSafeQueue<output_type>* output_queue_ptr) {
     outputQueuePtr = output_queue_ptr;
+    endLoop = false;
   };
 
   // Event loop for output thread
   void operator()() const {
     output_type result;
     while(1) {
-      if(outputQueuePtr->try_pop(result)) {
-        if(result.isError)
-          std::cout << result.err_result.what() << '\n';
-        else
-          std::cout << result.exp_result << '\n';
 
+      if(endLoop) {
+        std::cout << "Ending output thread.\n";
         break;
+      }
+
+      if(outputQueuePtr->try_pop(result)) {
+        //std::cout << "Message received\n";
+        if(result.isError) {
+          std::cout << result.err_result.what() << '\n';
+          std::cout << "\nplotscript> ";
+        }
+        else {
+          std::cout << result.exp_result << '\n';
+          std::cout << "\nplotscript> ";
+        }
+
+
+        //break;
       }
     }
   };
@@ -36,6 +54,8 @@ public:
 private:
 
   ThreadSafeQueue<output_type>* outputQueuePtr;
+
+  bool endLoop;
 
 };
 

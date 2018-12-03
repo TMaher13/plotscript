@@ -1,9 +1,10 @@
 // interpreter_thread.hpp
-
 #ifndef INTERPRETER_THREAD_HPP
 #define INTERPRETER_THREAD_HPP
 
 #include <string>
+#include <iostream>
+
 #include "interpreter.hpp"
 #include "thread_safe_queue.hpp"
 #include "semantic_error.hpp"
@@ -24,21 +25,45 @@ public:
     inputQueuePtr = input_queue_ptr;
     outputQueuePtr = output_queue_ptr;
     interp = interpreter;
-    //std::cout << "Interpreter thread created.\n";
+    //interrupt_flag = false;
   };
 
   // Event loop for interpreter thread
   void operator()() {
-    //std::cout << "In Interpreter thread.\n";
+    //install_handler();
     while(1) {
       std::string m;
+
+      output_type toSend; // Object to send to output_queue
+
+      // If lock is open
+      /*if(interrupt_flag) {
+        //interrupt_flag.exchange(true); // close while we interrupt this kernel
+        interp = Interpreter();
+        toSend.isError = true;
+        toSend.err_result = SemanticError(std::string("Error: interpreter kernel interrupted"));
+        outputQueuePtr->push(toSend);
+        //interrupt_flag = false; // reset flag
+        //std::cout << "Here\n";
+        interrupt_flag.exchange(false);
+      }
+      else {*/ // Otherwise compute result
       if(inputQueuePtr->try_pop(m)) {
 
         if(m=="%stop" || m=="%reset" || m=="%exit")
           break;
 
+        if(m == "%interrupt") {
+          interp = Interpreter();
+          toSend.isError = true;
+          toSend.err_result = SemanticError(std::string("Error: interpreter kernel interrupted"));
+          outputQueuePtr->push(toSend);
+          continue;
+        }
+
+        //std::cout << "Flag status: " << interrupt_flag << '\n';
+
         std::istringstream expression(m);
-        output_type toSend;
 
         if(!interp.parseStream(expression)) {
           toSend.isError = true;
@@ -62,6 +87,7 @@ public:
         }
 
       }
+      //}
     }
 
   };

@@ -1,19 +1,26 @@
-#include "expression.hpp"
-
 #include <sstream>
 #include <list>
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
+#include "expression.hpp"
 #include "environment.hpp"
 #include "semantic_error.hpp"
+
+#include <unistd.h>
+#include <csignal>
+#include <cstdlib>
+#include <atomic>
+
+bool isInterrupted;
 
 Expression::Expression() : isList(false) {}
 
 Expression::Expression(const Atom & a) : isList(false) {
 
   m_head = a;
+  //install_handler();
 }
 
 // recursive copy
@@ -24,6 +31,7 @@ Expression::Expression(const Expression & a) : isList(false) {
     m_tail.push_back(e);
   }
   property_list = a.property_list;
+  //install_handler();
 
 }
 
@@ -33,6 +41,7 @@ Expression::Expression(const std::vector<Expression> & a) {
   for(auto e : a){
     m_tail.push_back(e);
   }
+  //install_handler();
 }
 
 Expression & Expression::operator=(const Expression & a) {
@@ -48,6 +57,7 @@ Expression & Expression::operator=(const Expression & a) {
 
   }
 
+  //install_handler();
   return *this;
 }
 
@@ -715,6 +725,11 @@ void Expression::setHead(const Atom & a) {
 // difficult with the ast data structure used (no parent pointer).
 // this limits the practical depth of our AST
 Expression Expression::eval(Environment & env) {
+
+  if(isInterrupted) {
+    isInterrupted = false; // Reset bool
+    throw SemanticError("Error: interpreter kernel interrupted");
+  }
 
   if(m_tail.empty()) {
 

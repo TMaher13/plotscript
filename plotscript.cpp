@@ -11,6 +11,51 @@
 #include "interpreter_thread.hpp"
 #include "output_thread.hpp"
 
+#include <unistd.h>
+#include <csignal>
+#include <cstdlib>
+#include <atomic>
+
+
+// *****************************************************************************
+// Interrupt Handling Implemented here
+// *****************************************************************************
+std::atomic_bool interrupt_flag = ATOMIC_FLAG_INIT;
+extern bool isInterrupted;
+
+// this function is called when a signal is sent to the process
+inline void interrupt_handler(int signal_num) {
+
+  if(signal_num == SIGINT){ // handle Cnrtl-C
+    //std::cout << "Event occurred\n";
+    // if not reset since last call, exit
+    signal(SIGINT, interrupt_handler);
+    if (interrupt_flag) {
+      exit(EXIT_FAILURE);
+    }
+    isInterrupted = true;
+    interrupt_flag.exchange(false);
+  }
+}
+
+// install the signal handler
+inline void install_handler() {
+
+  struct sigaction sigIntHandler;
+
+  interrupt_flag.exchange(false);
+  isInterrupted = false; // Reset bool
+
+  //sigIntHandler.sa_handler = interrupt_handler;
+  //sigemptyset(&sigIntHandler.sa_mask);
+  //sigIntHandler.sa_flags = 0;
+  signal(SIGINT, interrupt_handler);
+  //sigaction(SIGINT, &sigIntHandler, NULL);
+}
+
+// *****************************************************************************
+
+
 void prompt(){
   std::cout << "\nplotscript> ";
 }
@@ -87,6 +132,8 @@ int eval_from_command(std::string argexp){
 // A REPL is a repeated read-eval-print loop
 void repl(){
   Interpreter interp;
+  install_handler();
+  //isInterrupted = false;
 
   // Startup file for points, lines, and text in GUI
   std::ifstream ifs(STARTUP_FILE);
@@ -100,13 +147,39 @@ void repl(){
   ThreadSafeQueue<output_type> output_queue;
   InterpreterThread interpThread(&input_queue, &output_queue, interp);
 
+  //OutputThread outThread(&output_queue);
+  //std::thread out_th(outThread);
+
   bool InterpRunning = true;
+  //bool outputRunning = true;
 
   std::thread int_th(interpThread);
 
   while(!std::cin.eof()){
 
+    /*if(isInterrupted) {
+      input_queue.push("%interrupt");
+      isInterrupted = false;
+
+      // Event loop for output_queue
+      while(1) {
+        output_type result;
+        if(output_queue.try_pop(result)) {
+          if(result.isError) {
+            std::cout << result.err_result.what() << '\n';
+          }
+          else {
+            std::cout << result.exp_result << '\n';
+          }
+
+          break;
+        }
+      continue;
+      }
+    }*/
+
     prompt();
+    //if(!isInterrupted) {
     std::string line = readline();
 
     if(line.empty()) continue;
@@ -130,12 +203,12 @@ void repl(){
       }
       int_th = std::thread(interpThread);
       InterpRunning = true;
-
     }
     else if(line == "%exit") {
       if(InterpRunning) {
         input_queue.push(line);
         int_th.join();
+        InterpRunning = false;
       }
       return;
     }
@@ -146,10 +219,22 @@ void repl(){
       else {
         input_queue.push(line);
 
-        OutputThread outThread(&output_queue);
-        std::thread out_th(outThread);
+        // Event loop for output_queue
 
-        out_th.join();
+        while(1) {
+          output_type result;
+          if(output_queue.try_pop(result)) {
+            if(result.isError) {
+              std::cout << result.err_result.what() << '\n';
+            }
+            else {
+              std::cout << result.exp_result << '\n';
+            }
+
+            break;
+          }
+        }
+
       }
     }
 
@@ -157,6 +242,11 @@ void repl(){
 
   if(InterpRunning)
     int_th.join();
+
+  /*if(outputRunning) {
+    outThread.endEventLoop();
+    out_th.join();
+  }*/
 }
 
 int main(int argc, char *argv[])
