@@ -574,6 +574,9 @@ const std::complex<double> I(0, 1);
 Environment::Environment(){
 
   reset();
+
+  // set flag as off to start
+  envmap.emplace("interrupt_flag", EnvResult(ExpressionType, Expression(0)));
 }
 
 bool Environment::is_known(const Atom & sym) const{

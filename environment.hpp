@@ -12,6 +12,7 @@ needed.
 
 // system includes
 #include <map>
+#include <iostream>
 
 // For complex type
 #include <complex>
@@ -73,6 +74,18 @@ public:
     \param exp the expression the symbol should map to
    */
   void add_exp(const Atom &sym, const Expression &exp, bool need_redef = false);
+
+  /*
+  Map the interrupt flag to 1, so that evaluation can stop if an interrupt is read
+  */
+  void setFlag() {
+    if(envmap.find("interrupt_flag") != envmap.end())
+      envmap.erase("interrupt_flag");
+
+    std::cout << "Set interrupt flag.\n";
+    envmap.emplace("interrupt_flag", EnvResult(ExpressionType, Expression(1)));
+  };
+
 
   /*! Determine if a symbol has been defined as a procedure
     \param sym the symbol to lookup

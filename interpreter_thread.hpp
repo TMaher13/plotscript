@@ -9,6 +9,8 @@
 #include "thread_safe_queue.hpp"
 #include "semantic_error.hpp"
 
+extern bool interpRestart;
+
 class InterpreterThread {
 
 private:
@@ -21,11 +23,15 @@ public:
 
   InterpreterThread() {};
 
+  void resetInterp(Interpreter& newInterp) {
+    interp = newInterp;
+  }
+
   InterpreterThread(ThreadSafeQueue<std::string>* input_queue_ptr, ThreadSafeQueue<output_type>* output_queue_ptr, Interpreter& interpreter) {
     inputQueuePtr = input_queue_ptr;
     outputQueuePtr = output_queue_ptr;
     interp = interpreter;
-    //interrupt_flag = false;
+    //interpRestart = false;
   };
 
   // Event loop for interpreter thread
@@ -36,18 +42,6 @@ public:
 
       output_type toSend; // Object to send to output_queue
 
-      // If lock is open
-      /*if(interrupt_flag) {
-        //interrupt_flag.exchange(true); // close while we interrupt this kernel
-        interp = Interpreter();
-        toSend.isError = true;
-        toSend.err_result = SemanticError(std::string("Error: interpreter kernel interrupted"));
-        outputQueuePtr->push(toSend);
-        //interrupt_flag = false; // reset flag
-        //std::cout << "Here\n";
-        interrupt_flag.exchange(false);
-      }
-      else {*/ // Otherwise compute result
       if(inputQueuePtr->try_pop(m)) {
 
         if(m=="%stop" || m=="%reset" || m=="%exit")
@@ -87,7 +81,6 @@ public:
         }
 
       }
-      //}
     }
 
   };

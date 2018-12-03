@@ -13,14 +13,12 @@
 #include <cstdlib>
 #include <atomic>
 
-bool isInterrupted;
-
 Expression::Expression() : isList(false) {}
 
 Expression::Expression(const Atom & a) : isList(false) {
 
   m_head = a;
-  isInterrupted = false;
+  //isInterrupted = false;
   //install_handler();
 }
 
@@ -32,7 +30,7 @@ Expression::Expression(const Expression & a) : isList(false) {
     m_tail.push_back(e);
   }
   property_list = a.property_list;
-  isInterrupted = false;
+  //isInterrupted = false;
   //install_handler();
 
 }
@@ -43,7 +41,7 @@ Expression::Expression(const std::vector<Expression> & a) {
   for(auto e : a){
     m_tail.push_back(e);
   }
-  isInterrupted = false;
+  //isInterrupted = false;
   //install_handler();
 }
 
@@ -729,8 +727,10 @@ void Expression::setHead(const Atom & a) {
 // this limits the practical depth of our AST
 Expression Expression::eval(Environment & env) {
 
-  if(isInterrupted) {
-    isInterrupted = false; // Reset bool
+  //std::cout << "Flag status: " << env.get_exp(Atom("interrupt_flag")) << '\n';
+  if(env.get_exp(Atom("interrupt_flag")).head().asNumber() == 1) {
+    std::cout << "Caught Interrupt.\n";
+    env.add_exp(Atom("interrupt_flag"), Expression(0), true); // reset interrupt flag
     throw SemanticError("Error: interpreter kernel interrupted");
   }
 

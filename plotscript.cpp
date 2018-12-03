@@ -21,7 +21,7 @@
 // Interrupt Handling Implemented here
 // *****************************************************************************
 std::atomic_bool interrupt_flag = ATOMIC_FLAG_INIT;
-extern bool isInterrupted;
+bool isInterrupted;
 
 // this function is called when a signal is sent to the process
 inline void interrupt_handler(int signal_num) {
@@ -33,7 +33,9 @@ inline void interrupt_handler(int signal_num) {
     if (interrupt_flag) {
       exit(EXIT_FAILURE);
     }
+    std::cout << "Signal caught\n";
     isInterrupted = true;
+    //interpRestart = true;
     interrupt_flag.exchange(false);
   }
 }
@@ -81,14 +83,8 @@ int eval_from_stream(std::istream & stream, bool isFromFile=false){
 
   if(isFromFile) {
     std::ifstream start_stream(STARTUP_FILE);
-    //if(!start_stream){
-    //  error("Could not open startup file for reading.");
-    //  return EXIT_FAILURE;
-    //}
     if(interp.parseStream(start_stream))
       Expression startup_eval = interp.evaluate();
-    //error("Startup file failed to parse.");
-    //else
   }
 
   if(!interp.parseStream(stream)){
@@ -133,7 +129,7 @@ int eval_from_command(std::string argexp){
 void repl(){
   Interpreter interp;
   install_handler();
-  //isInterrupted = false;
+  isInterrupted = false;
 
   // Startup file for points, lines, and text in GUI
   std::ifstream ifs(STARTUP_FILE);
@@ -147,36 +143,11 @@ void repl(){
   ThreadSafeQueue<output_type> output_queue;
   InterpreterThread interpThread(&input_queue, &output_queue, interp);
 
-  //OutputThread outThread(&output_queue);
-  //std::thread out_th(outThread);
-
   bool InterpRunning = true;
-  //bool outputRunning = true;
 
   std::thread int_th(interpThread);
 
   while(!std::cin.eof()){
-
-    /*if(isInterrupted) {
-      input_queue.push("%interrupt");
-      isInterrupted = false;
-
-      // Event loop for output_queue
-      while(1) {
-        output_type result;
-        if(output_queue.try_pop(result)) {
-          if(result.isError) {
-            std::cout << result.err_result.what() << '\n';
-          }
-          else {
-            std::cout << result.exp_result << '\n';
-          }
-
-          break;
-        }
-      continue;
-      }
-    }*/
 
     prompt();
     //if(!isInterrupted) {
@@ -220,8 +191,17 @@ void repl(){
         input_queue.push(line);
 
         // Event loop for output_queue
-
         while(1) {
+          // Check if Ctrl+C flag was raised/we need to interrupt Interpreter kernel
+          if(isInterrupted && InterpRunning) {
+            input_queue.push(line); // Reset environment
+            int_th.join();
+            int_th = std::thread(interpThread);
+            InterpRunning = true;
+
+            interp.setFlag(); // Set flag for expression class to read
+          }
+
           output_type result;
           if(output_queue.try_pop(result)) {
             if(result.isError) {

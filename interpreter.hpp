@@ -38,6 +38,11 @@ public:
    */
   Expression evaluate();
 
+  // Set flag for an interrupt
+  void setFlag() {
+    env.setFlag();
+  };
+
 private:
 
   // the environment
