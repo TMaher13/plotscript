@@ -15,13 +15,11 @@
 #include "startup_config.hpp"
 #include "expression.hpp"
 
+extern bool isInterrupted;
+
 
 
 NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
-
-  interpThread = InterpreterThread(&input_queue, &output_queue, interp);
-  int_th = std::thread(interpThread);
-  interpRunning = true;
 
   // PushButtons for GUI kernel commands
   startButton = new QPushButton("Start Kernel");
@@ -71,15 +69,19 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
     Expression startup_exp = interp.evaluate();
   else
     emit sendError("Error: Invalid Expression. Could not parse.");
+
+  interpThread = InterpreterThread(&input_queue, &output_queue, interp);
+  int_th = std::thread(interpThread);
+  interpRunning = true;
 }
 
 void NotebookApp::input_cmd(std::string NotebookCmd) {
   std::stringstream stream(NotebookCmd);
   output->scene->clear();
 
-  std::cout << interpRunning << '\n';
+  //std::cout << interpRunning << '\n';
   if(!interpRunning) {
-    std::cout << "Here\n";
+    //std::cout << "Here\n";
     emit sendError("Error: interpreter kernel not running");
     return;
   }
@@ -90,7 +92,26 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
   }
   else {
     try {
-      Expression exp = interp.evaluate();
+      //Expression exp = interp.evaluate();
+      Expression exp;
+      input_queue.push(NotebookCmd);
+
+      while(1) {
+        output_type result;
+        if(output_queue.try_pop(result)) {
+          if(result.isError) {
+            emit sendError(result.err_result.what());
+            return;
+          }
+          else {
+            exp = result.exp_result;
+          }
+          break;
+        }
+      }
+
+
+
       std::string name = "\"object-name\"";
       if(exp.isHeadList()) {
 
@@ -153,8 +174,15 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
 }
 
 void NotebookApp::handle_start() {
-  if(!interpRunning)
+  if(!interpRunning) {
+    interp = Interpreter();
+    std::ifstream ifs(STARTUP_FILE);
+    if(interp.parseStream(ifs))
+      Expression startup_exp = interp.evaluate();
+
+    interpThread = InterpreterThread(&input_queue, &output_queue, interp);
     int_th = std::thread(interpThread);
+  }
   interpRunning = true;
 }
 
@@ -172,11 +200,38 @@ void NotebookApp::handle_reset() {
     int_th.join();
   }
   interp = Interpreter();
+
+  std::ifstream ifs(STARTUP_FILE);
+  if(interp.parseStream(ifs))
+    Expression startup_exp = interp.evaluate();
+  else
+    emit sendError("Error: Invalid Expression. Could not parse.");
+
+  interpThread = InterpreterThread(&input_queue, &output_queue, interp);
   int_th = std::thread(interpThread);
+
   interpRunning = true;
 
 }
 
 void NotebookApp::handle_interrupt() {
+  if(interpRunning) {
+    output->scene->clear();
+    emit sendError("Error: interpreter kernel interrupted");
 
+  input_queue.push("%reset");
+  int_th.join();
+
+  interp = Interpreter();
+  std::ifstream ifs(STARTUP_FILE);
+  if(interp.parseStream(ifs))
+    Expression startup_exp = interp.evaluate();
+
+  interpThread = InterpreterThread(&input_queue, &output_queue, interp);
+  int_th = std::thread(interpThread);
+
+  interpRunning = true;
+  }
+  else
+    isInterrupted = false;
 }
