@@ -47,13 +47,13 @@ public:
         if(m=="%stop" || m=="%reset" || m=="%exit")
           break;
 
-        if(m == "%interrupt") {
+        /*if(m == "%interrupt") {
           interp = Interpreter();
           toSend.isError = true;
           toSend.err_result = SemanticError(std::string("Error: interpreter kernel interrupted"));
           outputQueuePtr->push(toSend);
           continue;
-        }
+        }*/
 
         //std::cout << "Flag status: " << interrupt_flag << '\n';
 

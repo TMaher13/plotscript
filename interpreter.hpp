@@ -39,9 +39,9 @@ public:
   Expression evaluate();
 
   // Set flag for an interrupt
-  void setFlag() {
+  /*void setFlag() {
     env.setFlag();
-  };
+  };*/
 
 private:
 

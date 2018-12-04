@@ -21,7 +21,7 @@
 // Interrupt Handling Implemented here
 // *****************************************************************************
 std::atomic_bool interrupt_flag = ATOMIC_FLAG_INIT;
-bool isInterrupted;
+extern bool isInterrupted;
 
 // this function is called when a signal is sent to the process
 inline void interrupt_handler(int signal_num) {
@@ -33,7 +33,6 @@ inline void interrupt_handler(int signal_num) {
     if (interrupt_flag) {
       exit(EXIT_FAILURE);
     }
-    std::cout << "Signal caught\n";
     isInterrupted = true;
     //interpRestart = true;
     interrupt_flag.exchange(false);
@@ -152,6 +151,7 @@ void repl(){
     prompt();
     //if(!isInterrupted) {
     std::string line = readline();
+    //std::cout << "Jk I'm here\n";
 
     if(line.empty()) continue;
 
@@ -190,16 +190,36 @@ void repl(){
       else {
         input_queue.push(line);
 
+        //std::cout << "Spinning here\n";
+
         // Event loop for output_queue
+        //bool found = false;
         while(1) {
           // Check if Ctrl+C flag was raised/we need to interrupt Interpreter kernel
+          //std::cout << "Spinning\n";
           if(isInterrupted && InterpRunning) {
-            input_queue.push(line); // Reset environment
-            int_th.join();
-            int_th = std::thread(interpThread);
-            InterpRunning = true;
+            input_queue.push("()");
+            //std::cout << "Interrupt received.\n";
+            //isInterrupted = false; // Reset flag
 
-            interp.setFlag(); // Set flag for expression class to read
+            while(1) {
+              output_type brokenResult;
+              if(output_queue.try_pop(brokenResult)) {
+                if(brokenResult.isError) {
+                  std::cout << brokenResult.err_result.what() << '\n';
+                }
+                else {
+                  std::cout << brokenResult.exp_result << '\n';
+                }
+                break;
+              }
+            }
+
+            input_queue.push("%reset"); // Reset environment
+            int_th.join();
+            //std::cout << "Interpreter Reset.\n";
+            int_th = std::thread(interpThread);
+            break;
           }
 
           output_type result;
@@ -211,22 +231,19 @@ void repl(){
               std::cout << result.exp_result << '\n';
             }
 
+            //isInterrupted = false;
             break;
           }
-        }
+        } // End of event loop
 
       }
-    }
+    } // End of case for reading from output_queue
 
   }
 
   if(InterpRunning)
     int_th.join();
 
-  /*if(outputRunning) {
-    outThread.endEventLoop();
-    out_th.join();
-  }*/
 }
 
 int main(int argc, char *argv[])

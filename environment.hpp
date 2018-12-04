@@ -78,13 +78,13 @@ public:
   /*
   Map the interrupt flag to 1, so that evaluation can stop if an interrupt is read
   */
-  void setFlag() {
+  /*void setFlag() {
     if(envmap.find("interrupt_flag") != envmap.end())
       envmap.erase("interrupt_flag");
 
     std::cout << "Set interrupt flag.\n";
     envmap.emplace("interrupt_flag", EnvResult(ExpressionType, Expression(1)));
-  };
+  };*/
 
 
   /*! Determine if a symbol has been defined as a procedure

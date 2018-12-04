@@ -13,13 +13,13 @@
 #include <cstdlib>
 #include <atomic>
 
+bool isInterrupted;
+
 Expression::Expression() : isList(false) {}
 
 Expression::Expression(const Atom & a) : isList(false) {
 
   m_head = a;
-  //isInterrupted = false;
-  //install_handler();
 }
 
 // recursive copy
@@ -36,13 +36,9 @@ Expression::Expression(const Expression & a) : isList(false) {
 }
 
 Expression::Expression(const std::vector<Expression> & a) {
-  //m_head.setList();
-  //isList = true;
-  for(auto e : a){
+  for(auto e : a) {
     m_tail.push_back(e);
   }
-  //isInterrupted = false;
-  //install_handler();
 }
 
 Expression & Expression::operator=(const Expression & a) {
@@ -728,9 +724,9 @@ void Expression::setHead(const Atom & a) {
 Expression Expression::eval(Environment & env) {
 
   //std::cout << "Flag status: " << env.get_exp(Atom("interrupt_flag")) << '\n';
-  if(env.get_exp(Atom("interrupt_flag")).head().asNumber() == 1) {
-    std::cout << "Caught Interrupt.\n";
-    env.add_exp(Atom("interrupt_flag"), Expression(0), true); // reset interrupt flag
+  if(isInterrupted) {
+    //std::cout << "Caught Interrupt.\n";
+    isInterrupted = false; // reset interrupt flag
     throw SemanticError("Error: interpreter kernel interrupted");
   }
 
