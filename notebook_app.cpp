@@ -97,6 +97,8 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
       input_queue.push(NotebookCmd);
 
       while(1) {
+        if(isInterrupted)
+          return;
         output_type result;
         if(output_queue.try_pop(result)) {
           if(result.isError) {
@@ -216,21 +218,24 @@ void NotebookApp::handle_reset() {
 
 void NotebookApp::handle_interrupt() {
   if(interpRunning) {
-    output->scene->clear();
-    emit sendError("Error: interpreter kernel interrupted");
+    isInterrupted = true;
+    //output->scene->clear();
+    //emit sendError("Error: interpreter kernel interrupted");
 
-  input_queue.push("%reset");
-  int_th.join();
+    input_queue.push("%reset");
+    int_th.join();
 
-  interp = Interpreter();
-  std::ifstream ifs(STARTUP_FILE);
-  if(interp.parseStream(ifs))
-    Expression startup_exp = interp.evaluate();
+    isInterrupted = false;
 
-  interpThread = InterpreterThread(&input_queue, &output_queue, interp);
-  int_th = std::thread(interpThread);
+    interp = Interpreter();
+    std::ifstream ifs(STARTUP_FILE);
+    if(interp.parseStream(ifs))
+      Expression startup_exp = interp.evaluate();
 
-  interpRunning = true;
+    interpThread = InterpreterThread(&input_queue, &output_queue, interp);
+    int_th = std::thread(interpThread);
+
+    interpRunning = true;
   }
   else
     isInterrupted = false;
