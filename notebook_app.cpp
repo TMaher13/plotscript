@@ -112,7 +112,7 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
     //std::cout << "timer is starting\n";
     event_timer->start(50);
     //std::cout << "After timer ends\n";
-    handle_interrupt();
+    //handle_interrupt();
   }
 }
 
