@@ -23,6 +23,7 @@ extern bool isInterrupted;
 
 NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false), isError(false), caughtInterrupt(false) {
 
+  isInterrupted = false;
   // PushButtons for GUI kernel commands
   startButton = new QPushButton("Start Kernel");
   startButton->setObjectName("start");
@@ -107,11 +108,7 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
     input->setEnabled(false);
 
     // Call the timer to try and pop from the output_queue
-    //found = false;
-    //while(!found)
-    //std::cout << "timer is starting\n";
     event_timer->start(50);
-    //std::cout << "After timer ends\n";
     //handle_interrupt();
   }
 }
@@ -128,11 +125,8 @@ void NotebookApp::interrupt_timer_loop() {
         isError = true;
         return;
       }
-      else {
+      else
         exp = Expression(result.exp_result);
-        //std::cout << "Result here: " << exp << '\n';
-      }
-      //std::cout << "Got result\n";
 
       try {
         // if we caught an interrupt, reset interpreter thread
@@ -224,9 +218,6 @@ void NotebookApp::interrupt_timer_loop() {
 void NotebookApp::handle_start() {
   if(!interpRunning) {
     interp = Interpreter();
-    std::ifstream ifs(STARTUP_FILE);
-    if(interp.parseStream(ifs))
-      Expression startup_exp = interp.evaluate();
 
     interpThread = InterpreterThread(&input_queue, &output_queue, interp);
     int_th = std::thread(interpThread);
@@ -248,12 +239,6 @@ void NotebookApp::handle_reset() {
     int_th.join();
   }
   interp = Interpreter();
-
-  std::ifstream ifs(STARTUP_FILE);
-  if(interp.parseStream(ifs))
-    Expression startup_exp = interp.evaluate();
-  else
-    emit sendError("Error: Invalid Expression. Could not parse.");
 
   interpThread = InterpreterThread(&input_queue, &output_queue, interp);
   int_th = std::thread(interpThread);
