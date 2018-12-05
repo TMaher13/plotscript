@@ -109,12 +109,14 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
     // Call the timer to try and pop from the output_queue
     //found = false;
     //while(!found)
+    std::cout << "timer is starting\n";
     event_timer->start(100);
+    std::cout << "After timer ends\n";
   }
 }
 
 void NotebookApp::interrupt_timer_loop() {
-
+    std::cout << "New attempt\n";
     if(output_queue.try_pop(result)) {
       //found = true;
       event_timer->stop();
@@ -127,8 +129,9 @@ void NotebookApp::interrupt_timer_loop() {
       }
       else {
         exp = Expression(result.exp_result);
-        std::cout << "Result here: " << exp << '\n';
+        //std::cout << "Result here: " << exp << '\n';
       }
+      std::cout << "Got result\n";
 
       try {
         // if we caught an interrupt, reset interpreter thread
@@ -197,8 +200,8 @@ void NotebookApp::interrupt_timer_loop() {
         }
         else {
           // Otherwise send result to output widget
-          std::cout << "result to stream: " << exp << '\n';
-          std::cout << "Head is none: " << exp.head().isNone() << '\n';
+          //std::cout << "result to stream: " << exp << '\n';
+          //std::cout << "Head is none: " << exp.head().isNone() << '\n';
           std::ostringstream streamResult;
           streamResult << exp;
           std::string resultStr = streamResult.str();
