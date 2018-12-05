@@ -53,9 +53,17 @@ private:
   InterpreterThread interpThread; //(&input_queue, &output_queue, interp);
   std::thread int_th;
 
+  QTimer* event_timer;
+
 
   bool isDefined;
   bool interpRunning;
+  bool isError;
+  bool caughtInterrupt;
+  bool found;
+
+  output_type result;
+  Expression exp;
 
 protected slots:
   void input_cmd(std::string NotebookCmd);
@@ -64,6 +72,8 @@ protected slots:
   void handle_stop();
   void handle_reset();
   void handle_interrupt();
+
+  void interrupt_timer_loop();
 
 
 signals:

@@ -5,6 +5,8 @@
 #include <QString>
 #include <QDebug>
 #include <QVBoxLayout>
+#include <QThread>
+#include <QTimer>
 
 #include <fstream>
 #include <string>
@@ -19,7 +21,7 @@ extern bool isInterrupted;
 
 
 
-NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
+NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false), isError(false), caughtInterrupt(false) {
 
   // PushButtons for GUI kernel commands
   startButton = new QPushButton("Start Kernel");
@@ -31,6 +33,11 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
   interruptButton = new QPushButton("Interrupt");
   interruptButton->setObjectName("interrupt");
 
+  event_timer = new QTimer(this); //::singleShot(100, this, SLOT(interrupt_timer_loop()));
+  connect(event_timer, SIGNAL(timeout()), this, SLOT(interrupt_timer_loop()));
+  //event_timer->stop();
+  //connect(event_timer, )
+  // Create connections for button signals/slots
   connect(startButton, SIGNAL (released()), this, SLOT (handle_start()));
   connect(stopButton, SIGNAL (released()), this, SLOT (handle_stop()));
   connect(resetButton, SIGNAL (released()), this, SLOT (handle_reset()));
@@ -42,20 +49,22 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
 
   output = new OutputWidget();
   output->setObjectName("output");
+
+  // Create connections b/w signals and slots
   QObject::connect(this,&NotebookApp::sendError, output, &OutputWidget::getError);
   QObject::connect(this,&NotebookApp::sendResult, output, &OutputWidget::getResult);
   QObject::connect(this,&NotebookApp::sendPoint, output, &OutputWidget::getPoint);
   QObject::connect(this,&NotebookApp::sendLine, output, &OutputWidget::getLine);
   QObject::connect(this,&NotebookApp::sendText, output, &OutputWidget::getText);
 
-  //std::cout << "Built objects\n";
-
+  // Add buttons to layout
   auto layoutButtons = new QHBoxLayout();
   layoutButtons->addWidget(startButton);
   layoutButtons->addWidget(stopButton);
   layoutButtons->addWidget(resetButton);
   layoutButtons->addWidget(interruptButton);
 
+  // Add button layout and widgets to layout
   auto layout = new QVBoxLayout();
   layout->addLayout(layoutButtons);
   layout->addWidget(input);
@@ -69,6 +78,9 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false) {
     Expression startup_exp = interp.evaluate();
   else
     emit sendError("Error: Invalid Expression. Could not parse.");
+
+  //input_queue = ThreadSafeQueue<std::string>();
+  //output_queue = ThreadSafeQueue<output_type>()
 
   interpThread = InterpreterThread(&input_queue, &output_queue, interp);
   int_th = std::thread(interpThread);
@@ -91,88 +103,118 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
     emit sendError("Error: Invalid Expression. Could not parse in GUI.");
   }
   else {
-    try {
-      //Expression exp = interp.evaluate();
-      Expression exp;
-      input_queue.push(NotebookCmd);
+    input_queue.push(NotebookCmd);
+    input->setEnabled(false);
 
-      while(1) {
-        if(isInterrupted)
-          return;
-        output_type result;
-        if(output_queue.try_pop(result)) {
-          if(result.isError) {
-            emit sendError(result.err_result.what());
-            return;
-          }
-          else {
-            exp = result.exp_result;
-          }
-          break;
-        }
-      }
+    // Call the timer to try and pop from the output_queue
+    //found = false;
+    //while(!found)
+    event_timer->start(100);
+  }
+}
 
+void NotebookApp::interrupt_timer_loop() {
 
-
-      std::string name = "\"object-name\"";
-      if(exp.isHeadList()) {
-
-        if(exp.property_list.find(name) != exp.property_list.end()) {
-          if(exp.get_property(name) == Expression(Atom("\"point\""))) {
-            emit sendPoint(exp);
-          }
-          if(exp.get_property(name) == Expression(Atom("\"line\""))) {
-            emit sendLine(exp);
-          }
-        }
-        else {
-
-          bool isPlot = false;
-
-          for(auto & item : exp.getTail()) {
-            if(item.get_property(name) == Expression(Atom("\"point\""))) {
-              emit sendPoint(item);
-              isPlot = true;
-            }
-            else if(item.get_property(name) == Expression(Atom("\"line\""))) {
-              emit sendLine(item);
-              isPlot = true;
-            }
-            else if(item.get_property(name) == Expression(Atom("\"text\""))) {
-              emit sendText(item);
-              isPlot = true;
-            }
-          }
-
-          if(!isPlot) {
-            std::ostringstream result;
-            //for(auto & item : exp.getTail()) {
-            result << exp;
-            //}
-
-            std::string resultStr = result.str();
-            resultStr = resultStr.substr(1, resultStr.size()-2);
-            emit sendResult(resultStr);
-          }
-        }
-      }
-      else if((exp.property_list.find(name)!=exp.property_list.end()) && (exp.get_property(name) == Expression(Atom("\"text\"")))) {
-        emit sendText(exp);
+    if(output_queue.try_pop(result)) {
+      //found = true;
+      event_timer->stop();
+      input->setEnabled(true);
+      if(result.isError) {
+        emit sendError(result.err_result.what());
+        std::cout << "Caught an error\n";
+        isError = true;
+        return;
       }
       else {
-        // Otherwise send result to output widget
-        std::ostringstream result;
-        result << exp;
-        std::string resultStr = result.str();
-        //std::cout << resultStr << '\n';
-        if(!exp.isHeadLambda()) // && !(exp.head().isNone() && exp.getTail().size() > 0))
-          emit sendResult(resultStr); //, exp.isDefined());
+        exp = Expression(result.exp_result);
+        std::cout << "Result here: " << exp << '\n';
       }
+
+      try {
+        // if we caught an interrupt, reset interpreter thread
+        if(caughtInterrupt) {
+          input_queue.push("%reset");
+          int_th.join();
+
+          interp = Interpreter();
+
+          interpThread = InterpreterThread(&input_queue, &output_queue, interp);
+          int_th = std::thread(interpThread);
+        }
+
+        if(isError) {
+          isError = false;
+          return;
+        }
+
+
+
+
+        std::string name = "\"object-name\"";
+        if(exp.isHeadList()) {
+
+          if(exp.property_list.find(name) != exp.property_list.end()) {
+            if(exp.get_property(name) == Expression(Atom("\"point\""))) {
+              emit sendPoint(exp);
+            }
+            if(exp.get_property(name) == Expression(Atom("\"line\""))) {
+              emit sendLine(exp);
+            }
+          }
+          else {
+
+            bool isPlot = false;
+
+            for(auto & item : exp.getTail()) {
+              if(item.get_property(name) == Expression(Atom("\"point\""))) {
+                emit sendPoint(item);
+                isPlot = true;
+              }
+              else if(item.get_property(name) == Expression(Atom("\"line\""))) {
+                emit sendLine(item);
+                isPlot = true;
+              }
+              else if(item.get_property(name) == Expression(Atom("\"text\""))) {
+                emit sendText(item);
+                isPlot = true;
+              }
+            }
+
+            if(!isPlot) {
+              std::ostringstream result;
+              //for(auto & item : exp.getTail()) {
+              result << exp;
+              //}
+
+              std::string resultStr = result.str();
+              resultStr = resultStr.substr(1, resultStr.size()-2);
+              emit sendResult(resultStr);
+            }
+          }
+        }
+        else if((exp.property_list.find(name)!=exp.property_list.end()) && (exp.get_property(name) == Expression(Atom("\"text\"")))) {
+          emit sendText(exp);
+        }
+        else {
+          // Otherwise send result to output widget
+          std::cout << "result to stream: " << exp << '\n';
+          std::cout << "Head is none: " << exp.head().isNone() << '\n';
+          std::ostringstream streamResult;
+          streamResult << exp;
+          std::string resultStr = streamResult.str();
+          //std::cout << resultStr << '\n';
+          if(!exp.isHeadLambda()) // && !(exp.head().isNone() && exp.getTail().size() > 0))
+            emit sendResult(resultStr); //, exp.isDefined());
+        }
+      }
+      catch(const SemanticError & ex) {
+          emit sendError(ex.what());
+      }
+
+
     }
-    catch(const SemanticError & ex) {
-        emit sendError(ex.what());
-    }
-  }
+  // Timer to wait and check buttons for 100 milliseconds
+  //QTimer::singleShot(100, this, SLOT(interrupt_timer_loop()));
 }
 
 void NotebookApp::handle_start() {
@@ -219,23 +261,8 @@ void NotebookApp::handle_reset() {
 void NotebookApp::handle_interrupt() {
   if(interpRunning) {
     isInterrupted = true;
-    //output->scene->clear();
-    //emit sendError("Error: interpreter kernel interrupted");
-
-    input_queue.push("%reset");
-    int_th.join();
-
-    isInterrupted = false;
-
-    interp = Interpreter();
-    std::ifstream ifs(STARTUP_FILE);
-    if(interp.parseStream(ifs))
-      Expression startup_exp = interp.evaluate();
-
-    interpThread = InterpreterThread(&input_queue, &output_queue, interp);
-    int_th = std::thread(interpThread);
-
-    interpRunning = true;
+    std::cout << "Caught interrupt in slot.\n";
+    caughtInterrupt = true;
   }
   else
     isInterrupted = false;
