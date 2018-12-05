@@ -109,21 +109,22 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
     // Call the timer to try and pop from the output_queue
     //found = false;
     //while(!found)
-    std::cout << "timer is starting\n";
-    event_timer->start(100);
-    std::cout << "After timer ends\n";
+    //std::cout << "timer is starting\n";
+    event_timer->start(50);
+    //std::cout << "After timer ends\n";
+    handle_interrupt();
   }
 }
 
 void NotebookApp::interrupt_timer_loop() {
-    std::cout << "New attempt\n";
+    //std::cout << "New attempt\n";
     if(output_queue.try_pop(result)) {
       //found = true;
       event_timer->stop();
       input->setEnabled(true);
       if(result.isError) {
         emit sendError(result.err_result.what());
-        std::cout << "Caught an error\n";
+        //std::cout << "Caught an error\n";
         isError = true;
         return;
       }
@@ -131,7 +132,7 @@ void NotebookApp::interrupt_timer_loop() {
         exp = Expression(result.exp_result);
         //std::cout << "Result here: " << exp << '\n';
       }
-      std::cout << "Got result\n";
+      //std::cout << "Got result\n";
 
       try {
         // if we caught an interrupt, reset interpreter thread
@@ -264,7 +265,7 @@ void NotebookApp::handle_reset() {
 void NotebookApp::handle_interrupt() {
   if(interpRunning) {
     isInterrupted = true;
-    std::cout << "Caught interrupt in slot.\n";
+    //std::cout << "Caught interrupt in slot.\n";
     caughtInterrupt = true;
   }
   else
