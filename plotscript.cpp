@@ -34,7 +34,6 @@ inline void interrupt_handler(int signal_num) {
       exit(EXIT_FAILURE);
     }
     isInterrupted = true;
-    //interpRestart = true;
     interrupt_flag.exchange(false);
   }
 }
@@ -149,9 +148,7 @@ void repl(){
   while(!std::cin.eof()){
 
     prompt();
-    //if(!isInterrupted) {
     std::string line = readline();
-    //std::cout << "Jk I'm here\n";
 
     if(line.empty()) continue;
 
@@ -183,27 +180,21 @@ void repl(){
       }
       return;
     }
-    else { // For any normal plotscript command
+    else {
 
       if(!InterpRunning)
         error("interpreter kernel not running");
       else {
         input_queue.push(line);
 
-        //std::cout << "Spinning here\n";
-
+        output_type brokenResult;
         // Event loop for output_queue
-        //bool found = false;
         while(1) {
           // Check if Ctrl+C flag was raised/we need to interrupt Interpreter kernel
-          //std::cout << "Spinning\n";
           if(isInterrupted && InterpRunning) {
             input_queue.push("()");
-            //std::cout << "Interrupt received.\n";
-            //isInterrupted = false; // Reset flag
 
             while(1) {
-              output_type brokenResult;
               if(output_queue.try_pop(brokenResult)) {
                 if(brokenResult.isError) {
                   std::cout << brokenResult.err_result.what() << '\n';
@@ -217,7 +208,6 @@ void repl(){
 
             input_queue.push("%reset"); // Reset environment
             int_th.join();
-            //std::cout << "Interpreter Reset.\n";
             int_th = std::thread(interpThread);
             break;
           }
@@ -231,7 +221,6 @@ void repl(){
               std::cout << result.exp_result << '\n';
             }
 
-            //isInterrupted = false;
             break;
           }
         } // End of event loop

@@ -113,14 +113,14 @@ void NotebookApp::interrupt_timer_loop() {
     if(output_queue.try_pop(result)) {
       event_timer->stop();
       //input->setEnabled(true);
-      std::cout << "Popped\n";
+      //std::cout << "Popped\n";
       if(result.isError) {
         emit sendError(result.err_result.what());
         return;
       }
       else
         exp = Expression(result.exp_result);
-      std::cout << "After popped\n";
+      //std::cout << "After popped\n";
       try {
         if(caughtInterrupt) {
           input_queue.push("%reset");
@@ -138,8 +138,8 @@ void NotebookApp::interrupt_timer_loop() {
           return;
         }
 
-        std::cout << "Result: " << exp << '\n';
-        std::cout << "Result type is none: " << exp.head().isNone() << '\n';
+        //std::cout << "Result: " << exp << '\n';
+        //std::cout << "Result type is none: " << exp.head().isNone() << '\n';
 
         // Evaluate result expression to know how to send result to output widget
         std::string name = "\"object-name\"";
