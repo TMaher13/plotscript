@@ -60,7 +60,6 @@ private:
   bool interpRunning;
   bool isError;
   bool caughtInterrupt;
-  bool found;
 
   output_type result;
   Expression exp;

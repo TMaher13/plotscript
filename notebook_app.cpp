@@ -80,9 +80,6 @@ NotebookApp::NotebookApp(QWidget* parent) : QWidget(parent), isDefined(false), i
   else
     emit sendError("Error: Invalid Expression. Could not parse.");
 
-  //input_queue = ThreadSafeQueue<std::string>();
-  //output_queue = ThreadSafeQueue<output_type>()
-
   interpThread = InterpreterThread(&input_queue, &output_queue, interp);
   int_th = std::thread(interpThread);
   interpRunning = true;
@@ -100,12 +97,11 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
   }
 
   if(!interp.parseStream(stream)) {
-
     emit sendError("Error: Invalid Expression. Could not parse in GUI.");
   }
   else {
     input_queue.push(NotebookCmd);
-    input->setEnabled(false);
+    //input->setEnabled(false);
 
     // Call the timer to try and pop from the output_queue
     event_timer->start(50);
@@ -114,22 +110,18 @@ void NotebookApp::input_cmd(std::string NotebookCmd) {
 }
 
 void NotebookApp::interrupt_timer_loop() {
-    //std::cout << "New attempt\n";
     if(output_queue.try_pop(result)) {
-      //found = true;
       event_timer->stop();
-      input->setEnabled(true);
+      //input->setEnabled(true);
+      std::cout << "Popped\n";
       if(result.isError) {
         emit sendError(result.err_result.what());
-        //std::cout << "Caught an error\n";
-        isError = true;
         return;
       }
       else
         exp = Expression(result.exp_result);
-
+      std::cout << "After popped\n";
       try {
-        // if we caught an interrupt, reset interpreter thread
         if(caughtInterrupt) {
           input_queue.push("%reset");
           int_th.join();
@@ -138,6 +130,7 @@ void NotebookApp::interrupt_timer_loop() {
 
           interpThread = InterpreterThread(&input_queue, &output_queue, interp);
           int_th = std::thread(interpThread);
+          caughtInterrupt = false;
         }
 
         if(isError) {
@@ -145,9 +138,10 @@ void NotebookApp::interrupt_timer_loop() {
           return;
         }
 
+        std::cout << "Result: " << exp << '\n';
+        std::cout << "Result type is none: " << exp.head().isNone() << '\n';
 
-
-
+        // Evaluate result expression to know how to send result to output widget
         std::string name = "\"object-name\"";
         if(exp.isHeadList()) {
 
@@ -180,9 +174,7 @@ void NotebookApp::interrupt_timer_loop() {
 
             if(!isPlot) {
               std::ostringstream result;
-              //for(auto & item : exp.getTail()) {
               result << exp;
-              //}
 
               std::string resultStr = result.str();
               resultStr = resultStr.substr(1, resultStr.size()-2);
@@ -195,14 +187,11 @@ void NotebookApp::interrupt_timer_loop() {
         }
         else {
           // Otherwise send result to output widget
-          //std::cout << "result to stream: " << exp << '\n';
-          //std::cout << "Head is none: " << exp.head().isNone() << '\n';
           std::ostringstream streamResult;
           streamResult << exp;
           std::string resultStr = streamResult.str();
-          //std::cout << resultStr << '\n';
-          if(!exp.isHeadLambda()) // && !(exp.head().isNone() && exp.getTail().size() > 0))
-            emit sendResult(resultStr); //, exp.isDefined());
+          if(!exp.isHeadLambda())
+            emit sendResult(resultStr);
         }
       }
       catch(const SemanticError & ex) {
@@ -211,8 +200,6 @@ void NotebookApp::interrupt_timer_loop() {
 
 
     }
-  // Timer to wait and check buttons for 100 milliseconds
-  //QTimer::singleShot(100, this, SLOT(interrupt_timer_loop()));
 }
 
 void NotebookApp::handle_start() {
@@ -240,11 +227,14 @@ void NotebookApp::handle_reset() {
   }
   interp = Interpreter();
 
+  std::ifstream ifs(STARTUP_FILE);
+  if(interp.parseStream(ifs))
+    Expression startup_exp = interp.evaluate();
+
   interpThread = InterpreterThread(&input_queue, &output_queue, interp);
   int_th = std::thread(interpThread);
 
   interpRunning = true;
-
 }
 
 void NotebookApp::handle_interrupt() {
